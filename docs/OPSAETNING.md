@@ -24,8 +24,10 @@ Så kan I logge ind med det samme. Lader I den stå til, skal I bekræfte via en
 
 ## 3. Forbind appen (begge telefoner)
 
-1. Åbn appen → **Indstillinger → Din partner → Forbind til Supabase**.
-   Indsæt de to værdier fra trin 1.4. De gemmes kun på telefonen.
+Projektet er allerede lagt ind i appen, så I skal ikke taste URL og nøgle.
+
+1. Åbn appen → **Indstillinger → Din partner → Test forbindelsen**.
+   Den svarer punkt for punkt, om alt er på plads.
 2. **Log ind eller opret bruger.** I skal have **hver jeres** mail og adgangskode —
    ikke den samme bruger på begge telefoner.
 3. På din telefon: **Opret husstand**. Du får en kode, fx `VARM-HAVRE-81`.
@@ -41,3 +43,15 @@ Netto, står det på din skærm inden for få sekunder.
   hver sin ting, beholdes begge.
 - Appen virker uden net. Rettelser lægges op, når forbindelsen er der igen.
 - Der kan kun være **to** personer i en husstand — det er en parapp.
+
+## 4. Luk døren efter jer
+
+Nøglen i appen er offentlig med vilje — det er Row Level Security, der beskytter
+jeres data. Men så længe tilmelding er åben, kan en fremmed oprette en bruger i
+projektet (uden at kunne se noget som helst af jeres).
+
+Når I begge har jeres login, så slå det fra:
+**Authentication → Sign In / Providers → Email → "Allow new users to sign up"** fra.
+
+Og hvis nøglen en dag skal skiftes: **Project Settings → API Keys** kan lave en ny
+publishable-nøgle. Så skal den blot opdateres ét sted i `app/sky.js`.
