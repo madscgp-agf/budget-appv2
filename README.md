@@ -218,6 +218,18 @@ It covers:
 - **Kostform** — alt / halal / vegetarisk / vegansk. A dish's diet is derived
   from its ingredients rather than hand-tagged, and the setting is visible and
   changeable straight from the meal plan.
+- **261 opskrifter** — every dish carries ingredients, timing, servings and
+  step-by-step instructions. At least 100 fit each diet: 244 halal, 190
+  vegetarian, 128 vegan.
+- **Correct the price yourself** — if milk rings up at 12 rather than 11, set it
+  on the line. The new price flows into the basket, the store comparison and the
+  booked expense, and an already-booked item is corrected in place.
+- **Andre tilbud** (far right) — only offers that are *not* already in your meal
+  plan or on your list, so it is genuinely "what else is worth buying". Tap one
+  to add it to the shopping list; it survives regenerating the week.
+- **Move what you did not spend** — the Budget screen totals what is left under
+  your category limits and moves it into a savings goal, deducting it from what
+  is available so the money is not counted twice.
 - **A Retter tab** — browse all dishes, search by name or raw ingredient, sort by
   offers, price or cooking time, and put any dish on any day. Nothing is picked
   at random unless you ask for a week suggestion.

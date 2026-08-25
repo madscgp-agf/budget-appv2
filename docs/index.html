@@ -354,7 +354,12 @@ button{font:inherit;color:inherit}
   width:100%;max-width:460px;background:var(--surface);
   border-radius:26px 26px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));
   display:flex;flex-direction:column;gap:14px;animation:sheetUp .26s cubic-bezier(.22,1,.36,1);
+  max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
+.opskrift{display:block}
+.opskrift ol{margin:0;padding-left:20px}
+.opskrift li{margin-bottom:11px;padding-left:6px}
+.opskrift li span{font-size:14.5px;line-height:1.5}
 @keyframes sheetUp{from{transform:translateY(100%)}}
 .sheet .grip{width:38px;height:4px;border-radius:999px;background:var(--surface-3);margin:-8px auto 2px}
 .sheet h3{font-size:18px}
@@ -577,7 +582,83 @@ const CATALOG = {
   spinat:     {navn:'Spinat',             sektion:'Frugt & grønt', normal:15, enhed:'200 g', tags:[], tilbud:[{b:'Føtex',p:12}]},
   broccoli:   {navn:'Broccoli',           sektion:'Frugt & grønt', normal:13, enhed:'1 stk.', tags:[], tilbud:[{b:'Coop 365',p:9}]},
   champignon: {navn:'Champignon',         sektion:'Frugt & grønt', normal:14, enhed:'250 g', tags:[], tilbud:[{b:'SuperBrugsen',p:10}]},
-  squash:     {navn:'Squash',             sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', tags:[], tilbud:[]}
+  squash:     {navn:'Squash',             sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', tags:[], tilbud:[]},
+  svinekod: {navn:'Svinekød i strimler', sektion:'Kød', normal:40, enhed:'500 g', tags:['koed','svin'], tilbud:[{b:'Netto',p:30}]},
+  flaeskesteg: {navn:'Flæskesteg', sektion:'Kød', normal:65, enhed:'1 kg', tags:['koed','svin'], tilbud:[{b:'Bilka',p:49}]},
+  poelser: {navn:'Grillpølser', sektion:'Kød', normal:30, enhed:'500 g', tags:['koed','svin'], tilbud:[{b:'ALDI',p:22}]},
+  skinke: {navn:'Skinke i skiver', sektion:'Kød', normal:25, enhed:'200 g', tags:['koed','svin'], tilbud:[]},
+  kalkun: {navn:'Kalkunbryst', sektion:'Kød', normal:48, enhed:'500 g', tags:['koed'], tilbud:[{b:'Føtex',p:38}]},
+  kyllingelaar: {navn:'Kyllingelår', sektion:'Kød', normal:35, enhed:'1 kg', tags:['koed'], tilbud:[{b:'Rema 1000',p:25},{b:'Lidl',p:27}]},
+  lam: {navn:'Lammekød i tern', sektion:'Kød', normal:75, enhed:'500 g', tags:['koed'], tilbud:[{b:'Meny',p:59}]},
+  fars: {navn:'Hakket kalv og flæsk', sektion:'Kød', normal:45, enhed:'500 g', tags:['koed','svin'], tilbud:[{b:'SuperBrugsen',p:35}]},
+  torsk: {navn:'Torskefilet', sektion:'Kød', normal:55, enhed:'400 g', tags:['fisk'], tilbud:[{b:'Føtex',p:42}]},
+  rejer: {navn:'Rejer', sektion:'Kød', normal:45, enhed:'200 g', tags:['fisk'], tilbud:[{b:'Bilka',p:35}]},
+  tun: {navn:'Tun i vand', sektion:'Kød', normal:14, enhed:'160 g', tags:['fisk'], tilbud:[{b:'Netto',p:10}]},
+  makrel: {navn:'Makrel i tomat', sektion:'Kød', normal:13, enhed:'125 g', tags:['fisk'], tilbud:[{b:'Lidl',p:9}]},
+  cremefraiche: {navn:'Creme fraiche', sektion:'Mejeri', normal:16, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Netto',p:12}]},
+  yoghurt: {navn:'Yoghurt naturel', sektion:'Mejeri', normal:15, enhed:'1 kg', tags:['mejeri'], tilbud:[{b:'Coop 365',p:11}]},
+  feta: {navn:'Feta', sektion:'Mejeri', normal:20, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Lidl',p:14}]},
+  parmesan: {navn:'Parmesan', sektion:'Mejeri', normal:35, enhed:'150 g', tags:['mejeri'], tilbud:[{b:'Føtex',p:27}]},
+  skyr: {navn:'Skyr', sektion:'Mejeri', normal:16, enhed:'450 g', tags:['mejeri'], tilbud:[{b:'Netto',p:12}]},
+  plantefloede: {navn:'Havrefløde', sektion:'Mejeri', normal:16, enhed:'250 ml', tags:[], tilbud:[{b:'Coop 365',p:12}]},
+  veganost: {navn:'Vegansk ost', sektion:'Mejeri', normal:28, enhed:'200 g', tags:[], tilbud:[{b:'Bilka',p:22}]},
+  bulgur: {navn:'Bulgur', sektion:'Kolonial', normal:14, enhed:'500 g', tags:[], tilbud:[{b:'ALDI',p:10}]},
+  couscous: {navn:'Couscous', sektion:'Kolonial', normal:13, enhed:'500 g', tags:[], tilbud:[{b:'Lidl',p:9}]},
+  quinoa: {navn:'Quinoa', sektion:'Kolonial', normal:28, enhed:'500 g', tags:[], tilbud:[{b:'Coop 365',p:21}]},
+  nudler: {navn:'Nudler', sektion:'Kolonial', normal:12, enhed:'250 g', tags:[], tilbud:[{b:'Rema 1000',p:8}]},
+  risnudler: {navn:'Risnudler', sektion:'Kolonial', normal:15, enhed:'250 g', tags:[], tilbud:[]},
+  havregryn: {navn:'Havregryn', sektion:'Kolonial', normal:12, enhed:'1 kg', tags:[], tilbud:[{b:'Netto',p:9}]},
+  polenta: {navn:'Polenta', sektion:'Kolonial', normal:16, enhed:'500 g', tags:[], tilbud:[]},
+  bonner: {navn:'Kidneybønner', sektion:'Kolonial', normal:9, enhed:'400 g', tags:[], tilbud:[{b:'ALDI',p:6}]},
+  hvidebonner: {navn:'Hvide bønner', sektion:'Kolonial', normal:9, enhed:'400 g', tags:[], tilbud:[{b:'Netto',p:7}]},
+  sortebonner: {navn:'Sorte bønner', sektion:'Kolonial', normal:10, enhed:'400 g', tags:[], tilbud:[{b:'Lidl',p:7}]},
+  majs: {navn:'Majs', sektion:'Kolonial', normal:9, enhed:'340 g', tags:[], tilbud:[{b:'Rema 1000',p:6}]},
+  groenlinser: {navn:'Grønne linser', sektion:'Kolonial', normal:16, enhed:'500 g', tags:[], tilbud:[{b:'Brugsen',p:12}]},
+  splitaerter: {navn:'Gule flækærter', sektion:'Kolonial', normal:14, enhed:'500 g', tags:[], tilbud:[]},
+  tofu: {navn:'Tofu', sektion:'Kolonial', normal:25, enhed:'400 g', tags:[], tilbud:[{b:'Føtex',p:19}]},
+  tempeh: {navn:'Tempeh', sektion:'Kolonial', normal:32, enhed:'200 g', tags:[], tilbud:[]},
+  sojafars: {navn:'Sojafars', sektion:'Kolonial', normal:22, enhed:'400 g', tags:[], tilbud:[{b:'Coop 365',p:17}]},
+  tomatpure: {navn:'Tomatpuré', sektion:'Kolonial', normal:7, enhed:'140 g', tags:[], tilbud:[{b:'Lidl',p:5}]},
+  bouillon: {navn:'Grøntsagsbouillon', sektion:'Kolonial', normal:12, enhed:'6 terninger', tags:[], tilbud:[]},
+  soja: {navn:'Sojasauce', sektion:'Kolonial', normal:18, enhed:'150 ml', tags:[], tilbud:[{b:'Bilka',p:14}]},
+  eddike: {navn:'Balsamico', sektion:'Kolonial', normal:22, enhed:'250 ml', tags:[], tilbud:[]},
+  sennep: {navn:'Sennep', sektion:'Kolonial', normal:14, enhed:'200 g', tags:[], tilbud:[]},
+  tahin: {navn:'Tahin', sektion:'Kolonial', normal:30, enhed:'300 g', tags:[], tilbud:[]},
+  peanutbutter: {navn:'Peanutbutter', sektion:'Kolonial', normal:24, enhed:'350 g', tags:[], tilbud:[{b:'Netto',p:18}]},
+  cashew: {navn:'Cashewnødder', sektion:'Kolonial', normal:35, enhed:'200 g', tags:[], tilbud:[{b:'ALDI',p:26}]},
+  valnodder: {navn:'Valnødder', sektion:'Kolonial', normal:30, enhed:'200 g', tags:[], tilbud:[]},
+  solsikke: {navn:'Solsikkekerner', sektion:'Kolonial', normal:16, enhed:'200 g', tags:[], tilbud:[]},
+  kokosmel: {navn:'Kokosmel', sektion:'Kolonial', normal:18, enhed:'250 g', tags:[], tilbud:[]},
+  chili: {navn:'Chiliflager', sektion:'Kolonial', normal:15, enhed:'40 g', tags:[], tilbud:[]},
+  spidskommen: {navn:'Spidskommen', sektion:'Kolonial', normal:15, enhed:'40 g', tags:[], tilbud:[]},
+  paprika: {navn:'Paprika', sektion:'Kolonial', normal:14, enhed:'50 g', tags:[], tilbud:[]},
+  oregano: {navn:'Oregano', sektion:'Kolonial', normal:12, enhed:'20 g', tags:[], tilbud:[]},
+  karrypasta: {navn:'Rød karrypasta', sektion:'Kolonial', normal:22, enhed:'115 g', tags:[], tilbud:[{b:'Føtex',p:17}]},
+  oliven: {navn:'Oliven', sektion:'Kolonial', normal:18, enhed:'200 g', tags:[], tilbud:[{b:'Lidl',p:13}]},
+  soltomat: {navn:'Soltørrede tomater', sektion:'Kolonial', normal:24, enhed:'200 g', tags:[], tilbud:[]},
+  kapers: {navn:'Kapers', sektion:'Kolonial', normal:16, enhed:'100 g', tags:[], tilbud:[]},
+  aubergine: {navn:'Aubergine', sektion:'Frugt & grønt', normal:14, enhed:'1 stk.', tags:[], tilbud:[{b:'Netto',p:10}]},
+  blomkaal: {navn:'Blomkål', sektion:'Frugt & grønt', normal:16, enhed:'1 stk.', tags:[], tilbud:[{b:'Rema 1000',p:12},{b:'ALDI',p:11}]},
+  hvidkaal: {navn:'Hvidkål', sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', tags:[], tilbud:[{b:'Lidl',p:8}]},
+  groenkaal: {navn:'Grønkål', sektion:'Frugt & grønt', normal:15, enhed:'200 g', tags:[], tilbud:[]},
+  rodbeder: {navn:'Rødbeder', sektion:'Frugt & grønt', normal:14, enhed:'1 kg', tags:[], tilbud:[{b:'Coop 365',p:10}]},
+  porre: {navn:'Porre', sektion:'Frugt & grønt', normal:12, enhed:'2 stk.', tags:[], tilbud:[{b:'Brugsen',p:9}]},
+  selleri: {navn:'Knoldselleri', sektion:'Frugt & grønt', normal:15, enhed:'1 stk.', tags:[], tilbud:[]},
+  pastinak: {navn:'Pastinak', sektion:'Frugt & grønt', normal:14, enhed:'500 g', tags:[], tilbud:[]},
+  sodkartoffel: {navn:'Sødkartofler', sektion:'Frugt & grønt', normal:22, enhed:'1 kg', tags:[], tilbud:[{b:'Føtex',p:16}]},
+  aerter: {navn:'Ærter, frosne', sektion:'Frugt & grønt', normal:12, enhed:'450 g', tags:[], tilbud:[{b:'Netto',p:9}]},
+  majroe: {navn:'Majroer', sektion:'Frugt & grønt', normal:12, enhed:'500 g', tags:[], tilbud:[]},
+  rucola: {navn:'Rucola', sektion:'Frugt & grønt', normal:16, enhed:'100 g', tags:[], tilbud:[{b:'Meny',p:12}]},
+  avocado: {navn:'Avocado', sektion:'Frugt & grønt', normal:14, enhed:'2 stk.', tags:[], tilbud:[{b:'Lidl',p:10}]},
+  citron: {navn:'Citron', sektion:'Frugt & grønt', normal:8, enhed:'2 stk.', tags:[], tilbud:[]},
+  aeble: {navn:'Æbler', sektion:'Frugt & grønt', normal:18, enhed:'1 kg', tags:[], tilbud:[{b:'Rema 1000',p:13}]},
+  ingefaer: {navn:'Ingefær', sektion:'Frugt & grønt', normal:10, enhed:'100 g', tags:[], tilbud:[]},
+  foraarslog: {navn:'Forårsløg', sektion:'Frugt & grønt', normal:10, enhed:'1 bundt', tags:[], tilbud:[]},
+  persille: {navn:'Persille', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', tags:[], tilbud:[]},
+  basilikum: {navn:'Basilikum', sektion:'Frugt & grønt', normal:14, enhed:'1 potte', tags:[], tilbud:[{b:'Føtex',p:10}]},
+  koriander: {navn:'Koriander', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', tags:[], tilbud:[]},
+  mynte: {navn:'Mynte', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', tags:[], tilbud:[]},
+  svampe: {navn:'Portobello', sektion:'Frugt & grønt', normal:20, enhed:'250 g', tags:[], tilbud:[]}
 };
 const SEKTIONER = ['Kød','Mejeri','Kolonial','Frugt & grønt'];
 
@@ -601,31 +682,382 @@ function retKostMaerker(retId){
 
 /* ---------- opskrifter ---------- */
 const RETTER = [
-  {id:'karry',        navn:'Kylling i karry',        tid:30, varer:['kylling','karry','ris','lok','kokosmaelk']},
-  {id:'bolognese',    navn:'Pasta bolognese',        tid:25, varer:['oksekod','pasta','tomater','lok','hvidlog']},
-  {id:'omelet',       navn:'Omelet med brød',        tid:15, varer:['aeg','ost','broed','smoer']},
-  {id:'wrap',         navn:'Kylling-wrap',           tid:20, varer:['kylling','tortilla','salat','agurk','peberfrugt']},
-  {id:'pizza',        navn:'Hjemmelavet pizza',      tid:40, varer:['mel','tomatsauce','mozzarella','peberfrugt','bacon']},
-  {id:'carbonara',    navn:'Spaghetti carbonara',    tid:20, varer:['pasta','bacon','aeg','ost','flode']},
-  {id:'aeggekage',    navn:'Æggekage og bacon',      tid:25, varer:['aeg','bacon','broed','maelk']},
-  {id:'chili',        navn:'Chili con carne',        tid:35, varer:['oksekod','tomater','lok','ris','hvidlog']},
-  {id:'tomatpasta',   navn:'Pasta i tomatsauce',     tid:18, varer:['pasta','tomatsauce','ost','lok','hvidlog']},
-  {id:'baconpizza',   navn:'Bacon-tortillapizza',    tid:20, varer:['tortilla','tomatsauce','ost','bacon','peberfrugt']},
-  {id:'frikadeller',  navn:'Kyllingefrikadeller',    tid:35, varer:['hakketkyl','aeg','mel','kartofler','gulerodder']},
-  {id:'laksepasta',   navn:'Laks med pasta',         tid:25, varer:['laks','pasta','flode','spinat','hvidlog']},
-  {id:'kyllingsalat', navn:'Kyllingesalat',          tid:20, varer:['kylling','salat','tomat','agurk','olie']},
-  {id:'linsegryde',   navn:'Linsegryde',             tid:30, varer:['linser','gulerodder','lok','tomater','kokosmaelk']},
-  {id:'kikcurry',     navn:'Kikærtecurry',           tid:25, varer:['kikaerter','kokosmaelk','karry','ris','spinat']},
-  {id:'falafelwrap',  navn:'Falafel-wrap',           tid:20, varer:['falafel','tortilla','salat','agurk','tomat']},
-  {id:'wok',          navn:'Grøntsagswok',           tid:20, varer:['broccoli','gulerodder','peberfrugt','ris','olie']},
-  {id:'sincarne',     navn:'Chili sin carne',        tid:30, varer:['kikaerter','tomater','lok','ris','hvidlog']},
-  {id:'tomatsuppe',   navn:'Tomatsuppe med brød',    tid:20, varer:['tomater','lok','hvidlog','broed','olie']},
-  {id:'bagtkartof',   navn:'Bagt kartoffel m. salsa',tid:45, varer:['kartofler','tomat','lok','kikaerter','olie']},
-  {id:'pastapesto',   navn:'Pasta med pesto',        tid:15, varer:['pasta','pesto','tomat','spinat','olie']},
-  {id:'gratin',       navn:'Kartoffelgratin',        tid:50, varer:['kartofler','flode','ost','lok','smoer']},
-  {id:'vegpizza',     navn:'Vegetarpizza',           tid:40, varer:['mel','tomatsauce','mozzarella','champignon','peberfrugt']},
-  {id:'taerte',       navn:'Spinattærte',            tid:45, varer:['spinat','aeg','ost','mel','flode']},
-  {id:'squashpasta',  navn:'Squashpasta',            tid:20, varer:['squash','pasta','hvidlog','olie','tomat']}
+  {id:'karry', navn:'Kylling i karry', tid:30, portioner:2, varer:['kylling','karry','ris','lok','kokosmaelk'], trin:[
+    'Sæt risene over med dobbelt så meget vand og et nip salt.',
+    'Skær kyllingen i mundrette stykker og hak løget fint.',
+    'Brun kyllingen på panden ved god varme, tilsæt løg og karry og lad det stege et minut, til det dufter.',
+    'Hæld kokosmælken ved, og lad det simre 10-12 minutter til saucen tykner. Smag til med salt.',
+    'Server med risene.']},
+  {id:'bolognese', navn:'Pasta bolognese', tid:25, portioner:2, varer:['oksekod','pasta','tomater','lok','hvidlog'], trin:[
+    'Kog pastaen efter anvisningen på posen.',
+    'Hak løg og hvidløg, og svits det blødt i lidt olie.',
+    'Tilsæt hakket oksekød og brun det godt igennem.',
+    'Hæld de hakkede tomater ved og lad saucen simre 10 minutter. Smag til med salt og peber.',
+    'Vend pastaen i saucen.']},
+  {id:'omelet', navn:'Omelet med brød', tid:15, portioner:2, varer:['aeg','ost','broed','smoer'], trin:[
+    'Pisk æggene sammen med et nip salt og peber.',
+    'Smelt smørret på en pande ved middel varme.',
+    'Hæld æggene på, og lad dem stivne stille og roligt uden at røre.',
+    'Drys osten over, fold omeletten sammen, og lad osten smelte.',
+    'Server med brød.']},
+  {id:'wrap', navn:'Kylling-wrap', tid:20, portioner:2, varer:['kylling','tortilla','salat','agurk','peberfrugt'], trin:[
+    'Skær kyllingen i strimler og steg den gylden på panden med salt og peber.',
+    'Snit salat, agurk og peberfrugt i tynde stykker.',
+    'Varm tortillaerne kort på en tør pande.',
+    'Fordel kylling og grønt på tortillaerne, og rul dem sammen.']},
+  {id:'pizza', navn:'Hjemmelavet pizza', tid:40, portioner:2, varer:['mel','tomatsauce','mozzarella','peberfrugt','bacon'], trin:[
+    'Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.',
+    'Tænd ovnen på 250 grader.',
+    'Rul dejen tyndt ud, og smør tomatsauce på.',
+    'Fordel mozzarella, peberfrugt og bacon over.',
+    'Bag pizzaen 10-12 minutter, til bunden er sprød.']},
+  {id:'carbonara', navn:'Spaghetti carbonara', tid:20, portioner:2, varer:['pasta','bacon','aeg','ost','flode'], trin:[
+    'Kog pastaen, og gem en kop af kogevandet.',
+    'Steg baconen sprød på en pande.',
+    'Pisk æg, revet ost og fløde sammen i en skål.',
+    'Tag panden af varmen, vend den varme pasta i baconen, og hæld æggeblandingen ved under omrøring.',
+    'Spæd med kogevand til saucen er cremet. Servér straks.']},
+  {id:'aeggekage', navn:'Æggekage og bacon', tid:25, portioner:2, varer:['aeg','bacon','broed','maelk'], trin:[
+    'Steg baconen sprød, og tag den op på et stykke køkkenrulle.',
+    'Pisk æg og mælk sammen med salt og peber.',
+    'Hæld æggemassen på panden i baconfedtet, og skru ned for varmen.',
+    'Lad æggekagen stivne langsomt i 10-12 minutter under låg.',
+    'Læg baconen ovenpå, og server med brød.']},
+  {id:'chili', navn:'Chili con carne', tid:35, portioner:2, varer:['oksekod','tomater','lok','ris','hvidlog'], trin:[
+    'Sæt risene over.',
+    'Hak løg og hvidløg, og svits det i en gryde.',
+    'Brun oksekødet godt igennem.',
+    'Tilsæt hakkede tomater, chili og spidskommen, og lad det simre 20 minutter.',
+    'Smag til med salt, og server med ris.']},
+  {id:'tomatpasta', navn:'Pasta i tomatsauce', tid:18, portioner:2, varer:['pasta','tomatsauce','ost','lok','hvidlog'], trin:[
+    'Kog pastaen.',
+    'Svits finthakket løg og hvidløg blødt i olie.',
+    'Hæld tomatsaucen ved, og lad den simre 5 minutter.',
+    'Vend pastaen i saucen, og drys osten over.']},
+  {id:'baconpizza', navn:'Bacon-tortillapizza', tid:20, portioner:2, varer:['tortilla','tomatsauce','ost','bacon','peberfrugt'], trin:[
+    'Tænd ovnen på 220 grader.',
+    'Læg tortillaerne på en bageplade, og smør tomatsauce på.',
+    'Fordel ost, bacon og peberfrugt over.',
+    'Bag 8-10 minutter, til kanten er sprød og osten bruner.']},
+  {id:'frikadeller', navn:'Kyllingefrikadeller', tid:35, portioner:2, varer:['hakketkyl','aeg','mel','kartofler','gulerodder'], trin:[
+    'Kog kartofler og gulerødder møre i saltet vand.',
+    'Rør hakket kylling med æg, mel, revet løg, salt og peber. Lad farsen hvile 10 minutter.',
+    'Form frikadeller med en ske, og steg dem 4-5 minutter på hver side ved middel varme.',
+    'Server med kartofler og gulerødder.']},
+  {id:'laksepasta', navn:'Laks med pasta', tid:25, portioner:2, varer:['laks','pasta','flode','spinat','hvidlog'], trin:[
+    'Kog pastaen.',
+    'Skær laksen i tern, og steg den kort på panden. Tag den op.',
+    'Svits hakket hvidløg, hæld fløden ved, og lad den koge ind et par minutter.',
+    'Vend spinat og laks i saucen, til spinaten falder sammen.',
+    'Bland pastaen i, og smag til med salt, peber og citron.']},
+  {id:'kyllingsalat', navn:'Kyllingesalat', tid:20, portioner:2, varer:['kylling','salat','tomat','agurk','olie'], trin:[
+    'Krydr kyllingen med salt og peber, og steg den gennemstegt. Lad den hvile og skær den i strimler.',
+    'Skyl salaten, og skær tomat og agurk i både.',
+    'Rør en dressing af olie, citron eller eddike, salt og peber.',
+    'Vend det hele sammen, og læg kyllingen øverst.']},
+  {id:'linsegryde', navn:'Linsegryde', tid:30, portioner:2, varer:['linser','gulerodder','lok','tomater','kokosmaelk'], trin:[
+    'Hak løg, og skær gulerødderne i skiver.',
+    'Svits løg og gulerod blødt i en gryde med lidt olie.',
+    'Tilsæt skyllede linser, hakkede tomater og kokosmælk.',
+    'Lad gryden simre 20 minutter, til linserne er møre.',
+    'Smag til med salt, peber og et pift karry eller spidskommen.']},
+  {id:'kikcurry', navn:'Kikærtecurry', tid:25, portioner:2, varer:['kikaerter','kokosmaelk','karry','ris','spinat'], trin:[
+    'Sæt risene over.',
+    'Rist karryen kort i olie i en gryde, til den dufter.',
+    'Tilsæt drænede kikærter og kokosmælk, og lad det simre 10 minutter.',
+    'Vend spinaten i til sidst, til den falder sammen.',
+    'Smag til med salt, og server med ris.']},
+  {id:'falafelwrap', navn:'Falafel-wrap', tid:20, portioner:2, varer:['falafel','tortilla','salat','agurk','tomat'], trin:[
+    'Rør falafelmixen med vand efter anvisningen, og lad den trække 10 minutter.',
+    'Form små bøffer, og steg dem gyldne i olie.',
+    'Snit salat, agurk og tomat.',
+    'Varm tortillaerne, fyld dem med falafel og grønt, og rul dem sammen.']},
+  {id:'wok', navn:'Grøntsagswok', tid:20, portioner:2, varer:['broccoli','gulerodder','peberfrugt','ris','olie'], trin:[
+    'Sæt risene over.',
+    'Skær broccoli i buketter, og snit gulerod og peberfrugt i stave.',
+    'Varm olien godt op i en wok eller stor pande.',
+    'Wok grøntsagerne 5-6 minutter ved høj varme, så de stadig har bid.',
+    'Smag til med soja, og server med ris.']},
+  {id:'sincarne', navn:'Chili sin carne', tid:30, portioner:2, varer:['kikaerter','tomater','lok','ris','hvidlog'], trin:[
+    'Sæt risene over.',
+    'Svits hakket løg og hvidløg i en gryde.',
+    'Tilsæt hakkede tomater og drænede kikærter.',
+    'Krydr med chili, spidskommen og paprika, og lad det simre 15-20 minutter.',
+    'Smag til med salt, og server med ris.']},
+  {id:'tomatsuppe', navn:'Tomatsuppe med brød', tid:20, portioner:2, varer:['tomater','lok','hvidlog','broed','olie'], trin:[
+    'Svits hakket løg og hvidløg blødt i olien.',
+    'Tilsæt hakkede tomater og en kop vand, og lad suppen koge 10 minutter.',
+    'Blend suppen glat, og smag til med salt, peber og en smule sukker.',
+    'Rist brødet i olie på en pande, og server det til.']},
+  {id:'bagtkartof', navn:'Bagt kartoffel m. salsa', tid:45, portioner:2, varer:['kartofler','tomat','lok','kikaerter','olie'], trin:[
+    'Tænd ovnen på 200 grader. Prik kartoflerne, og bag dem 40-45 minutter til de er møre.',
+    'Hak tomat og løg fint, og bland det med drænede kikærter.',
+    'Vend salsaen med olie, salt, peber og lidt citron.',
+    'Flæk kartoflerne, og fyld dem med salsaen.']},
+  {id:'pastapesto', navn:'Pasta med pesto', tid:15, portioner:2, varer:['pasta','pesto','tomat','spinat','olie'], trin:[
+    'Kog pastaen, og gem lidt kogevand.',
+    'Skær tomaterne i både.',
+    'Vend den varme pasta med pesto og en skvæt kogevand, så den bliver cremet.',
+    'Rør spinat og tomat i, og dryp med olie.']},
+  {id:'gratin', navn:'Kartoffelgratin', tid:50, portioner:2, varer:['kartofler','flode','ost','lok','smoer'], trin:[
+    'Tænd ovnen på 200 grader, og smør et fad med smørret.',
+    'Skær kartofler og løg i tynde skiver.',
+    'Lag kartofler og løg i fadet med salt og peber imellem.',
+    'Hæld fløden over, og drys osten på.',
+    'Bag gratinen 40 minutter, til den er gylden og kartoflerne er møre.']},
+  {id:'vegpizza', navn:'Vegetarpizza', tid:40, portioner:2, varer:['mel','tomatsauce','mozzarella','champignon','peberfrugt'], trin:[
+    'Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.',
+    'Tænd ovnen på 250 grader.',
+    'Rul dejen ud, og smør tomatsauce på.',
+    'Fordel mozzarella, champignon i skiver og peberfrugt over.',
+    'Bag 10-12 minutter, til bunden er sprød.']},
+  {id:'taerte', navn:'Spinattærte', tid:45, portioner:2, varer:['spinat','aeg','ost','mel','flode'], trin:[
+    'Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.',
+    'Forbag bunden 10 minutter ved 200 grader.',
+    'Svits spinaten kort, og pres væden fra.',
+    'Pisk æg, fløde og ost sammen med salt og peber, og rør spinaten i.',
+    'Hæld fyldet i bunden, og bag tærten 25-30 minutter til den er sat.']},
+  {id:'squashpasta', navn:'Squashpasta', tid:20, portioner:2, varer:['squash','pasta','hvidlog','olie','tomat'], trin:[
+    'Kog pastaen.',
+    'Skær squash i halve skiver, og hak hvidløget.',
+    'Steg squashen gylden i olien, og tilsæt hvidløg det sidste minut.',
+    'Vend pasta og tomatbåde i, og smag til med salt, peber og revet citronskal.']},
+  {id:'pastamedaubergineogtom', navn:"Pasta med aubergine og tomat", tid:20, portioner:2, varer:['pasta', 'aubergine', 'tomater', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt aubergine og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedsoltorredetoma', navn:"Pasta med soltørrede tomater", tid:20, portioner:2, varer:['pasta', 'soltomat', 'hvidlog', 'rucola', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt soltørrede tomater og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedbroccoliogchil', navn:"Pasta med broccoli og chili", tid:20, portioner:2, varer:['pasta', 'broccoli', 'chili', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt broccoli og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedsvampeogtimian', navn:"Pasta med svampe og timian", tid:20, portioner:2, varer:['pasta', 'svampe', 'lok', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt portobello og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedaerterogmynte', navn:"Pasta med ærter og mynte", tid:20, portioner:2, varer:['pasta', 'aerter', 'mynte', 'citron', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt ærter, frosne og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedgronkaloghvidl', navn:"Pasta med grønkål og hvidløg", tid:20, portioner:2, varer:['pasta', 'groenkaal', 'hvidlog', 'chili', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt grønkål og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedsquashogcitron', navn:"Pasta med squash og citron", tid:20, portioner:2, varer:['pasta', 'squash', 'citron', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt squash og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedlinserogtomat', navn:"Pasta med linser og tomat", tid:20, portioner:2, varer:['pasta', 'linser', 'tomater', 'lok', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt røde linser og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedolivenogkapers', navn:"Pasta med oliven og kapers", tid:20, portioner:2, varer:['pasta', 'oliven', 'kapers', 'tomater', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt oliven og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedrodbederogvaln', navn:"Pasta med rødbeder og valnød", tid:20, portioner:2, varer:['pasta', 'rodbeder', 'valnodder', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt rødbeder og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedpeberfrugtogba', navn:"Pasta med peberfrugt og basilikum", tid:20, portioner:2, varer:['pasta', 'peberfrugt', 'basilikum', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt peberfrugt og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedblomkalogmandl', navn:"Pasta med blomkål og mandler", tid:20, portioner:2, varer:['pasta', 'blomkaal', 'solsikke', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt blomkål og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedspinatogcashew', navn:"Pasta med spinat og cashew", tid:20, portioner:2, varer:['pasta', 'spinat', 'cashew', 'hvidlog', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt spinat og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'pastamedsojafarsogtoma', navn:"Pasta med sojafars og tomat", tid:20, portioner:2, varer:['pasta', 'sojafars', 'tomater', 'lok', 'olie'], trin:["Kog pastaen i rigeligt saltet vand, og gem en kop af kogevandet.", "Varm olien i en stor pande, og svits hvidløg og løg blødt uden at tage farve.", "Tilsæt sojafars og lad det stege med et par minutter.", "Vend pastaen i sammen med en skvæt kogevand, så det binder.", "Smag til med salt, peber og citron."]},
+  {id:'kikaertecurrymedspinat', navn:"Kikærtecurry med spinat", tid:30, portioner:2, varer:['ris', 'kikaerter', 'kokosmaelk', 'spinat', 'karrypasta'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt kikærter og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'linsecurrymedgulerod', navn:"Linsecurry med gulerod", tid:30, portioner:2, varer:['ris', 'linser', 'kokosmaelk', 'gulerodder', 'karry'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt røde linser og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'blomkalscurry', navn:"Blomkålscurry", tid:30, portioner:2, varer:['ris', 'blomkaal', 'kokosmaelk', 'lok', 'karrypasta'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt blomkål og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'kartoffelogaertecurry', navn:"Kartoffel- og ærtecurry", tid:30, portioner:2, varer:['ris', 'kartofler', 'aerter', 'kokosmaelk', 'karry'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt kartofler og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'sodkartoffelcurry', navn:"Sødkartoffelcurry", tid:30, portioner:2, varer:['ris', 'sodkartoffel', 'kokosmaelk', 'spinat', 'karrypasta'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt sødkartofler og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'tofucurrymedbroccoli', navn:"Tofucurry med broccoli", tid:30, portioner:2, varer:['ris', 'tofu', 'broccoli', 'kokosmaelk', 'karrypasta'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt tofu og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'auberginecurry', navn:"Auberginecurry", tid:30, portioner:2, varer:['ris', 'aubergine', 'kokosmaelk', 'tomater', 'karry'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt aubergine og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'gronbonnecurry', navn:"Grøn bønnecurry", tid:30, portioner:2, varer:['ris', 'hvidebonner', 'kokosmaelk', 'peberfrugt', 'karry'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt hvide bønner og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'graeskarcurrymedkikaer', navn:"Græskarcurry med kikærter", tid:30, portioner:2, varer:['ris', 'majroe', 'kikaerter', 'kokosmaelk', 'karrypasta'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt majroer og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'svampecurry', navn:"Svampecurry", tid:30, portioner:2, varer:['ris', 'svampe', 'kokosmaelk', 'lok', 'karry'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt portobello og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'rodfrugtcurry', navn:"Rodfrugtcurry", tid:30, portioner:2, varer:['ris', 'pastinak', 'gulerodder', 'kokosmaelk', 'karry'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt pastinak og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'tempehcurrymedgronkal', navn:"Tempehcurry med grønkål", tid:30, portioner:2, varer:['ris', 'tempeh', 'groenkaal', 'kokosmaelk', 'karrypasta'], trin:["Sæt risene over med dobbelt så meget vand og et nip salt.", "Svits løg, hvidløg og ingefær i olie, til det dufter.", "Rør karrypasta eller karry i, og lad det stege et halvt minut.", "Tilsæt tempeh og kokosmælken, og lad retten simre 12-15 minutter.", "Smag til med salt og citron, og server med ris."]},
+  {id:'linsegrydemedrodfrugte', navn:"Linsegryde med rodfrugter", tid:35, portioner:2, varer:['linser', 'gulerodder', 'pastinak', 'tomater', 'lok'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt gulerødder og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'hvidbonnegryde', navn:"Hvid bønnegryde", tid:35, portioner:2, varer:['hvidebonner', 'tomater', 'porre', 'hvidlog', 'oregano'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt hakkede tomater og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'kikaertegrydemedspinat', navn:"Kikærtegryde med spinat", tid:35, portioner:2, varer:['kikaerter', 'spinat', 'tomater', 'lok', 'spidskommen'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt spinat og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'ratatouille', navn:"Ratatouille", tid:35, portioner:2, varer:['aubergine', 'squash', 'peberfrugt', 'tomater', 'hvidlog'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt squash og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'kalgrydemedkartofler', navn:"Kålgryde med kartofler", tid:35, portioner:2, varer:['hvidkaal', 'kartofler', 'gulerodder', 'bouillon', 'lok'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt kartofler og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'sortbonnegryde', navn:"Sortbønnegryde", tid:35, portioner:2, varer:['sortebonner', 'majs', 'tomater', 'peberfrugt', 'spidskommen'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt majs og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'sellerioglinsegryde', navn:"Selleri- og linsegryde", tid:35, portioner:2, varer:['selleri', 'groenlinser', 'tomater', 'lok', 'bouillon'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt grønne linser og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'flaekaertegryde', navn:"Flækærtegryde", tid:35, portioner:2, varer:['splitaerter', 'gulerodder', 'porre', 'bouillon', 'lok'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt gulerødder og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'svampegrydemedbonner', navn:"Svampegryde med bønner", tid:35, portioner:2, varer:['svampe', 'hvidebonner', 'tomatpure', 'lok', 'bouillon'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt hvide bønner og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'rodbedegryde', navn:"Rødbedegryde", tid:35, portioner:2, varer:['rodbeder', 'kartofler', 'lok', 'bouillon', 'eddike'], trin:["Hak løg og hvidløg, og skær grøntsagerne i grove tern.", "Svits løg og hvidløg blødt i olie i en tykbundet gryde.", "Tilsæt kartofler og resten af grøntsagerne, og vend det rundt.", "Hæld tomater eller bouillon ved, så det lige dækker, og lad gryden simre 20-25 minutter.", "Smag til med salt, peber og et pift paprika."]},
+  {id:'tomatsuppe2', navn:"Tomatsuppe", tid:25, portioner:2, varer:['tomater', 'lok', 'hvidlog', 'bouillon', 'olie'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt løg og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'blomkalssuppe', navn:"Blomkålssuppe", tid:25, portioner:2, varer:['blomkaal', 'kartofler', 'bouillon', 'lok', 'olie'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt kartofler og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'gulerodssuppemedingefa', navn:"Gulerodssuppe med ingefær", tid:25, portioner:2, varer:['gulerodder', 'ingefaer', 'bouillon', 'lok', 'kokosmaelk'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt ingefær og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'linsesuppe', navn:"Linsesuppe", tid:25, portioner:2, varer:['linser', 'gulerodder', 'bouillon', 'lok', 'spidskommen'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt gulerødder og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'aertesuppemedmynte', navn:"Ærtesuppe med mynte", tid:25, portioner:2, varer:['aerter', 'bouillon', 'lok', 'mynte', 'olie'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt grøntsagsbouillon og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'sodkartoffelsuppe', navn:"Sødkartoffelsuppe", tid:25, portioner:2, varer:['sodkartoffel', 'kokosmaelk', 'bouillon', 'lok', 'chili'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt kokosmælk og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'porreogkartoffelsuppe', navn:"Porre- og kartoffelsuppe", tid:25, portioner:2, varer:['porre', 'kartofler', 'bouillon', 'hvidlog', 'olie'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt kartofler og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'selleriogaeblesuppe', navn:"Selleri- og æblesuppe", tid:25, portioner:2, varer:['selleri', 'aeble', 'bouillon', 'lok', 'olie'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt æbler og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'broccolisuppe', navn:"Broccolisuppe", tid:25, portioner:2, varer:['broccoli', 'kartofler', 'bouillon', 'hvidlog', 'olie'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt kartofler og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'bonnesuppemedgronkal', navn:"Bønnesuppe med grønkål", tid:25, portioner:2, varer:['hvidebonner', 'groenkaal', 'bouillon', 'hvidlog', 'tomatpure'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt grønkål og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'pastinaksuppe', navn:"Pastinaksuppe", tid:25, portioner:2, varer:['pastinak', 'bouillon', 'lok', 'kokosmaelk', 'olie'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt grøntsagsbouillon og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'majssuppe', navn:"Majssuppe", tid:25, portioner:2, varer:['majs', 'kartofler', 'bouillon', 'lok', 'chili'], trin:["Skær grøntsagerne i mindre stykker, så de koger hurtigt.", "Svits løg og hvidløg i olie i bunden af gryden.", "Tilsæt kartofler og hæld bouillon ved, til det dækker.", "Lad suppen koge 15 minutter, til alt er mørt.", "Blend suppen glat, og smag til med salt, peber og citron."]},
+  {id:'wokmedtofuogbroccoli', navn:"Wok med tofu og broccoli", tid:20, portioner:2, varer:['ris', 'tofu', 'broccoli', 'gulerodder', 'soja'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg tofu et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'wokmedhvidkalogcashew', navn:"Wok med hvidkål og cashew", tid:20, portioner:2, varer:['ris', 'hvidkaal', 'cashew', 'peberfrugt', 'soja'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg hvidkål et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'wokmedsvampeogforarslo', navn:"Wok med svampe og forårsløg", tid:20, portioner:2, varer:['nudler', 'svampe', 'foraarslog', 'soja', 'olie'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg portobello et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'wokmedaerteroggulerod', navn:"Wok med ærter og gulerod", tid:20, portioner:2, varer:['ris', 'aerter', 'gulerodder', 'ingefaer', 'soja'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg ærter, frosne et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'wokmedtempehoggronkal', navn:"Wok med tempeh og grønkål", tid:20, portioner:2, varer:['ris', 'tempeh', 'groenkaal', 'hvidlog', 'soja'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg tempeh et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'wokmedblomkalsris', navn:"Wok med blomkålsris", tid:20, portioner:2, varer:['blomkaal', 'peberfrugt', 'gulerodder', 'soja', 'olie'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg peberfrugt et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'wokmedaubergineogchili', navn:"Wok med aubergine og chili", tid:20, portioner:2, varer:['ris', 'aubergine', 'chili', 'hvidlog', 'soja'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg aubergine et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'wokmedsojafarsogsquash', navn:"Wok med sojafars og squash", tid:20, portioner:2, varer:['nudler', 'sojafars', 'squash', 'soja', 'olie'], trin:["Sæt ris eller nudler over efter anvisningen på pakken.", "Snit alle grøntsagerne i tynde stave, så de steger hurtigt.", "Varm olien godt op i en wok, og steg sojafars et par minutter ved høj varme.", "Tilsæt resten af grøntsagerne, og wok 4-5 minutter, så de stadig har bid.", "Smag til med sojasauce, og server med det samme."]},
+  {id:'kikaertesalatmedfetafr', navn:"Kikærtesalat med feta-fri dressing", tid:15, portioner:2, varer:['salat', 'kikaerter', 'tomat', 'agurk', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær kikærter og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'bulgursalatmedpersille', navn:"Bulgursalat med persille", tid:15, portioner:2, varer:['bulgur', 'persille', 'tomat', 'citron', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær persille og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'couscoussalatmedrosine', navn:"Couscoussalat med rosiner", tid:15, portioner:2, varer:['couscous', 'gulerodder', 'mynte', 'citron', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær gulerødder og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'quinoasalatmedavocado', navn:"Quinoasalat med avocado", tid:15, portioner:2, varer:['quinoa', 'avocado', 'tomat', 'citron', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær avocado og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'rodbedesalatmedvalnod', navn:"Rødbedesalat med valnød", tid:15, portioner:2, varer:['rodbeder', 'valnodder', 'rucola', 'eddike', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær valnødder og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'gronkalssalatmedaeble', navn:"Grønkålssalat med æble", tid:15, portioner:2, varer:['groenkaal', 'aeble', 'solsikke', 'citron', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær æbler og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'bonnesalatmedrodlog', navn:"Bønnesalat med rødløg", tid:15, portioner:2, varer:['hvidebonner', 'lok', 'persille', 'eddike', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær løg og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'linsesalatmedsoltomat', navn:"Linsesalat med soltomat", tid:15, portioner:2, varer:['groenlinser', 'soltomat', 'rucola', 'citron', 'olie'], trin:["Skyl salaten, og lad den dryppe godt af.", "Skær soltørrede tomater og de øvrige grøntsager i mundrette stykker.", "Rør en dressing af olie, citron eller eddike, salt og peber.", "Vend det hele sammen lige inden servering, så det ikke falder sammen."]},
+  {id:'falafelwrapmedtahin', navn:"Falafelwrap med tahin", tid:20, portioner:2, varer:['tortilla', 'falafel', 'salat', 'tahin', 'tomat'], trin:["Forbered fyldet: skær grøntsagerne i strimler.", "Steg eller varm falafelmix på en pande med lidt olie og krydderier.", "Varm tortillaerne kort på en tør pande, så de bliver bløde.", "Fordel fyld og grønt på tortillaerne, rul dem stramt sammen, og skær dem over."]},
+  {id:'wrapmedkrydretkikaerte', navn:"Wrap med krydret kikærter", tid:20, portioner:2, varer:['tortilla', 'kikaerter', 'paprika', 'salat', 'avocado'], trin:["Forbered fyldet: skær grøntsagerne i strimler.", "Steg eller varm kikærter på en pande med lidt olie og krydderier.", "Varm tortillaerne kort på en tør pande, så de bliver bløde.", "Fordel fyld og grønt på tortillaerne, rul dem stramt sammen, og skær dem over."]},
+  {id:'wrapmedtofuogpeberfrug', navn:"Wrap med tofu og peberfrugt", tid:20, portioner:2, varer:['tortilla', 'tofu', 'peberfrugt', 'salat', 'soja'], trin:["Forbered fyldet: skær grøntsagerne i strimler.", "Steg eller varm tofu på en pande med lidt olie og krydderier.", "Varm tortillaerne kort på en tør pande, så de bliver bløde.", "Fordel fyld og grønt på tortillaerne, rul dem stramt sammen, og skær dem over."]},
+  {id:'wrapmedsortebonnerogma', navn:"Wrap med sortebønner og majs", tid:20, portioner:2, varer:['tortilla', 'sortebonner', 'majs', 'salat', 'chili'], trin:["Forbered fyldet: skær grøntsagerne i strimler.", "Steg eller varm sorte bønner på en pande med lidt olie og krydderier.", "Varm tortillaerne kort på en tør pande, så de bliver bløde.", "Fordel fyld og grønt på tortillaerne, rul dem stramt sammen, og skær dem over."]},
+  {id:'wrapmedgrilledegrontsa', navn:"Wrap med grillede grøntsager", tid:20, portioner:2, varer:['tortilla', 'squash', 'aubergine', 'rucola', 'olie'], trin:["Forbered fyldet: skær grøntsagerne i strimler.", "Steg eller varm squash på en pande med lidt olie og krydderier.", "Varm tortillaerne kort på en tør pande, så de bliver bløde.", "Fordel fyld og grønt på tortillaerne, rul dem stramt sammen, og skær dem over."]},
+  {id:'wrapmedsojafars', navn:"Wrap med sojafars", tid:20, portioner:2, varer:['tortilla', 'sojafars', 'salat', 'tomat', 'paprika'], trin:["Forbered fyldet: skær grøntsagerne i strimler.", "Steg eller varm sojafars på en pande med lidt olie og krydderier.", "Varm tortillaerne kort på en tør pande, så de bliver bløde.", "Fordel fyld og grønt på tortillaerne, rul dem stramt sammen, og skær dem over."]},
+  {id:'quinoabowlmedkikaerter', navn:"Quinoabowl med kikærter", tid:25, portioner:2, varer:['quinoa', 'kikaerter', 'avocado', 'spinat', 'citron'], trin:["Kog quinoa efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag kikærter, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'bulgurbowlmedrodfrugte', navn:"Bulgurbowl med rodfrugter", tid:25, portioner:2, varer:['bulgur', 'gulerodder', 'rodbeder', 'rucola', 'olie'], trin:["Kog bulgur efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag gulerødder, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'risbowlmedtofu', navn:"Risbowl med tofu", tid:25, portioner:2, varer:['ris', 'tofu', 'agurk', 'gulerodder', 'soja'], trin:["Kog ris efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag tofu, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'couscousbowlmedgrillet', navn:"Couscousbowl med grillet squash", tid:25, portioner:2, varer:['couscous', 'squash', 'tomat', 'mynte', 'olie'], trin:["Kog couscous efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag squash, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'bowlmedsodkartoffelogb', navn:"Bowl med sødkartoffel og bønner", tid:25, portioner:2, varer:['ris', 'sodkartoffel', 'sortebonner', 'avocado', 'chili'], trin:["Kog ris efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag sødkartofler, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'bowlmedtempehogbroccol', navn:"Bowl med tempeh og broccoli", tid:25, portioner:2, varer:['ris', 'tempeh', 'broccoli', 'foraarslog', 'soja'], trin:["Kog ris efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag tempeh, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'bowlmedlinserogrodkal', navn:"Bowl med linser og rødkål", tid:25, portioner:2, varer:['bulgur', 'groenlinser', 'hvidkaal', 'persille', 'citron'], trin:["Kog bulgur efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag grønne linser, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'bowlmedfalafeloghummus', navn:"Bowl med falafel og hummus", tid:25, portioner:2, varer:['couscous', 'falafel', 'tahin', 'tomat', 'salat'], trin:["Kog couscous efter anvisningen på pakken, og lad det køle lidt af.", "Skær grøntsagerne i mundrette stykker.", "Steg eller bag falafelmix, til det er gyldent.", "Rør en dressing af olie, citron og salt.", "Anret det hele i skåle, og hæld dressingen over."]},
+  {id:'ovnbagterodfrugter', navn:"Ovnbagte rodfrugter", tid:40, portioner:2, varer:['gulerodder', 'pastinak', 'kartofler', 'olie', 'persille'], trin:["Tænd ovnen på 200 grader.", "Skær gulerødder og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtblomkalmedspids', navn:"Ovnbagt blomkål med spidskommen", tid:40, portioner:2, varer:['blomkaal', 'spidskommen', 'olie', 'citron', 'persille'], trin:["Tænd ovnen på 200 grader.", "Skær blomkål og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtsodkartoffelmed', navn:"Ovnbagt sødkartoffel med kikærter", tid:40, portioner:2, varer:['sodkartoffel', 'kikaerter', 'paprika', 'olie', 'koriander'], trin:["Tænd ovnen på 200 grader.", "Skær sødkartofler og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtauberginemedtom', navn:"Ovnbagt aubergine med tomat", tid:40, portioner:2, varer:['aubergine', 'tomater', 'hvidlog', 'olie', 'basilikum'], trin:["Tænd ovnen på 200 grader.", "Skær aubergine og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtekartoflermedro', navn:"Ovnbagte kartofler med rosmarin", tid:40, portioner:2, varer:['kartofler', 'hvidlog', 'olie', 'citron', 'persille'], trin:["Tænd ovnen på 200 grader.", "Skær kartofler og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtsquashmedtomat', navn:"Ovnbagt squash med tomat", tid:40, portioner:2, varer:['squash', 'tomat', 'hvidlog', 'olie', 'oregano'], trin:["Tænd ovnen på 200 grader.", "Skær squash og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtbroccolimedhvid', navn:"Ovnbagt broccoli med hvidløg", tid:40, portioner:2, varer:['broccoli', 'hvidlog', 'solsikke', 'olie', 'citron'], trin:["Tænd ovnen på 200 grader.", "Skær broccoli og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtrodbedemedlinse', navn:"Ovnbagt rødbede med linser", tid:40, portioner:2, varer:['rodbeder', 'groenlinser', 'lok', 'olie', 'eddike'], trin:["Tænd ovnen på 200 grader.", "Skær rødbeder og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagtmajroeoggulerod', navn:"Ovnbagt majroe og gulerod", tid:40, portioner:2, varer:['majroe', 'gulerodder', 'olie', 'persille', 'citron'], trin:["Tænd ovnen på 200 grader.", "Skær majroer og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'ovnbagteportobello', navn:"Ovnbagte portobello", tid:40, portioner:2, varer:['svampe', 'hvidlog', 'olie', 'persille', 'broed'], trin:["Tænd ovnen på 200 grader.", "Skær portobello og de øvrige grøntsager i både eller tern.", "Vend det hele på en bageplade med olie, salt og peber.", "Bag 30-35 minutter, til grøntsagerne er møre og har taget farve.", "Drys med friske krydderurter inden servering."]},
+  {id:'chilisincarne', navn:"Chili sin carne", tid:30, portioner:2, varer:['ris', 'bonner', 'tomater', 'lok', 'spidskommen'], trin:["Sæt risene over.", "Svits hakket løg og hvidløg i olie i en gryde.", "Tilsæt kidneybønner og hakkede tomater.", "Krydr med chili, spidskommen og paprika, og lad det simre 20 minutter.", "Smag til med salt, og server med ris."]},
+  {id:'chilimedsortebonnerogm', navn:"Chili med sorte bønner og majs", tid:30, portioner:2, varer:['ris', 'sortebonner', 'majs', 'tomater', 'chili'], trin:["Sæt risene over.", "Svits hakket løg og hvidløg i olie i en gryde.", "Tilsæt sorte bønner og hakkede tomater.", "Krydr med chili, spidskommen og paprika, og lad det simre 20 minutter.", "Smag til med salt, og server med ris."]},
+  {id:'chilimedlinser', navn:"Chili med linser", tid:30, portioner:2, varer:['ris', 'linser', 'tomater', 'lok', 'paprika'], trin:["Sæt risene over.", "Svits hakket løg og hvidløg i olie i en gryde.", "Tilsæt røde linser og hakkede tomater.", "Krydr med chili, spidskommen og paprika, og lad det simre 20 minutter.", "Smag til med salt, og server med ris."]},
+  {id:'chilimedsojafars', navn:"Chili med sojafars", tid:30, portioner:2, varer:['ris', 'sojafars', 'tomater', 'peberfrugt', 'chili'], trin:["Sæt risene over.", "Svits hakket løg og hvidløg i olie i en gryde.", "Tilsæt sojafars og hakkede tomater.", "Krydr med chili, spidskommen og paprika, og lad det simre 20 minutter.", "Smag til med salt, og server med ris."]},
+  {id:'chilimedsodkartoffel', navn:"Chili med sødkartoffel", tid:30, portioner:2, varer:['ris', 'sodkartoffel', 'sortebonner', 'tomater', 'spidskommen'], trin:["Sæt risene over.", "Svits hakket løg og hvidløg i olie i en gryde.", "Tilsæt sødkartofler og hakkede tomater.", "Krydr med chili, spidskommen og paprika, og lad det simre 20 minutter.", "Smag til med salt, og server med ris."]},
+  {id:'chilimedhvidebonner', navn:"Chili med hvide bønner", tid:30, portioner:2, varer:['ris', 'hvidebonner', 'tomater', 'porre', 'paprika'], trin:["Sæt risene over.", "Svits hakket løg og hvidløg i olie i en gryde.", "Tilsæt hvide bønner og hakkede tomater.", "Krydr med chili, spidskommen og paprika, og lad det simre 20 minutter.", "Smag til med salt, og server med ris."]},
+  {id:'kikaerteboffer', navn:"Kikærtebøffer", tid:30, portioner:2, varer:['kikaerter', 'mel', 'lok', 'spidskommen', 'olie'], trin:["Mos eller blend kikærter groft sammen med krydderierne.", "Rør massen sammen med mel, til den kan formes. Lad den hvile 10 minutter.", "Form bøffer med våde hænder.", "Steg dem 4-5 minutter på hver side ved middel varme, til de er gyldne.", "Server med tilbehør og en frisk salat."]},
+  {id:'linseboffer', navn:"Linsebøffer", tid:30, portioner:2, varer:['linser', 'mel', 'gulerodder', 'paprika', 'olie'], trin:["Mos eller blend røde linser groft sammen med krydderierne.", "Rør massen sammen med mel, til den kan formes. Lad den hvile 10 minutter.", "Form bøffer med våde hænder.", "Steg dem 4-5 minutter på hver side ved middel varme, til de er gyldne.", "Server med tilbehør og en frisk salat."]},
+  {id:'bonneboffermedmajs', navn:"Bønnebøffer med majs", tid:30, portioner:2, varer:['sortebonner', 'majs', 'mel', 'chili', 'olie'], trin:["Mos eller blend sorte bønner groft sammen med krydderierne.", "Rør massen sammen med mel, til den kan formes. Lad den hvile 10 minutter.", "Form bøffer med våde hænder.", "Steg dem 4-5 minutter på hver side ved middel varme, til de er gyldne.", "Server med tilbehør og en frisk salat."]},
+  {id:'rodfrugtboffer', navn:"Rodfrugtbøffer", tid:30, portioner:2, varer:['gulerodder', 'pastinak', 'mel', 'lok', 'olie'], trin:["Mos eller blend gulerødder groft sammen med krydderierne.", "Rør massen sammen med mel, til den kan formes. Lad den hvile 10 minutter.", "Form bøffer med våde hænder.", "Steg dem 4-5 minutter på hver side ved middel varme, til de er gyldne.", "Server med tilbehør og en frisk salat."]},
+  {id:'gronkalsboffermedhavre', navn:"Grønkålsbøffer med havregryn", tid:30, portioner:2, varer:['groenkaal', 'havregryn', 'mel', 'lok', 'olie'], trin:["Mos eller blend grønkål groft sammen med krydderierne.", "Rør massen sammen med mel, til den kan formes. Lad den hvile 10 minutter.", "Form bøffer med våde hænder.", "Steg dem 4-5 minutter på hver side ved middel varme, til de er gyldne.", "Server med tilbehør og en frisk salat."]},
+  {id:'tofuboffer', navn:"Tofubøffer", tid:30, portioner:2, varer:['tofu', 'havregryn', 'foraarslog', 'soja', 'olie'], trin:["Mos eller blend tofu groft sammen med krydderierne.", "Rør massen sammen med mel, til den kan formes. Lad den hvile 10 minutter.", "Form bøffer med våde hænder.", "Steg dem 4-5 minutter på hver side ved middel varme, til de er gyldne.", "Server med tilbehør og en frisk salat."]},
+  {id:'nudlermedpeanutsauce', navn:"Nudler med peanutsauce", tid:20, portioner:2, varer:['nudler', 'peanutbutter', 'gulerodder', 'foraarslog', 'soja'], trin:["Kog nudlerne efter anvisningen, og skyl dem i koldt vand.", "Snit grøntsagerne fint.", "Varm olien, og steg peanutbutter et par minutter.", "Vend nudler og grøntsager i, og smag til med sojasauce og lime."]},
+  {id:'risnudlermedgrontsager', navn:"Risnudler med grøntsager", tid:20, portioner:2, varer:['risnudler', 'peberfrugt', 'gulerodder', 'foraarslog', 'soja'], trin:["Kog nudlerne efter anvisningen, og skyl dem i koldt vand.", "Snit grøntsagerne fint.", "Varm olien, og steg peberfrugt et par minutter.", "Vend nudler og grøntsager i, og smag til med sojasauce og lime."]},
+  {id:'nudlermedtofuogbroccol', navn:"Nudler med tofu og broccoli", tid:20, portioner:2, varer:['nudler', 'tofu', 'broccoli', 'soja', 'olie'], trin:["Kog nudlerne efter anvisningen, og skyl dem i koldt vand.", "Snit grøntsagerne fint.", "Varm olien, og steg tofu et par minutter.", "Vend nudler og grøntsager i, og smag til med sojasauce og lime."]},
+  {id:'nudlermedsvampeogingef', navn:"Nudler med svampe og ingefær", tid:20, portioner:2, varer:['nudler', 'svampe', 'ingefaer', 'soja', 'olie'], trin:["Kog nudlerne efter anvisningen, og skyl dem i koldt vand.", "Snit grøntsagerne fint.", "Varm olien, og steg portobello et par minutter.", "Vend nudler og grøntsager i, og smag til med sojasauce og lime."]},
+  {id:'koldenudlermedagurk', navn:"Kolde nudler med agurk", tid:20, portioner:2, varer:['risnudler', 'agurk', 'mynte', 'citron', 'soja'], trin:["Kog nudlerne efter anvisningen, og skyl dem i koldt vand.", "Snit grøntsagerne fint.", "Varm olien, og steg agurk et par minutter.", "Vend nudler og grøntsager i, og smag til med sojasauce og lime."]},
+  {id:'nudlermedsojafarsogchi', navn:"Nudler med sojafars og chili", tid:20, portioner:2, varer:['nudler', 'sojafars', 'chili', 'foraarslog', 'soja'], trin:["Kog nudlerne efter anvisningen, og skyl dem i koldt vand.", "Snit grøntsagerne fint.", "Varm olien, og steg sojafars et par minutter.", "Vend nudler og grøntsager i, og smag til med sojasauce og lime."]},
+  {id:'bagtkartoffelmedkikaer', navn:"Bagt kartoffel med kikærtesalsa", tid:45, portioner:2, varer:['kartofler', 'kikaerter', 'tomat', 'lok', 'olie'], trin:["Tænd ovnen på 200 grader, prik kartoflerne, og bag dem 40-45 minutter.", "Imens laves fyldet: hak kikærter og bland det med krydderierne.", "Vend fyldet med olie, salt og peber.", "Flæk de bagte kartofler, og fyld dem."]},
+  {id:'bagtkartoffelmedbonner', navn:"Bagt kartoffel med bønner", tid:45, portioner:2, varer:['kartofler', 'hvidebonner', 'persille', 'citron', 'olie'], trin:["Tænd ovnen på 200 grader, prik kartoflerne, og bag dem 40-45 minutter.", "Imens laves fyldet: hak hvide bønner og bland det med krydderierne.", "Vend fyldet med olie, salt og peber.", "Flæk de bagte kartofler, og fyld dem."]},
+  {id:'bagtkartoffelmedavocad', navn:"Bagt kartoffel med avocado", tid:45, portioner:2, varer:['kartofler', 'avocado', 'tomat', 'citron', 'olie'], trin:["Tænd ovnen på 200 grader, prik kartoflerne, og bag dem 40-45 minutter.", "Imens laves fyldet: hak avocado og bland det med krydderierne.", "Vend fyldet med olie, salt og peber.", "Flæk de bagte kartofler, og fyld dem."]},
+  {id:'bagtsodkartoffelmedtah', navn:"Bagt sødkartoffel med tahin", tid:45, portioner:2, varer:['sodkartoffel', 'tahin', 'kikaerter', 'citron', 'persille'], trin:["Tænd ovnen på 200 grader, prik kartoflerne, og bag dem 40-45 minutter.", "Imens laves fyldet: hak tahin og bland det med krydderierne.", "Vend fyldet med olie, salt og peber.", "Flæk de bagte kartofler, og fyld dem."]},
+  {id:'bagtkartoffelmedsvampe', navn:"Bagt kartoffel med svampe", tid:45, portioner:2, varer:['kartofler', 'svampe', 'hvidlog', 'persille', 'olie'], trin:["Tænd ovnen på 200 grader, prik kartoflerne, og bag dem 40-45 minutter.", "Imens laves fyldet: hak portobello og bland det med krydderierne.", "Vend fyldet med olie, salt og peber.", "Flæk de bagte kartofler, og fyld dem."]},
+  {id:'bagtkartoffelmedmajsog', navn:"Bagt kartoffel med majs og chili", tid:45, portioner:2, varer:['kartofler', 'majs', 'chili', 'foraarslog', 'olie'], trin:["Tænd ovnen på 200 grader, prik kartoflerne, og bag dem 40-45 minutter.", "Imens laves fyldet: hak majs og bland det med krydderierne.", "Vend fyldet med olie, salt og peber.", "Flæk de bagte kartofler, og fyld dem."]},
+  {id:'veganskpizzamedgrontsa', navn:"Vegansk pizza med grøntsager", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'peberfrugt', 'squash', 'oregano'], trin:["Rør en dej af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen så varm den kan blive, gerne 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel peberfrugt og resten af fyldet over.", "Bag pizzaen 10-12 minutter, til bunden er sprød."]},
+  {id:'pizzamedsvampeoghvidlo', navn:"Pizza med svampe og hvidløg", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'svampe', 'hvidlog', 'oregano'], trin:["Rør en dej af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen så varm den kan blive, gerne 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel portobello og resten af fyldet over.", "Bag pizzaen 10-12 minutter, til bunden er sprød."]},
+  {id:'pizzamedaubergineogoli', navn:"Pizza med aubergine og oliven", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'aubergine', 'oliven', 'oregano'], trin:["Rør en dej af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen så varm den kan blive, gerne 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel aubergine og resten af fyldet over.", "Bag pizzaen 10-12 minutter, til bunden er sprød."]},
+  {id:'pizzamedveganskost', navn:"Pizza med vegansk ost", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'veganost', 'peberfrugt', 'basilikum'], trin:["Rør en dej af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen så varm den kan blive, gerne 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel vegansk ost og resten af fyldet over.", "Bag pizzaen 10-12 minutter, til bunden er sprød."]},
+  {id:'stegterismedgrontsager', navn:"Stegte ris med grøntsager", tid:20, portioner:2, varer:['ris', 'gulerodder', 'aerter', 'foraarslog', 'soja'], trin:["Kog risene, og lad dem køle af — gerne dagen før.", "Snit grøntsagerne fint.", "Varm olien i en wok, og steg gulerødder til det tager farve.", "Tilsæt risene, og steg dem sprøde ved høj varme.", "Smag til med sojasauce og forårsløg."]},
+  {id:'stegterismedtofu', navn:"Stegte ris med tofu", tid:20, portioner:2, varer:['ris', 'tofu', 'majs', 'foraarslog', 'soja'], trin:["Kog risene, og lad dem køle af — gerne dagen før.", "Snit grøntsagerne fint.", "Varm olien i en wok, og steg tofu til det tager farve.", "Tilsæt risene, og steg dem sprøde ved høj varme.", "Smag til med sojasauce og forårsløg."]},
+  {id:'stegterismedkalogchili', navn:"Stegte ris med kål og chili", tid:20, portioner:2, varer:['ris', 'hvidkaal', 'chili', 'hvidlog', 'soja'], trin:["Kog risene, og lad dem køle af — gerne dagen før.", "Snit grøntsagerne fint.", "Varm olien i en wok, og steg hvidkål til det tager farve.", "Tilsæt risene, og steg dem sprøde ved høj varme.", "Smag til med sojasauce og forårsløg."]},
+  {id:'stegterismedsvampe', navn:"Stegte ris med svampe", tid:20, portioner:2, varer:['ris', 'svampe', 'foraarslog', 'ingefaer', 'soja'], trin:["Kog risene, og lad dem køle af — gerne dagen før.", "Snit grøntsagerne fint.", "Varm olien i en wok, og steg portobello til det tager farve.", "Tilsæt risene, og steg dem sprøde ved høj varme.", "Smag til med sojasauce og forårsløg."]},
+  {id:'spinattaerte', navn:"Spinattærte", tid:45, portioner:2, varer:['mel', 'aeg', 'spinat', 'flode', 'ost'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits spinat kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'porretaerte', navn:"Porretærte", tid:45, portioner:2, varer:['mel', 'aeg', 'porre', 'flode', 'ost'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits porre kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'broccolitaerte', navn:"Broccolitærte", tid:45, portioner:2, varer:['mel', 'aeg', 'broccoli', 'flode', 'ost'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits broccoli kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'svampetaerte', navn:"Svampetærte", tid:45, portioner:2, varer:['mel', 'aeg', 'svampe', 'flode', 'parmesan'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits portobello kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'tomatogfetataerte', navn:"Tomat- og fetatærte", tid:45, portioner:2, varer:['mel', 'aeg', 'tomat', 'feta', 'flode'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits tomater kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'squashtaerte', navn:"Squashtærte", tid:45, portioner:2, varer:['mel', 'aeg', 'squash', 'flode', 'ost'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits squash kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'blomkalstaerte', navn:"Blomkålstærte", tid:45, portioner:2, varer:['mel', 'aeg', 'blomkaal', 'flode', 'ost'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits blomkål kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'rodbedetaertemedfeta', navn:"Rodbedetærte med feta", tid:45, portioner:2, varer:['mel', 'aeg', 'rodbeder', 'feta', 'flode'], trin:["Rør en dej af mel, smør og lidt koldt vand, og tryk den ud i et tærtefad.", "Forbag bunden 10 minutter ved 200 grader.", "Svits rødbeder kort på en pande, og lad det dryppe af.", "Pisk æg og fløde sammen med salt og peber, og rør fyldet i.", "Hæld det i bunden, og bag tærten 25-30 minutter, til den er sat."]},
+  {id:'frittatamedkartofler', navn:"Frittata med kartofler", tid:25, portioner:2, varer:['aeg', 'kartofler', 'lok', 'ost', 'olie'], trin:["Pisk æggene sammen med salt og peber.", "Steg kartofler blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'frittatamedspinat', navn:"Frittata med spinat", tid:25, portioner:2, varer:['aeg', 'spinat', 'ost', 'hvidlog', 'olie'], trin:["Pisk æggene sammen med salt og peber.", "Steg spinat blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'frittatamedsquash', navn:"Frittata med squash", tid:25, portioner:2, varer:['aeg', 'squash', 'ost', 'lok', 'olie'], trin:["Pisk æggene sammen med salt og peber.", "Steg squash blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'frittatamedpeberfrugt', navn:"Frittata med peberfrugt", tid:25, portioner:2, varer:['aeg', 'peberfrugt', 'ost', 'lok', 'olie'], trin:["Pisk æggene sammen med salt og peber.", "Steg peberfrugt blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'frittatamedaerterogmyn', navn:"Frittata med ærter og mynte", tid:25, portioner:2, varer:['aeg', 'aerter', 'mynte', 'feta', 'olie'], trin:["Pisk æggene sammen med salt og peber.", "Steg ærter, frosne blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'frittatamedsvampe', navn:"Frittata med svampe", tid:25, portioner:2, varer:['aeg', 'svampe', 'ost', 'persille', 'smoer'], trin:["Pisk æggene sammen med salt og peber.", "Steg portobello blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'omeletmedtomatogfeta', navn:"Omelet med tomat og feta", tid:25, portioner:2, varer:['aeg', 'tomat', 'feta', 'basilikum', 'smoer'], trin:["Pisk æggene sammen med salt og peber.", "Steg tomater blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'omeletmedchampignon', navn:"Omelet med champignon", tid:25, portioner:2, varer:['aeg', 'champignon', 'ost', 'persille', 'smoer'], trin:["Pisk æggene sammen med salt og peber.", "Steg champignon blødt på en pande med lidt smør eller olie.", "Hæld æggene over, og skru ned for varmen.", "Lad frittataen stivne stille under låg i 10-12 minutter.", "Drys ost over, og lad den smelte inden servering."]},
+  {id:'svamperisotto', navn:"Svamperisotto", tid:30, portioner:2, varer:['ris', 'bouillon', 'lok', 'svampe', 'parmesan'], trin:["Varm bouillonen op i en gryde, og hold den lun.", "Svits finthakket løg blødt i smør i en tykbundet gryde.", "Tilsæt risene, og rist dem et minut, til de bliver blanke.", "Tilsæt bouillon lidt ad gangen under omrøring i 18-20 minutter, til risene er cremede.", "Rør portobello og parmesan i til sidst, og smag til."]},
+  {id:'risottomedaerter', navn:"Risotto med ærter", tid:30, portioner:2, varer:['ris', 'bouillon', 'lok', 'aerter', 'parmesan'], trin:["Varm bouillonen op i en gryde, og hold den lun.", "Svits finthakket løg blødt i smør i en tykbundet gryde.", "Tilsæt risene, og rist dem et minut, til de bliver blanke.", "Tilsæt bouillon lidt ad gangen under omrøring i 18-20 minutter, til risene er cremede.", "Rør ærter, frosne og parmesan i til sidst, og smag til."]},
+  {id:'risottomedsquash', navn:"Risotto med squash", tid:30, portioner:2, varer:['ris', 'bouillon', 'lok', 'squash', 'parmesan'], trin:["Varm bouillonen op i en gryde, og hold den lun.", "Svits finthakket løg blødt i smør i en tykbundet gryde.", "Tilsæt risene, og rist dem et minut, til de bliver blanke.", "Tilsæt bouillon lidt ad gangen under omrøring i 18-20 minutter, til risene er cremede.", "Rør squash og parmesan i til sidst, og smag til."]},
+  {id:'risottomedrodbede', navn:"Risotto med rødbede", tid:30, portioner:2, varer:['ris', 'bouillon', 'lok', 'rodbeder', 'parmesan'], trin:["Varm bouillonen op i en gryde, og hold den lun.", "Svits finthakket løg blødt i smør i en tykbundet gryde.", "Tilsæt risene, og rist dem et minut, til de bliver blanke.", "Tilsæt bouillon lidt ad gangen under omrøring i 18-20 minutter, til risene er cremede.", "Rør rødbeder og parmesan i til sidst, og smag til."]},
+  {id:'risottomedspinat', navn:"Risotto med spinat", tid:30, portioner:2, varer:['ris', 'bouillon', 'lok', 'spinat', 'parmesan'], trin:["Varm bouillonen op i en gryde, og hold den lun.", "Svits finthakket løg blødt i smør i en tykbundet gryde.", "Tilsæt risene, og rist dem et minut, til de bliver blanke.", "Tilsæt bouillon lidt ad gangen under omrøring i 18-20 minutter, til risene er cremede.", "Rør spinat og parmesan i til sidst, og smag til."]},
+  {id:'risottomedcitron', navn:"Risotto med citron", tid:30, portioner:2, varer:['ris', 'bouillon', 'lok', 'citron', 'parmesan'], trin:["Varm bouillonen op i en gryde, og hold den lun.", "Svits finthakket løg blødt i smør i en tykbundet gryde.", "Tilsæt risene, og rist dem et minut, til de bliver blanke.", "Tilsæt bouillon lidt ad gangen under omrøring i 18-20 minutter, til risene er cremede.", "Rør citron og parmesan i til sidst, og smag til."]},
+  {id:'kartoffelgratin', navn:"Kartoffelgratin", tid:50, portioner:2, varer:['kartofler', 'flode', 'ost', 'lok', 'smoer'], trin:["Tænd ovnen på 200 grader, og smør et fad.", "Skær kartofler i tynde skiver.", "Lag dem i fadet med salt, peber og lidt hvidløg imellem.", "Hæld fløden over, og drys osten på.", "Bag gratinen 40 minutter, til den er gylden og mør."]},
+  {id:'blomkalsgratin', navn:"Blomkålsgratin", tid:50, portioner:2, varer:['blomkaal', 'flode', 'ost', 'hvidlog', 'smoer'], trin:["Tænd ovnen på 200 grader, og smør et fad.", "Skær blomkål i tynde skiver.", "Lag dem i fadet med salt, peber og lidt hvidløg imellem.", "Hæld fløden over, og drys osten på.", "Bag gratinen 40 minutter, til den er gylden og mør."]},
+  {id:'squashgratin', navn:"Squashgratin", tid:50, portioner:2, varer:['squash', 'flode', 'ost', 'hvidlog', 'smoer'], trin:["Tænd ovnen på 200 grader, og smør et fad.", "Skær squash i tynde skiver.", "Lag dem i fadet med salt, peber og lidt hvidløg imellem.", "Hæld fløden over, og drys osten på.", "Bag gratinen 40 minutter, til den er gylden og mør."]},
+  {id:'sodkartoffelgratin', navn:"Sødkartoffelgratin", tid:50, portioner:2, varer:['sodkartoffel', 'flode', 'ost', 'lok', 'smoer'], trin:["Tænd ovnen på 200 grader, og smør et fad.", "Skær sødkartofler i tynde skiver.", "Lag dem i fadet med salt, peber og lidt hvidløg imellem.", "Hæld fløden over, og drys osten på.", "Bag gratinen 40 minutter, til den er gylden og mør."]},
+  {id:'broccoligratin', navn:"Broccoligratin", tid:50, portioner:2, varer:['broccoli', 'flode', 'ost', 'hvidlog', 'smoer'], trin:["Tænd ovnen på 200 grader, og smør et fad.", "Skær broccoli i tynde skiver.", "Lag dem i fadet med salt, peber og lidt hvidløg imellem.", "Hæld fløden over, og drys osten på.", "Bag gratinen 40 minutter, til den er gylden og mør."]},
+  {id:'selleriogkartoffelgrat', navn:"Selleri- og kartoffelgratin", tid:50, portioner:2, varer:['selleri', 'kartofler', 'flode', 'ost', 'smoer'], trin:["Tænd ovnen på 200 grader, og smør et fad.", "Skær knoldselleri i tynde skiver.", "Lag dem i fadet med salt, peber og lidt hvidløg imellem.", "Hæld fløden over, og drys osten på.", "Bag gratinen 40 minutter, til den er gylden og mør."]},
+  {id:'pizzamargherita', navn:"Pizza margherita", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'basilikum', 'olie'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og basilikum over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'pizzamedchampignon', navn:"Pizza med champignon", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'champignon', 'oregano'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og champignon over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'pizzamedpeberfrugt', navn:"Pizza med peberfrugt", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'peberfrugt', 'oregano'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og peberfrugt over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'pizzamedspinatogfeta', navn:"Pizza med spinat og feta", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'spinat', 'feta'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og spinat over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'pizzamedoliven', navn:"Pizza med oliven", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'oliven', 'oregano'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og oliven over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'pizzamedsquashogricott', navn:"Pizza med squash og ricotta", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'squash', 'cremefraiche'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og squash over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'pizzamedsoltorredetoma', navn:"Pizza med soltørrede tomater", tid:35, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'soltomat', 'rucola'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og soltørrede tomater over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'pizzabiancamedhvidlog', navn:"Pizza bianca med hvidløg", tid:35, portioner:2, varer:['mel', 'cremefraiche', 'mozzarella', 'hvidlog', 'oregano'], trin:["Rør dejen af mel, vand, gær, salt og olie, og lad den hæve en halv time.", "Tænd ovnen på 250 grader.", "Rul dejen tyndt ud, og smør tomatsauce på.", "Fordel mozzarella og hvidløg over.", "Bag 10-12 minutter, til osten bobler og bunden er sprød."]},
+  {id:'cremetpastamedspinat', navn:"Cremet pasta med spinat", tid:22, portioner:2, varer:['pasta', 'spinat', 'flode', 'ost', 'hvidlog'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og spinat i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'pastamedchampignonsauc', navn:"Pasta med champignonsauce", tid:22, portioner:2, varer:['pasta', 'champignon', 'flode', 'ost', 'hvidlog'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og champignon i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'pastamedbroccoliogflod', navn:"Pasta med broccoli og fløde", tid:22, portioner:2, varer:['pasta', 'broccoli', 'flode', 'parmesan', 'hvidlog'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og broccoli i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'pastamedaerterogparmes', navn:"Pasta med ærter og parmesan", tid:22, portioner:2, varer:['pasta', 'aerter', 'flode', 'parmesan', 'smoer'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og ærter, frosne i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'pastamedtomatogmozzare', navn:"Pasta med tomat og mozzarella", tid:22, portioner:2, varer:['pasta', 'tomat', 'mozzarella', 'basilikum', 'olie'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og tomater i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'pastamedpestoogparmesa', navn:"Pasta med pesto og parmesan", tid:22, portioner:2, varer:['pasta', 'pesto', 'parmesan', 'tomat', 'olie'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og pesto i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'pastamedsquashogfeta', navn:"Pasta med squash og feta", tid:22, portioner:2, varer:['pasta', 'squash', 'feta', 'citron', 'olie'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og squash i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'macandcheese', navn:"Mac and cheese", tid:22, portioner:2, varer:['pasta', 'ost', 'maelk', 'smoer', 'mel'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og revet ost i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'pastamedporreogflode', navn:"Pasta med porre og fløde", tid:22, portioner:2, varer:['pasta', 'porre', 'flode', 'ost', 'smoer'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og porre i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'lasagnemedgrontsager', navn:"Lasagne med grøntsager", tid:22, portioner:2, varer:['pasta', 'tomater', 'squash', 'ost', 'flode'], trin:["Kog pastaen, og gem en kop kogevand.", "Svits hvidløg og hakkede tomater i smør eller olie.", "Tilsæt fløden, og lad den koge let ind.", "Vend pastaen i saucen med lidt kogevand, til den er cremet.", "Drys revet ost over, og smag til med salt og peber."]},
+  {id:'graesksalat', navn:"Græsk salat", tid:15, portioner:2, varer:['salat', 'feta', 'agurk', 'tomat', 'oliven'], trin:["Skyl salaten, og lad den dryppe af.", "Skær feta og grøntsagerne i mundrette stykker.", "Rør en dressing af olie, eddike eller citron, salt og peber.", "Vend salaten med dressingen, og smuldr osten over."]},
+  {id:'salatmedgedeostogvalno', navn:"Salat med gedeost og valnød", tid:15, portioner:2, varer:['salat', 'feta', 'valnodder', 'aeble', 'eddike'], trin:["Skyl salaten, og lad den dryppe af.", "Skær feta og grøntsagerne i mundrette stykker.", "Rør en dressing af olie, eddike eller citron, salt og peber.", "Vend salaten med dressingen, og smuldr osten over."]},
+  {id:'capresesalat', navn:"Caprese-salat", tid:15, portioner:2, varer:['tomat', 'mozzarella', 'basilikum', 'olie', 'eddike'], trin:["Skyl salaten, og lad den dryppe af.", "Skær mozzarella og grøntsagerne i mundrette stykker.", "Rør en dressing af olie, eddike eller citron, salt og peber.", "Vend salaten med dressingen, og smuldr osten over."]},
+  {id:'rucolasalatmedparmesan', navn:"Rucolasalat med parmesan", tid:15, portioner:2, varer:['rucola', 'parmesan', 'tomat', 'citron', 'olie'], trin:["Skyl salaten, og lad den dryppe af.", "Skær parmesan og grøntsagerne i mundrette stykker.", "Rør en dressing af olie, eddike eller citron, salt og peber.", "Vend salaten med dressingen, og smuldr osten over."]},
+  {id:'kartoffelsalatmedyoghu', navn:"Kartoffelsalat med yoghurt", tid:15, portioner:2, varer:['kartofler', 'yoghurt', 'foraarslog', 'sennep', 'persille'], trin:["Skyl salaten, og lad den dryppe af.", "Skær yoghurt naturel og grøntsagerne i mundrette stykker.", "Rør en dressing af olie, eddike eller citron, salt og peber.", "Vend salaten med dressingen, og smuldr osten over."]},
+  {id:'salatmedaegogavocado', navn:"Salat med æg og avocado", tid:15, portioner:2, varer:['salat', 'aeg', 'avocado', 'tomat', 'olie'], trin:["Skyl salaten, og lad den dryppe af.", "Skær æg og grøntsagerne i mundrette stykker.", "Rør en dressing af olie, eddike eller citron, salt og peber.", "Vend salaten med dressingen, og smuldr osten over."]},
+  {id:'halloumiburger', navn:"Halloumiburger", tid:25, portioner:2, varer:['broed', 'feta', 'salat', 'tomat', 'sennep'], trin:["Rør feta sammen med krydderier og lidt mel til en fast masse.", "Form bøffer, og steg dem 4 minutter på hver side.", "Rist bollerne let på panden.", "Byg burgeren med salat, tomat og dressing."]},
+  {id:'bonneburgermedost', navn:"Bønneburger med ost", tid:25, portioner:2, varer:['broed', 'bonner', 'ost', 'salat', 'tomat'], trin:["Rør kidneybønner sammen med krydderier og lidt mel til en fast masse.", "Form bøffer, og steg dem 4 minutter på hver side.", "Rist bollerne let på panden.", "Byg burgeren med salat, tomat og dressing."]},
+  {id:'aeggeburger', navn:"Æggeburger", tid:25, portioner:2, varer:['broed', 'aeg', 'ost', 'salat', 'tomat'], trin:["Rør æg sammen med krydderier og lidt mel til en fast masse.", "Form bøffer, og steg dem 4 minutter på hver side.", "Rist bollerne let på panden.", "Byg burgeren med salat, tomat og dressing."]},
+  {id:'portobelloburger', navn:"Portobelloburger", tid:25, portioner:2, varer:['broed', 'svampe', 'ost', 'rucola', 'sennep'], trin:["Rør portobello sammen med krydderier og lidt mel til en fast masse.", "Form bøffer, og steg dem 4 minutter på hver side.", "Rist bollerne let på panden.", "Byg burgeren med salat, tomat og dressing."]},
+  {id:'kyllingikarry', navn:"Kylling i karry", tid:30, portioner:2, varer:['kylling', 'ris', 'lok', 'kokosmaelk', 'karry'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt løg og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingiflodesauce', navn:"Kylling i flødesauce", tid:30, portioner:2, varer:['kylling', 'pasta', 'champignon', 'flode', 'hvidlog'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt champignon og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingmedovnkartofler', navn:"Kylling med ovnkartofler", tid:30, portioner:2, varer:['kylling', 'kartofler', 'hvidlog', 'olie', 'persille'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt hvidløg og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingegrydemedpeberf', navn:"Kyllingegryde med peberfrugt", tid:30, portioner:2, varer:['kylling', 'ris', 'peberfrugt', 'tomater', 'paprika'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt peberfrugt og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingitomatsauce', navn:"Kylling i tomatsauce", tid:30, portioner:2, varer:['kylling', 'pasta', 'tomater', 'hvidlog', 'basilikum'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt hakkede tomater og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingmedbulguroggron', navn:"Kylling med bulgur og grønt", tid:30, portioner:2, varer:['kylling', 'bulgur', 'gulerodder', 'citron', 'olie'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt gulerødder og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingewokmedbroccoli', navn:"Kyllingewok med broccoli", tid:30, portioner:2, varer:['kylling', 'nudler', 'broccoli', 'soja', 'ingefaer'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt broccoli og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingesalatmedavocad', navn:"Kyllingesalat med avocado", tid:30, portioner:2, varer:['kylling', 'salat', 'avocado', 'tomat', 'olie'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt avocado og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingmedsodkartoffel', navn:"Kylling med sødkartoffel", tid:30, portioner:2, varer:['kylling', 'sodkartoffel', 'spinat', 'olie', 'paprika'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt spinat og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingesuppemednudler', navn:"Kyllingesuppe med nudler", tid:30, portioner:2, varer:['kylling', 'nudler', 'gulerodder', 'bouillon', 'porre'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt gulerødder og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingespydmedcouscou', navn:"Kyllingespyd med couscous", tid:30, portioner:2, varer:['kylling', 'couscous', 'peberfrugt', 'citron', 'olie'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt peberfrugt og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingikokosmaelk', navn:"Kylling i kokosmælk", tid:30, portioner:2, varer:['kylling', 'ris', 'kokosmaelk', 'spinat', 'karrypasta'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt kokosmælk og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingelariovn', navn:"Kyllingelår i ovn", tid:30, portioner:2, varer:['kyllingelaar', 'kartofler', 'citron', 'hvidlog', 'olie'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt citron og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingelarmedrodfrugt', navn:"Kyllingelår med rodfrugter", tid:30, portioner:2, varer:['kyllingelaar', 'gulerodder', 'pastinak', 'olie', 'persille'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt pastinak og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingefrikadeller', navn:"Kyllingefrikadeller", tid:30, portioner:2, varer:['hakketkyl', 'kartofler', 'aeg', 'mel', 'gulerodder'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt æg og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingewrap', navn:"Kyllingewrap", tid:30, portioner:2, varer:['kylling', 'tortilla', 'salat', 'agurk', 'peberfrugt'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt salat og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingmedrisogaerter', navn:"Kylling med ris og ærter", tid:30, portioner:2, varer:['kylling', 'ris', 'aerter', 'lok', 'bouillon'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt ærter, frosne og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kalkunmedgrontsager', navn:"Kalkun med grøntsager", tid:30, portioner:2, varer:['kalkun', 'kartofler', 'broccoli', 'olie', 'citron'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt broccoli og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kalkunwokmednudler', navn:"Kalkunwok med nudler", tid:30, portioner:2, varer:['kalkun', 'nudler', 'peberfrugt', 'soja', 'ingefaer'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt peberfrugt og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'kyllingegrydemedbonner', navn:"Kyllingegryde med bønner", tid:30, portioner:2, varer:['kylling', 'hvidebonner', 'tomater', 'lok', 'paprika'], trin:["Skær kyllingen i mundrette stykker, og krydr den med salt og peber.", "Brun kyllingen på en varm pande, til den er gylden hele vejen rundt.", "Tilsæt hakkede tomater og lad det stege med et par minutter.", "Hæld væde ved, og lad retten simre 10-12 minutter, til kyllingen er gennemstegt.", "Smag til, og server med tilbehøret."]},
+  {id:'pastabolognese', navn:"Pasta bolognese", tid:32, portioner:2, varer:['oksekod', 'pasta', 'tomater', 'lok', 'hvidlog'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og hakkede tomater, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'chiliconcarne', navn:"Chili con carne", tid:32, portioner:2, varer:['oksekod', 'ris', 'bonner', 'tomater', 'spidskommen'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og kidneybønner, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'oksegrydemedrodfrugter', navn:"Oksegryde med rodfrugter", tid:32, portioner:2, varer:['oksekod', 'gulerodder', 'pastinak', 'bouillon', 'lok'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og pastinak, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'lasagne', navn:"Lasagne", tid:32, portioner:2, varer:['oksekod', 'pasta', 'tomater', 'flode', 'ost'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og hakkede tomater, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'frikadellermedkartofle', navn:"Frikadeller med kartofler", tid:32, portioner:2, varer:['fars', 'kartofler', 'aeg', 'mel', 'gulerodder'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og æg, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'kodsaucemedsquash', navn:"Kødsauce med squash", tid:32, portioner:2, varer:['oksekod', 'pasta', 'squash', 'tomater', 'hvidlog'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og squash, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'oksekodiwokmedgront', navn:"Oksekød i wok med grønt", tid:32, portioner:2, varer:['oksekod', 'nudler', 'peberfrugt', 'soja', 'ingefaer'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og peberfrugt, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'burgermedoksekod', navn:"Burger med oksekød", tid:32, portioner:2, varer:['oksekod', 'broed', 'salat', 'tomat', 'sennep'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og salat, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'fyldtepeberfrugter', navn:"Fyldte peberfrugter", tid:32, portioner:2, varer:['oksekod', 'peberfrugt', 'ris', 'tomater', 'ost'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og ris, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'kodbolleritomatsauce', navn:"Kødboller i tomatsauce", tid:32, portioner:2, varer:['oksekod', 'tomater', 'pasta', 'hvidlog', 'oregano'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og pasta, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'oksegrydemedbonner', navn:"Oksegryde med bønner", tid:32, portioner:2, varer:['oksekod', 'hvidebonner', 'tomater', 'porre', 'paprika'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og hakkede tomater, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'lammegrydemedkikaerter', navn:"Lammegryde med kikærter", tid:32, portioner:2, varer:['lam', 'kikaerter', 'tomater', 'lok', 'spidskommen'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og hakkede tomater, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'lammedcouscous', navn:"Lam med couscous", tid:32, portioner:2, varer:['lam', 'couscous', 'gulerodder', 'mynte', 'olie'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og gulerødder, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'shepherdspie', navn:"Shepherds pie", tid:32, portioner:2, varer:['oksekod', 'kartofler', 'gulerodder', 'bouillon', 'ost'], trin:["Hak løg og hvidløg fint.", "Brun kødet godt af i en varm gryde, så det får farve.", "Tilsæt løg, hvidløg og gulerødder, og svits det med.", "Hæld tomater eller bouillon ved, og lad retten simre mindst 20 minutter.", "Smag til med salt og peber, og server med tilbehøret."]},
+  {id:'stegtflaeskmedkartofle', navn:"Stegt flæsk med kartofler", tid:30, portioner:2, varer:['flaeskesteg', 'kartofler', 'flode', 'persille', 'smoer'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt madlavningsfløde og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'svinekodisursodsauce', navn:"Svinekød i sursød sauce", tid:30, portioner:2, varer:['svinekod', 'ris', 'peberfrugt', 'soja', 'eddike'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt peberfrugt og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'pastacarbonara', navn:"Pasta carbonara", tid:30, portioner:2, varer:['pasta', 'bacon', 'aeg', 'parmesan', 'flode'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt æg og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'svinekodmednudler', navn:"Svinekød med nudler", tid:30, portioner:2, varer:['svinekod', 'nudler', 'hvidkaal', 'soja', 'ingefaer'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt hvidkål og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'polsegrydemedkartofler', navn:"Pølsegryde med kartofler", tid:30, portioner:2, varer:['poelser', 'kartofler', 'tomater', 'lok', 'paprika'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt hakkede tomater og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'skinkeogporretaerte', navn:"Skinke- og porretærte", tid:30, portioner:2, varer:['skinke', 'mel', 'porre', 'aeg', 'flode'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt porre og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'baconogaeggekage', navn:"Bacon og æggekage", tid:30, portioner:2, varer:['bacon', 'aeg', 'broed', 'maelk', 'persille'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt rugbrød og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'flaeskestegssandwich', navn:"Flæskestegssandwich", tid:30, portioner:2, varer:['flaeskesteg', 'broed', 'hvidkaal', 'sennep', 'salat'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt hvidkål og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'svinekodikarry', navn:"Svinekød i karry", tid:30, portioner:2, varer:['svinekod', 'ris', 'karry', 'lok', 'kokosmaelk'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt karry og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'pastamedbaconogaerter', navn:"Pasta med bacon og ærter", tid:30, portioner:2, varer:['pasta', 'bacon', 'aerter', 'flode', 'parmesan'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt ærter, frosne og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'polsermedkartoffelmos', navn:"Pølser med kartoffelmos", tid:30, portioner:2, varer:['poelser', 'kartofler', 'maelk', 'smoer', 'sennep'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt mælk og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'skinkepizza', navn:"Skinkepizza", tid:30, portioner:2, varer:['mel', 'tomatsauce', 'mozzarella', 'skinke', 'oregano'], trin:["Skær kødet i strimler eller skiver, og krydr det.", "Steg kødet gyldent på en varm pande.", "Tilsæt mozzarella og lad det stege med.", "Hæld sauce eller væde ved, og lad det simre 8-10 minutter.", "Server med tilbehøret."]},
+  {id:'stegttorskmedkartofler', navn:"Stegt torsk med kartofler", tid:25, portioner:2, varer:['torsk', 'kartofler', 'citron', 'persille', 'smoer'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered citron imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'laksmedpastaogspinat', navn:"Laks med pasta og spinat", tid:25, portioner:2, varer:['laks', 'pasta', 'spinat', 'flode', 'hvidlog'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered spinat imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'laksiovnmedgrontsager', navn:"Laks i ovn med grøntsager", tid:25, portioner:2, varer:['laks', 'broccoli', 'kartofler', 'citron', 'olie'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered kartofler imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'torskmedaertepure', navn:"Torsk med ærtepuré", tid:25, portioner:2, varer:['torsk', 'aerter', 'kartofler', 'citron', 'smoer'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered kartofler imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'fiskefrikadeller', navn:"Fiskefrikadeller", tid:25, portioner:2, varer:['torsk', 'aeg', 'mel', 'citron', 'persille'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered pizzadej / mel imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'rejesalatmedavocado', navn:"Rejesalat med avocado", tid:25, portioner:2, varer:['rejer', 'salat', 'avocado', 'citron', 'olie'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered avocado imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'pastamedrejeroghvidlog', navn:"Pasta med rejer og hvidløg", tid:25, portioner:2, varer:['rejer', 'pasta', 'hvidlog', 'chili', 'olie'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered hvidløg imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'tunsalatmedbonner', navn:"Tunsalat med bønner", tid:25, portioner:2, varer:['tun', 'hvidebonner', 'salat', 'lok', 'olie'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered salat imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'tunmadmedaeg', navn:"Tunmad med æg", tid:25, portioner:2, varer:['tun', 'broed', 'aeg', 'salat', 'sennep'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered æg imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'makrelsalatparugbrod', navn:"Makrelsalat på rugbrød", tid:25, portioner:2, varer:['makrel', 'broed', 'lok', 'persille', 'citron'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered løg imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'fiskegrydemedtomat', navn:"Fiskegryde med tomat", tid:25, portioner:2, varer:['torsk', 'tomater', 'kartofler', 'lok', 'bouillon'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered kartofler imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'laksebowlmedquinoa', navn:"Laksebowl med quinoa", tid:25, portioner:2, varer:['laks', 'quinoa', 'avocado', 'agurk', 'citron'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered avocado imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'rejewokmednudler', navn:"Rejewok med nudler", tid:25, portioner:2, varer:['rejer', 'nudler', 'peberfrugt', 'soja', 'ingefaer'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered peberfrugt imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]},
+  {id:'fisketacos', navn:"Fisketacos", tid:25, portioner:2, varer:['torsk', 'tortilla', 'hvidkaal', 'citron', 'yoghurt'], trin:["Dup fisken tør, og krydr den med salt, peber og citron.", "Varm olie eller smør på en pande ved middel varme.", "Steg fisken 3-4 minutter på hver side, til den lige akkurat er gennemstegt.", "Tilbered hvidkål imens som tilbehør.", "Server fisken med det samme, gerne med en citronbåd."]}
 ];
 const retById = (id) => RETTER.find(r => r.id === id);
 
@@ -658,9 +1090,12 @@ let visning = 'hjem';
 function bedstePris(k){
   const v = CATALOG[k];
   const mulige = (v.tilbud || []).filter(t => S.butikker[t.b]);
-  if (!mulige.length) return {pris:v.normal, butik:null, tilbud:false};
-  const b = mulige.reduce((a, c) => c.p < a.p ? c : a);
-  return {pris:b.p, butik:b.b, tilbud:true};
+  const bedste = mulige.length ? mulige.reduce((a, c) => c.p < a.p ? c : a) : null;
+  // Har du rettet prisen i indkøbslisten, er det den der gælder — også i budgettet.
+  const egen = S.priser && S.priser[k] != null ? S.priser[k] : null;
+  if (egen != null) return {pris:egen, butik: bedste ? bedste.b : null, tilbud: egen < v.normal, egen:true};
+  if (!bedste) return {pris:v.normal, butik:null, tilbud:false, egen:false};
+  return {pris:bedste.p, butik:bedste.b, tilbud:true, egen:false};
 }
 const pris = (k) => bedstePris(k).pris;
 const erTilbud = (k) => bedstePris(k).tilbud;
@@ -713,11 +1148,15 @@ function sorterListe(l){
 }
 /** Listen følger madplanen, men beslutninger du har taget bliver stående. */
 function synkroniserListe(){
-  const gamle = new Map(S.liste.map(i => [i.vare, i.status]));
+  const gamle = new Map(S.liste.map(i => [i.vare, i]));
   const frisk = listeFraPlan(S.plan);
-  S.liste = frisk.map(i => Object.assign(i, {status: gamle.get(i.vare) || 'skal'}));
-  gamle.forEach((st, v) => {
-    if (st !== 'skal' && !S.liste.some(i => i.vare === v)) S.liste.push({vare:v, retter:[], status:st});
+  S.liste = frisk.map(i => {
+    const f = gamle.get(i.vare);
+    return Object.assign(i, {status: f ? f.status : 'skal', manuel: f ? !!f.manuel : false});
+  });
+  gamle.forEach((f, v) => {
+    // Varer du selv har lagt på, og valg du har taget, må ikke forsvinde.
+    if ((f.manuel || f.status !== 'skal') && !S.liste.some(i => i.vare === v)) S.liste.push(f);
   });
   S.liste = sorterListe(S.liste);
 }
@@ -739,7 +1178,7 @@ function friskState(){
     ],
     aktivOpsparing: null,
     sparetIalt: 0,
-    plan: [], liste: [], spisekammer: {}, udgifter: [], log: [],
+    plan: [], liste: [], spisekammer: {}, udgifter: [], log: [], priser: {}, overfoersler: [],
     auto: {koeb:true, madlav:true, ugeskift:true},
     butikker: {}
   };
@@ -780,6 +1219,8 @@ function migrer(d){
   d.faste = d.faste || STD_FASTE.map(f => Object.assign({id:uid()}, f));
   d.kategorier = d.kategorier || STD_KATEGORIER.map(k => Object.assign({id:uid()}, k));
   d.sparetIalt = d.sparetIalt || 0;
+  d.priser = d.priser || {};
+  d.overfoersler = d.overfoersler || [];
   if (!d.opsparinger){
     const g = d.opsparing || {navn:'Opsparing', maal:12000, sparet:0};
     d.opsparinger = [{id:uid(), navn:g.navn, maal:g.maal, sparet:g.sparet}];
@@ -808,7 +1249,15 @@ const fasteIalt = () => S.faste.reduce((s,f) => s + f.belob, 0);
 const dagligvareKat = () => S.kategorier.find(k => k.dagligvare) || S.kategorier[0];
 const brugtIKategori = (id) => S.udgifter.filter(u => u.kategori === id).reduce((s,u) => s + u.belob, 0);
 const variabeltBrugt = () => S.udgifter.reduce((s,u) => s + u.belob, 0);
-const tilRaadighed = () => S.indkomst - fasteIalt() - variabeltBrugt();
+const maanedNu = () => ymd(new Date()).slice(0, 7);
+/** Penge flyttet fra forbrug til opsparing i denne måned. */
+const overfoertIMaaned = () => S.overfoersler
+  .filter(o => (o.dato || '').slice(0, 7) === maanedNu())
+  .reduce((s,o) => s + o.belob, 0);
+/** Det du endnu ikke har brugt af dine forbrugslofter — og heller ikke har flyttet væk. */
+const restPrKategori = () => S.kategorier.map(k => ({kat:k, rest: Math.max(0, k.graense - brugtIKategori(k.id))}));
+const restIForbrug = () => Math.max(0, restPrKategori().reduce((s,r) => s + r.rest, 0) - overfoertIMaaned());
+const tilRaadighed = () => S.indkomst - fasteIalt() - variabeltBrugt() - overfoertIMaaned();
 const sparetIUgen = () => S.udgifter
   .filter(u => u.vare && CATALOG[u.vare] && u.dato >= S.ugestart)
   .reduce((s,u) => s + Math.max(0, CATALOG[u.vare].normal - u.belob), 0);
@@ -816,6 +1265,7 @@ const skalKoebes = () => S.liste.filter(i => i.status === 'skal');
 const listeSum = () => skalKoebes().reduce((s,i) => s + pris(i.vare), 0);
 function butikSum(butik){
   return skalKoebes().reduce((s,i) => {
+    if (S.priser && S.priser[i.vare] != null) return s + S.priser[i.vare];
     const t = (CATALOG[i.vare].tilbud || []).find(x => x.b === butik);
     return s + (t ? t.p : CATALOG[i.vare].normal);
   }, 0);
@@ -1031,7 +1481,7 @@ function tegnHjem(){
     +   '<div class="card-flat"><div class="stat-l">Varer købt</div><div class="stat-v">'+koebt+'<span style="font-size:15px;color:var(--ink-3);font-weight:400">/'+S.liste.length+'</span></div></div>'
     + '</div>';
 
-  h += '<div class="card"><div class="card-head"><h3>Det er sket automatisk</h3>'
+  h += '<div class="card"><div class="card-head"><h3>Din aktivitet</h3>'
     +  (S.log.length ? '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-ryd="1">Ryd</button>' : '') + '</div>';
   if (!S.log.length){
     h += '<div class="empty">Kryds en vare af i Indkøb, eller marker en ret som lavet — så bogfører appen det her.</div>';
@@ -1079,6 +1529,21 @@ function tegnBudget(){
   });
   h += '</div>';
 
+  const rest = restIForbrug();
+  const flyttet = overfoertIMaaned();
+  h += '<div class="card-tint">'
+    +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px">'
+    +     '<div style="min-width:0"><div class="stat-l" style="color:var(--brand-ink)">Tilovers på dit forbrug</div>'
+    +       '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Dine lofter minus det du har brugt'
+    +         (flyttet ? ' · '+kr(flyttet)+' allerede flyttet' : '')+'</div></div>'
+    +     '<div class="num" style="font-size:26px;font-weight:600;color:var(--brand-ink);white-space:nowrap">'+kr(rest)+'</div>'
+    +   '</div>'
+    +   (S.opsparinger.length
+        ? '<button class="btn btn-block" data-flytforbrug="1"'+(rest <= 0 ? ' disabled' : '')+'>'
+          + icon('pig',16) + (rest > 0 ? 'Flyt til opsparing' : 'Intet at flytte endnu') + '</button>'
+        : '<div class="stat-s" style="color:var(--brand-ink)">Opret et opsparingsmål i indstillinger, så kan du flytte pengene derover.</div>')
+    + '</div>';
+
   h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
     +  '<span>Faste udgifter · '+kr(fasteIalt())+' / måned</span>'
     +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Redigér</button></div>';
@@ -1109,44 +1574,52 @@ function tegnBudget(){
 
 /* ---------------- Tilbud ---------------- */
 function tegnTilbud(){
-  const valgte = valgteButikker();
+  const paaListen = new Set(S.liste.map(i => i.vare));
+  const iPlanen = new Set();
+  S.plan.forEach(d => { if (d.ret && d.status !== 'ude') retById(d.ret).varer.forEach(k => iPlanen.add(k)); });
+
+  // Kun tilbud der hverken står på indkøbslisten eller indgår i ugens madplan.
+  const andre = Object.keys(CATALOG)
+    .filter(k => erTilbud(k) && !paaListen.has(k) && !iPlanen.has(k))
+    .sort((a,b) => (CATALOG[b].normal - pris(b)) - (CATALOG[a].normal - pris(a)));
+
   let h = '';
   h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
-    +  '<span>Dine butikker · '+valgte.length+' valgt</span>'
-    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Vælg butikker</button></div>';
+    +  '<span>Dine butikker · '+valgteButikker().length+' valgt</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Rediger</button></div>';
   h += '<div class="chips">';
   BUTIKKER.forEach(b => { h += '<button class="chip" data-butik="'+esc(b)+'" aria-pressed="'+(S.butikker[b]?'true':'false')+'">'+esc(b)+'</button>'; });
   h += '</div>';
 
-  const split = listeSum();
-  const enButik = valgte.length ? Math.min.apply(null, valgte.map(butikSum)) : split;
-  const billigst = valgte.length ? valgte.reduce((a,b) => butikSum(a) < butikSum(b) ? a : b) : '—';
-  h += '<div class="card-tint"><div style="display:flex;align-items:center;justify-content:space-between;gap:14px">'
-    +  '<div><div class="stat-l" style="color:var(--brand-ink)">Din liste · billigst delt op</div>'
-    +  '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Samlet i én butik: '+kr(enButik)+' ('+esc(billigst)+')</div></div>'
-    +  '<div class="num" style="font-size:28px;font-weight:600;color:var(--brand-ink)">'+kr(split)+'</div></div></div>';
+  h += '<div class="foot-note">'+icon('bulb',15)
+    +  '<span>Alt her er på tilbud og indgår <b>ikke</b> i din madplan. Tryk på en vare for at sætte den på indkøbslisten.</span></div>';
 
-  if (valgte.length > 1){
-    h += '<div class="card"><div class="card-head"><h3>Hvad koster kurven hvor?</h3></div>';
-    valgte.map(b => ({b, s:butikSum(b)})).sort((a,b) => a.s - b.s).forEach((r, i) => {
-      h += '<div class="exp"><div class="ei'+(i===0?' auto':'')+'">'+(i===0?icon('check',15):icon('bag',15))+'</div>'
-        +  '<div class="et"><b>'+esc(r.b)+'</b><span>'+(i===0?'billigst samlet':'+ '+kr(r.s - butikSum(valgte.reduce((a,c)=>butikSum(a)<butikSum(c)?a:c)))+' mere')+'</span></div>'
-        +  '<div class="ev">'+kr(r.s)+'</div></div>';
-    });
-    h += '</div>';
+  if (!andre.length){
+    h += '<div class="card">'+ '<div class="empty">Ingen tilbud udenfor madplanen lige nu. Vælg flere butikker, så dukker der mere op.</div></div>';
+    return h;
   }
 
-  const paaTilbud = Object.keys(CATALOG).filter(k => erTilbud(k));
-  h += '<div class="sec-label">Ugens tilbud · '+paaTilbud.length+' varer i dine butikker</div>';
-  h += '<div style="display:flex;flex-direction:column;gap:9px">';
-  paaTilbud.sort((a,b) => (CATALOG[b].normal - pris(b)) - (CATALOG[a].normal - pris(a))).forEach(k => {
-    const v = CATALOG[k], bp = bedstePris(k);
-    const paaListen = S.liste.some(i => i.vare === k && i.status === 'skal');
-    h += '<div class="offer"><div class="ot"><b>'+esc(v.navn)+'</b>'
-      +  '<span>'+esc(v.enhed)+' · '+esc(bp.butik)+(paaListen?' · på din liste':'')+'</span></div>'
-      +  '<div class="op"><b class="pos">'+kr(bp.pris)+'</b><span class="was">'+kr(v.normal)+'</span></div></div>';
+  const perSektion = {};
+  andre.forEach(k => { (perSektion[CATALOG[k].sektion] = perSektion[CATALOG[k].sektion] || []).push(k); });
+  SEKTIONER.forEach(sek => {
+    const varer = perSektion[sek];
+    if (!varer || !varer.length) return;
+    h += '<div class="sec-label">'+sek+'</div><div style="display:flex;flex-direction:column;gap:9px">';
+    varer.forEach(k => {
+      const v = CATALOG[k], bp = bedstePris(k);
+      const spar = Math.max(0, v.normal - bp.pris);
+      h += '<div class="item" data-tilfoej="'+k+'">'
+        +   '<span class="dot-icon" style="background:var(--brand-tint);color:var(--brand-ink)">'+icon('plus',17)+'</span>'
+        +   '<div class="item-t"><div class="n"><b>'+esc(v.navn)+'</b>'
+        +     '<span class="tag">'+icon('tag',12)+'tilbud'+(bp.butik ? ' · '+esc(bp.butik) : '')+'</span></div>'
+        +     '<div class="m">'+esc(v.enhed)+(spar ? ' · spar '+kr(spar) : '')+'</div></div>'
+        +   '<div class="item-p"><span class="pos">'+kr(bp.pris)+'</span>'
+        +     '<div style="font-size:12px;color:var(--ink-3);text-decoration:line-through;font-weight:400">'+kr(v.normal)+'</div></div>'
+        + '</div>';
+    });
+    h += '</div>';
   });
-  h += '</div>';
+
   h += '<div class="foot-note">'+icon('clock',15)+'<span>Priser fra ugens aviser. I den rigtige app hentes de fra minetilbud.dk og caches i en time.</span></div>';
   return h;
 }
@@ -1220,7 +1693,8 @@ function tegnMadplan(){
             : gjort
               ? '<button class="btn btn-block" data-fortryd="'+dag.dato+'">'+icon('undo',16)+'Fortryd</button>'
               : '<button class="btn btn-brand" style="flex:1;min-width:150px" data-lavet="'+dag.dato+'">'+icon('check',16)+'Jeg har lavet den</button>')
-      +   (!erUde ? '<button class="btn" data-vaelg="'+dag.dato+'" aria-label="Vælg en anden ret">'+icon('book',16)+'</button>' : '')
+      +   (!erUde && r ? '<button class="btn" data-opskrift="'+r.id+'" data-dag="'+dag.dato+'" aria-label="Se opskrift">'+icon('book',16)+'</button>' : '')
+      +   (!erUde ? '<button class="btn" data-vaelg="'+dag.dato+'" aria-label="Vælg en anden ret">'+icon('search',16)+'</button>' : '')
       +   (!erUde ? '<button class="btn" data-byt="'+dag.dato+'" aria-label="Byt til en anden ret">'+icon('shuffle',16)+'</button>' : '')
       +   (!erUde ? '<button class="btn" data-ude="'+dag.dato+'" aria-label="Ude at spise">'+icon('ude',16)+'</button>' : '')
       + '</div></div></div>';
@@ -1242,6 +1716,7 @@ function ugeTekst(){
 /* ---------------- Retter (vælg selv) ---------------- */
 let retSoeg = '';
 let retSort = 'tilbud';
+let retVis = 40;
 function tegnRetter(){
   const paaUgen = S.plan.filter(d => d.ret && d.status !== 'ude').map(d => d.ret);
   let liste = retterTilKost();
@@ -1272,10 +1747,11 @@ function tegnRetter(){
 
   h += '<button class="btn btn-brand btn-block" data-gen="1">'+icon('refresh',17)+'Lav et ugeforslag til mig</button>';
 
-  h += '<div class="sec-label">'+liste.length+' retter</div>';
+  h += '<div class="sec-label">'+liste.length+' retter'+(liste.length > retVis ? ' · viser '+retVis : '')+'</div>';
   h += '<div style="display:flex;flex-direction:column;gap:9px">';
   if (!liste.length) h += '<div class="empty">Ingen retter passer til søgningen og din kostform.</div>';
-  liste.forEach(r => {
+  const vist = liste.slice(0, retVis);
+  vist.forEach(r => {
     const paa = paaUgen.indexOf(r.id) !== -1;
     const maerker = retKostMaerker(r.id);
     h += '<div class="ret-kort'+(paa?' paa-ugen':'')+'" data-ret="'+r.id+'">'
@@ -1286,10 +1762,14 @@ function tegnRetter(){
       +     (paa ? '<span class="kost-maerke">på ugen</span>' : '')
       +   '</div></div>'
       +   '<div class="rp">'+kr(retPris(r.id))+'</div>'
-      +   '<span class="status-btn">'+icon('plus',18)+'</span>'
+      +   '<span class="status-btn">'+icon('chev',18)+'</span>'
       + '</div>';
   });
   h += '</div>';
+  if (liste.length > retVis){
+    h += '<button class="btn btn-block" data-flere="1" style="margin-top:10px">Vis '
+      + Math.min(40, liste.length - retVis) + ' retter mere</button>';
+  }
   return h;
 }
 
@@ -1333,8 +1813,10 @@ function tegnIndkoeb(){
         +   '<div class="item-t"><div class="n"><b>'+esc(v.navn)+'</b>'
         +     (i.status === 'har' ? '<span class="linje-maerke har">har den</span>' : '')
         +     (i.status === 'droppet' ? '<span class="linje-maerke droppet">købes ikke</span>' : '')
-        +     (i.status === 'skal' && bp.tilbud ? '<span class="tag">'+icon('tag',12)+'tilbud</span>' : '')+'</div>'
-        +     '<div class="m">'+esc(v.enhed)+(bp.butik?' · '+esc(bp.butik):'')+(retNavne?' · '+esc(retNavne):'')+'</div></div>'
+        +     (i.status === 'skal' && bp.tilbud && !bp.egen ? '<span class="tag">'+icon('tag',12)+'tilbud'+(bp.butik?' · '+esc(bp.butik):'')+'</span>' : '')
+        +     (bp.egen ? '<span class="tag grey">'+icon('pencil',11)+'din pris</span>' : '')
+        +     (i.manuel ? '<span class="tag grey">ekstra</span>' : '')+'</div>'
+        +     '<div class="m">'+esc(v.enhed)+(retNavne?' · '+esc(retNavne):'')+'</div></div>'
         +   '<div class="item-p">'+(i.status === 'droppet' ? '—' : kr(pris(i.vare)))+'</div>'
         +   '<button class="icon-btn status-btn" data-valg="'+i.vare+'" aria-label="Valgmuligheder for '+esc(v.navn)+'">'+icon('chev',17)+'</button>'
         + '</div>';
@@ -1541,6 +2023,42 @@ function laegRetPaaDag(retId){
   }});
 }
 
+/** Hele opskriften: ingredienser med priser og fremgangsmåde. */
+function visOpskrift(retId, muligheder){
+  const r = retById(retId), o = muligheder || {};
+  const ingr = r.varer.map(k => {
+    const linje = S.liste.find(i => i.vare === k);
+    const har = (S.spisekammer[k] || 0) > 0 || (linje && (linje.status === 'koebt' || linje.status === 'har'));
+    return '<div class="ing"><span class="dot'+(har?' have':'')+'"></span>'
+      + '<span class="in">'+esc(CATALOG[k].navn)+'</span>'
+      + '<span class="iv">'+kr(pris(k))+'</span></div>';
+  }).join('');
+  const trin = (r.trin || []).map((t, i) =>
+    '<li><span>'+esc(t)+'</span></li>').join('');
+
+  const html = '<div class="opskrift">'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    +   '<span class="tag grey">'+icon('clock',12)+r.tid+' min.</span>'
+    +   '<span class="tag grey">'+(r.portioner||2)+' personer</span>'
+    +   '<span class="tag">'+kr(retPris(r.id))+'</span>'
+    +   retKostMaerker(r.id).map(m => '<span class="kost-maerke v">'+icon(KOST[m].ic,11)+KOST[m].kort+'</span>').join('')
+    + '</div>'
+    + '<div class="sec-label" style="padding:0 0 4px">Du skal bruge</div>' + ingr
+    + '<div class="sec-label" style="padding:14px 0 6px">Sådan gør du</div>'
+    + '<ol>' + trin + '</ol>'
+    + '</div>'
+    + '<div class="acts">'
+    +   (o.dag ? '<button class="btn btn-brand" data-vaelgdenne="1" style="min-height:52px">Vælg til '+dagNavn(o.dag).toLowerCase()+'</button>'
+             : '<button class="btn btn-brand" data-laegpaa="1" style="min-height:52px">Læg på en dag</button>')
+    +   '<button class="btn" data-luk="1" style="min-height:52px">Luk</button>'
+    + '</div>';
+
+  visSheet({titel:r.navn, html, ved:(e, fjern) => {
+    if (e.target.closest('[data-vaelgdenne]')){ fjern(); saetRet(o.dag, retId); tegn(); toast(r.navn+' valgt'); }
+    else if (e.target.closest('[data-laegpaa]')){ fjern(); laegRetPaaDag(retId); }
+  }});
+}
+
 function linjeValg(vare){
   const linje = S.liste.find(i => i.vare === vare);
   if (!linje) return;
@@ -1556,8 +2074,20 @@ function linjeValg(vare){
         + '<span class="sv-ic">'+icon(o.ic,18)+'</span>'
         + '<span class="sv-t"><b>'+o.navn+'</b><span>'+esc(o.txt)+'</span></span>'
         + (linje.status===o.k ? '<span class="sv-p">'+icon('check',17)+'</span>' : '') + '</button>').join('')
+    + '<button class="sheet-valg" data-retpris="1"><span class="sv-ic">'+icon('pencil',18)+'</span>'
+    +   '<span class="sv-t"><b>Ret prisen</b><span>'+(bp.egen ? 'Din pris: '+kr(bp.pris)+' — tryk for at ændre' : 'Koster den noget andet i butikken?')+'</span></span>'
+    +   '<span class="sv-p">'+kr(bp.pris)+'</span></button>'
+    + (linje.manuel ? '<button class="sheet-valg" data-fjernlinje="1"><span class="sv-ic">'+icon('trash',18)+'</span>'
+        + '<span class="sv-t"><b>Fjern fra listen</b><span>Du har selv lagt den på</span></span></button>' : '')
     + '</div>';
   visSheet({titel:v.navn, under:v.enhed + (bp.butik ? ' · billigst i ' + bp.butik : ''), html, ved:(e, fjern) => {
+    if (e.target.closest('[data-retpris]')){ fjern(); return retPris_sheet(vare); }
+    if (e.target.closest('[data-fjernlinje]')){
+      fjern();
+      if (linje.status === 'koebt') saetStatus(vare, 'skal', true);
+      S.liste = S.liste.filter(i => i.vare !== vare);
+      tegn(); return toast(v.navn + ' fjernet fra listen');
+    }
     const b = e.target.closest('[data-linjevalg]');
     if (!b) return;
     const ny = b.dataset.linjevalg;
@@ -1572,22 +2102,96 @@ function linjeValg(vare){
   }});
 }
 
+/** Flyt det ubrugte forbrugsbudget over i en opsparing. */
+function flytForbrug(){
+  const rest = restIForbrug();
+  if (rest <= 0) return toast('Der er ikke noget tilovers endnu');
+  if (!S.opsparinger.length) return toast('Opret et opsparingsmål først');
+  let maalId = S.aktivOpsparing || S.opsparinger[0].id;
+
+  const linjer = restPrKategori().filter(r => r.rest > 0)
+    .map(r => '<div class="ing"><span class="in">'+esc(r.kat.navn)+'</span><span class="iv">'+kr(r.rest)+'</span></div>').join('');
+
+  const html = '<div style="margin-bottom:14px">' + linjer + '</div>'
+    + felt('Hvor meget vil du flytte? (kr.)', 'f-belob', Math.round(rest), 'number')
+    + '<label>Over på</label><div class="sheet-liste" style="max-height:30vh;margin-bottom:14px">'
+    + S.opsparinger.map(o => '<button class="sheet-valg" data-maal="'+o.id+'" aria-pressed="'+(o.id===maalId)+'">'
+        + '<span class="sv-ic">'+icon('pig',18)+'</span>'
+        + '<span class="sv-t"><b>'+esc(o.navn)+'</b><span>'+kr(o.sparet)+' af '+kr(o.maal)+'</span></span></button>').join('')
+    + '</div>' + knapRaekke('Flyt pengene');
+
+  const sh = visSheet({titel:'Flyt det du ikke brugte', under:'Du har '+kr(rest)+' tilbage på dine forbrugslofter denne måned.', html,
+    ved:(e, fjern) => {
+      const m = e.target.closest('[data-maal]');
+      if (m){
+        maalId = m.dataset.maal;
+        sh.node.querySelectorAll('[data-maal]').forEach(b => b.setAttribute('aria-pressed', b.dataset.maal === maalId));
+        return;
+      }
+      if (!e.target.closest('[data-ok]')) return;
+      const v = Math.round(Number(sh.node.querySelector('#f-belob').value) || 0);
+      fjern();
+      if (v <= 0) return;
+      if (v > rest) return toast('Du kan højst flytte ' + kr(rest));
+      const o = S.opsparinger.find(x => x.id === maalId);
+      o.sparet += v;
+      S.overfoersler.push({id:uid(), dato:ymd(new Date()), belob:v, maal:o.id});
+      logFør(kr(v)+' flyttet fra forbrug til '+o.navn, 0, 'opsparing');
+      tegn();
+      toast(kr(v)+' flyttet til '+o.navn);
+    }});
+}
+
+/** Ret prisen på en råvare — fx hvis mælk koster 12 og ikke 11. */
+function retPris_sheet(vare){
+  const v = CATALOG[vare], bp = bedstePris(vare);
+  const butikspris = (function(){
+    const m = (v.tilbud || []).filter(t => S.butikker[t.b]);
+    return m.length ? m.reduce((a,c) => c.p < a.p ? c : a).p : v.normal;
+  })();
+  const html = felt('Hvad koster den? (kr.)', 'f-pris', bp.pris, 'number')
+    + '<div class="stat-s" style="margin:-4px 0 14px">Butikspris nu: '+kr(butikspris)+' · normalpris '+kr(v.normal)+'</div>'
+    + '<div class="acts"><button class="btn btn-brand" data-ok="1" style="min-height:52px">Gem prisen</button>'
+    + (bp.egen ? '<button class="btn" data-nulstilpris="1" style="min-height:52px">Brug butikkens pris igen</button>' : '')
+    + '<button class="btn" data-luk="1" style="min-height:52px">Annullér</button></div>';
+
+  visSheet({titel:v.navn, under:v.enhed + (bp.butik ? ' · billigst i ' + bp.butik : ''), html, ved:(e, fjern) => {
+    if (e.target.closest('[data-nulstilpris]')){
+      fjern(); delete S.priser[vare]; tegn(); return toast('Bruger butikkens pris igen');
+    }
+    if (!e.target.closest('[data-ok]')) return;
+    const ny = Number(e.target.closest('.sheet').querySelector('#f-pris').value);
+    fjern();
+    if (!isFinite(ny) || ny < 0) return toast('Skriv et beløb');
+    S.priser[vare] = Math.round(ny * 100) / 100;
+    // Er varen allerede bogført, rettes udgiften med, så budgettet passer.
+    const linje = S.liste.find(i => i.vare === vare);
+    if (linje && linje.status === 'koebt'){
+      saetStatus(vare, 'skal', true);
+      saetStatus(vare, 'koebt', true);
+    }
+    logFør(v.navn + ' koster nu ' + kr(S.priser[vare]), 0, 'fri');
+    tegn();
+    toast(v.navn + ' sat til ' + kr(S.priser[vare]));
+  }});
+}
+
 /* ============================================================
    Ramme: header, faner, hændelser
    ============================================================ */
 const FANER = [
   {key:'hjem',    navn:'Hjem',    ic:'home'},
   {key:'budget',  navn:'Budget',  ic:'wallet'},
-  {key:'tilbud',  navn:'Tilbud',  ic:'tag'},
   {key:'madplan', navn:'Madplan', ic:'cal'},
   {key:'retter',  navn:'Retter',  ic:'book'},
-  {key:'indkob',  navn:'Indkøb',  ic:'cart'}
+  {key:'indkob',  navn:'Indkøb',  ic:'cart'},
+  {key:'tilbud',  navn:'Andre tilbud', ic:'tag'}
 ];
 const TITLER = {
   hjem:    () => ({t:'Hej, Mads', s:'Dit budget · '+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear(),
                    h:'<button class="icon-btn" data-gaatil="indstillinger" aria-label="Indstillinger">'+icon('gear',21)+'</button>'}),
   budget:  () => ({t:'Budget', s:'Alt bogføres automatisk', h:'<span class="hdr-note">'+MONTHS[new Date().getMonth()]+'</span>'}),
-  tilbud:  () => ({t:'Tilbud', s:valgteButikker().length+' butikker · ugens aviser', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'}),
+  tilbud:  () => ({t:'Andre tilbud', s:'Tilbud der ikke er i din madplan', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'}),
   madplan: () => ({t:'Madplan', s:'Uge '+S.uge+' · '+shortDay(mondayOf(new Date()))+' – '+shortDay(new Date(mondayOf(new Date()).getTime()+6*86400000)), h:'<span class="hdr-note">Deles · fælles</span>'}),
   retter:  () => ({t:'Retter', s:'Vælg selv hvad I skal spise', h:'<span class="hdr-note">'+RETTER.length+' retter</span>'}),
   indkob:  () => ({t:'Indkøbsliste', s:'Uge '+S.uge+' · deles', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'}),
@@ -1638,7 +2242,7 @@ document.addEventListener('click', (e) => {
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
     + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],'
-    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost]');
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug]');
 
   if (!t){
     // Tryk hvor som helst på en varelinje eller en dag
@@ -1707,8 +2311,19 @@ document.addEventListener('click', (e) => {
     });
   }
   if (d.tilbagepaa) return vaelgRetTilDag(d.tilbagepaa);
-  if (d.ret) return laegRetPaaDag(d.ret);
-  if (d.sort){ retSort = d.sort; return tegn(); }
+  if (d.ret) return visOpskrift(d.ret);
+  if (d.opskrift) return visOpskrift(d.opskrift, {dag: t.dataset.dag || null});
+  if (d.sort){ retSort = d.sort; retVis = 40; return tegn(); }
+  if (d.flere){ retVis += 40; return tegn(); }
+  if (d.tilfoej){
+    const k = d.tilfoej;
+    if (S.liste.some(i => i.vare === k)) return toast(CATALOG[k].navn + ' er allerede på listen');
+    S.liste.push({vare:k, retter:[], status:'skal', manuel:true});
+    S.liste = sorterListe(S.liste);
+    logFør(CATALOG[k].navn + ' lagt på indkøbslisten', 0, 'fri');
+    bump(8); tegn();
+    return toast(CATALOG[k].navn + ' lagt på listen', () => { S.liste = S.liste.filter(i => i.vare !== k); });
+  }
   if (d.kost) return vaelgKost();
   if (d.saetkost){
     if (S.kost !== d.saetkost){ S.kost = d.saetkost; synkroniserListe(); }
@@ -1760,6 +2375,7 @@ document.addEventListener('click', (e) => {
         tegn(); toast(kr(v)+' lagt til '+o.navn);
       }});
   }
+  if (d.flytforbrug) return flytForbrug();
   if (d.flytsparet){
     const o = S.opsparinger.find(x => x.id === d.flytsparet);
     const beloeb = Math.round(S.sparetIalt);
@@ -1862,7 +2478,7 @@ document.addEventListener('change', (e) => {
 });
 
 document.addEventListener('input', (e) => {
-  if (e.target && e.target.id === 'retsoeg'){ retSoeg = e.target.value; tegn(); }
+  if (e.target && e.target.id === 'retsoeg'){ retSoeg = e.target.value; retVis = 40; tegn(); }
 });
 
 /* ---------------- stryg mellem faner ---------------- */
