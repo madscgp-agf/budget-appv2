@@ -872,6 +872,10 @@ const ICONS = {
   maal:'<circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.2"/>',
   pig:'<path d="M4.5 12.5a6.5 6.5 0 0 1 6.5-6h3a6.5 6.5 0 0 1 6.5 6.5c0 2-1 3.7-2.5 4.8V20h-3v-1.5h-5V20h-3v-2.2A6.4 6.4 0 0 1 4.5 12.5z"/><path d="M4.5 11 2.5 9v4z"/><circle cx="16" cy="12" r=".9" fill="currentColor" stroke="none"/>',
   sprout:'<path d="M12 20.5v-7"/><path d="M12 13.5C12 9.9 9.1 7 5.5 7c0 3.6 2.9 6.5 6.5 6.5z"/><path d="M12 13.5c0-3 2.5-5.5 5.5-5.5 0 3-2.5 5.5-5.5 5.5z"/>',
+  cam:'<path d="M3 8.6A2.1 2.1 0 0 1 5.1 6.5h2.3l1.3-2h6.6l1.3 2h2.3A2.1 2.1 0 0 1 21 8.6v9.3A2.1 2.1 0 0 1 18.9 20H5.1A2.1 2.1 0 0 1 3 17.9z"/><circle cx="12" cy="12.6" r="3.4"/>',
+  billeder:'<rect x="7.5" y="3.5" width="13" height="10" rx="2"/><path d="M16 17v1.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2H7"/><path d="M10 11.2l2.6-2.4 3.4 3 1.8-1.4 2.7 2.4"/>',
+  link:'<path d="M10 13.5a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7L11.5 6.4"/><path d="M14 10.5a4 4 0 0 0-5.7 0L5.5 13.3a4 4 0 0 0 5.7 5.7l1.3-1.3"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M17 5.5a3.2 3.2 0 0 1 0 6"/><path d="M18.5 14.4A6.5 6.5 0 0 1 22 20"/>',
   moon:'<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/>'
 };
 function icon(n, s){ s = s || 20; return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[n]||'')+'</svg>'; }
@@ -2234,11 +2238,7 @@ function tegnHjem(){
     +   '<div class="card-flat"><div class="stat-l">Varer købt</div><div class="stat-v">'+koebt+'<span style="font-size:15px;color:var(--ink-3);font-weight:400">/'+S.liste.length+'</span></div></div>'
     + '</div>';
 
-  h += '<div style="display:flex;gap:9px">'
-    +   '<label class="btn btn-brand" style="flex:1;cursor:pointer">'+icon('cam',17)+'Scan kvittering'
-    +     '<input type="file" accept="image/*" capture="environment" id="kvit-fil" style="display:none"></label>'
-    +   '<button class="btn" style="flex:1" data-nyudgift="1">'+icon('plus',17)+'Udgift</button>'
-    + '</div>';
+  h += kvitteringKnapper();
 
   h += '<div class="card"><div class="card-head"><h3>Din aktivitet</h3>'
     +  (S.log.length ? '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-ryd="1">Ryd</button>' : '') + '</div>';
@@ -2345,11 +2345,7 @@ function tegnBudget(){
   if (!S.faste.length) h += '<div class="empty">Ingen faste udgifter tilføjet.</div>';
   h += '</div>';
 
-  h += '<div style="display:flex;gap:9px">'
-    +   '<label class="btn btn-brand" style="flex:1;cursor:pointer">'+icon('cam',17)+'Scan kvittering'
-    +     '<input type="file" accept="image/*" capture="environment" id="kvit-fil" style="display:none"></label>'
-    +   '<button class="btn" style="flex:1" data-nyudgift="1">'+icon('plus',17)+'Udgift</button>'
-    + '</div>';
+  h += kvitteringKnapper();
 
   h += '<div class="card"><div class="card-head"><h3>Seneste udgifter</h3>'
     +  '<span class="tag">'+icon('bolt',13)+krPlain(S.udgifter.filter(u=>u.kilde==='auto').length)+' automatisk</span></div>';
@@ -2718,8 +2714,8 @@ function tegnIndstillinger(){
 
   h += '<div class="card"><div class="card-head"><h3>Sådan virker kvitteringer</h3></div>'
     +   '<ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.65;color:var(--ink-2)">'
-    +     '<li>Tryk <b>Scan kvittering</b> på forsiden eller under Budget.</li>'
-    +     '<li>Telefonen åbner kameraet — tag billedet, eller vælg et fra galleriet.</li>'
+    +     '<li>Tryk <b>Tag billede</b> eller <b>Kamerarulle</b> på forsiden eller under Budget.</li>'
+    +     '<li><b>Tag billede</b> åbner kameraet. <b>Kamerarulle</b> lader dig vælge billeder du allerede har — også flere ad gangen.</li>'
     +     '<li>Vælg kategori (fx <b>Ud at spise</b>), skriv beløbet, tryk <b>Bogfør</b>.</li>'
     +     '<li>Billedet gemmes på denne telefon. Tryk på udgiften for at se det igen.</li>'
     +   '</ol>'
@@ -3049,6 +3045,7 @@ function flytForbrug(maaned){
 function udgiftSheet(muligheder2){
   muligheder2 = muligheder2 || {};
   const billede = muligheder2.billede, gaet = muligheder2.gaet;
+  const tilbage = muligheder2.tilbage || 0, nr = muligheder2.nr || 1, ialt = muligheder2.ialt || 1;
   if (!S.kategorier.length) return toast('Opret en kategori først');
   let katId = (S.kategorier.find(k => !k.dagligvare) || S.kategorier[0]).id;
   if (gaet && gaet.butik) katId = (dagligvareKat() || {}).id || katId;
@@ -3077,11 +3074,12 @@ function udgiftSheet(muligheder2){
     + knapRaekke('Bogfør');
 
   const sh = visSheet({
-    titel: billede ? 'Kvittering' : 'Ny udgift',
+    titel: billede ? (ialt > 1 ? 'Kvittering ' + nr + ' af ' + ialt : 'Kvittering') : 'Ny udgift',
     under: billede
       ? (gaet && gaet.total ? 'Tjek at beløbet passer, og vælg kategori.' : 'Skriv beløbet, og vælg hvilken kategori det hører til.')
       : 'Fx en middag ude, en togbillet eller en biograftur.',
     html: html,
+    luk: () => { if (tilbage) setTimeout(naesteKvittering, 300); },
     ved: async (e, fjern) => {
       const k = e.target.closest('[data-kat]');
       if (k){
@@ -3117,20 +3115,48 @@ function udgiftSheet(muligheder2){
       });
       const kat = S.kategorier.find(x => x.id === katId);
       logFør(tekst + ' · ' + (kat ? kat.navn : '') + (billede ? ' (kvittering)' : ''), belob, 'koeb');
-      fjern(); tegn();
+      fjern(); tegn();     // fjern() kalder luk-handleren, som tager den næste i køen
       toast(kr(belob) + ' bogført under ' + (kat ? kat.navn : 'udgifter'));
     }});
 }
 
-async function kvitteringValgt(fil){
-  if (!fil) return;
-  toast('Behandler billedet…');
+/* "capture" tvinger kameraet frem og springer kamerarullen over, så de to
+   må have hvert sit felt. */
+function kvitteringKnapper(){
+  return '<div style="display:flex;gap:9px">'
+    +   '<label class="btn btn-brand" style="flex:1;cursor:pointer">'+icon('cam',17)+'Tag billede'
+    +     '<input type="file" accept="image/*" capture="environment" id="kvit-kamera" style="display:none"></label>'
+    +   '<label class="btn" style="flex:1;cursor:pointer">'+icon('billeder',17)+'Kamerarulle'
+    +     '<input type="file" accept="image/*" multiple id="kvit-galleri" style="display:none"></label>'
+    +   '<button class="btn" data-nyudgift="1" aria-label="Udgift uden kvittering" style="flex:none;padding:12px 14px">'+icon('plus',17)+'</button>'
+    + '</div>';
+}
+
+/** Vælger man flere kvitteringer, bogføres de én efter én. */
+let kvitteringKoe = [], kvitteringIalt = 0, kvitteringNr = 0;
+
+function kvitteringValgt(filer){
+  const liste = (filer || []).filter(f => f && /^image\//.test(f.type));
+  if (!liste.length) return toast('Vælg et billede');
+  kvitteringKoe = liste;
+  kvitteringIalt = liste.length;
+  kvitteringNr = 0;
+  naesteKvittering();
+}
+
+async function naesteKvittering(){
+  if (!kvitteringKoe.length) return;
+  const fil = kvitteringKoe.shift();
+  kvitteringNr += 1;
+  const nr = kvitteringNr, ialt = kvitteringIalt;
+  toast(ialt > 1 ? 'Behandler billede ' + nr + ' af ' + ialt : 'Behandler billedet…');
   try {
     const billede = await skalerBillede(fil, 1100);
     const gaet = await laesKvittering(billede.element);
-    udgiftSheet({billede: billede, gaet: gaet});
+    udgiftSheet({billede: billede, gaet: gaet, nr: nr, ialt: ialt, tilbage: kvitteringKoe.length});
   } catch(e){
     toast(e.message || 'Billedet kunne ikke bruges');
+    naesteKvittering();
   }
 }
 
@@ -3808,10 +3834,10 @@ document.addEventListener('change', (e) => {
 });
 
 document.addEventListener('change', (e) => {
-  if (e.target && e.target.id === 'kvit-fil'){
-    const fil = e.target.files && e.target.files[0];
-    e.target.value = '';
-    kvitteringValgt(fil);
+  if (e.target && (e.target.id === 'kvit-kamera' || e.target.id === 'kvit-galleri')){
+    const kopi = e.target.files ? Array.prototype.slice.call(e.target.files) : [];
+    e.target.value = '';        // så samme billede kan vælges igen
+    kvitteringValgt(kopi);
   }
 });
 
