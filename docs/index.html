@@ -1105,17 +1105,24 @@ const retTilbud = (id) => retById(id).varer.filter(erTilbud).length;
 /* ---------- madplan ---------- */
 function retterTilKost(){ return RETTER.filter(r => retPasserKost(r.id, S ? S.kost : 'alle')); }
 
-function nyMadplan(undgaa){
-  const pulje = retterTilKost().slice().sort((a,b) =>
-    retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id));
-  const valgte = [];
-  let sum = 0;
-  for (const r of pulje){
-    if (valgte.length === 7) break;
-    if (undgaa && undgaa.indexOf(r.id) !== -1 && pulje.length - valgte.length > 7) continue;
-    if (sum + retPris(r.id) > UGEBUDGET_MAD && valgte.length >= 5) continue;
-    valgte.push(r.id); sum += retPris(r.id);
+/** Bland en liste — Fisher-Yates, så alle rækkefølger er lige sandsynlige. */
+function bland(liste){
+  const x = liste.slice();
+  for (let i = x.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = x[i]; x[i] = x[j]; x[j] = t;
   }
+  return x;
+}
+
+/**
+ * Trækker syv tilfældige retter fra den valgte kostform.
+ * Eneste krav: den samme ret må ikke gå igen i ugen.
+ */
+function nyMadplan(){
+  const pulje = bland(retterTilKost());
+  const valgte = pulje.slice(0, 7).map(r => r.id);
+  // Har man et meget snævert udvalg, må noget gå igen — ellers bliver ugen ikke fuld.
   let i = 0;
   while (valgte.length < 7 && pulje.length){ valgte.push(pulje[i % pulje.length].id); i++; }
   const man = mondayOf(new Date());
@@ -1123,6 +1130,15 @@ function nyMadplan(undgaa){
     const d = new Date(man); d.setDate(man.getDate() + n);
     return {dato: ymd(d), ret: id, status: 'planlagt'};
   });
+}
+
+/** En tilfældig ret der ikke allerede står på ugeplanen. */
+function tilfaeldigRet(undtagen){
+  const optaget = new Set((undtagen || []).filter(Boolean));
+  const fri = retterTilKost().filter(r => !optaget.has(r.id));
+  const pulje = fri.length ? fri : retterTilKost();
+  if (!pulje.length) return null;
+  return pulje[Math.floor(Math.random() * pulje.length)];
 }
 
 /* ---------- indkøbsliste ----------
@@ -1185,7 +1201,7 @@ function friskState(){
   BUTIKKER.forEach(b => { s.butikker[b] = ['Føtex','Lidl','Rema 1000','Netto'].indexOf(b) !== -1; });
   s.aktivOpsparing = s.opsparinger[0].id;
   S = s;                       // nyMadplan læser S.kost og butiksvalg
-  s.plan = nyMadplan([]);
+  s.plan = nyMadplan();
   s.liste = listeFraPlan(s.plan);
   return s;
 }
@@ -1202,7 +1218,7 @@ function hent(){
     if (d.ugestart !== ymd(mondayOf(new Date())) && d.auto && d.auto.ugeskift){
       d.uge = isoWeek(new Date());
       d.ugestart = ymd(mondayOf(new Date()));
-      d.plan = nyMadplan([]);
+      d.plan = nyMadplan();
       synkroniserListe();
       d.log.unshift({id:uid(), tid:Date.now(), slags:'uge', tekst:'Ny uge – madplan og indkøbsliste er lavet forfra', belob:0});
     }
@@ -1376,11 +1392,8 @@ function udeAtSpise(dato){
   logFør(dagNavn(dato) + ': ude at spise — retten er taget af planen', 0, 'plan');
 }
 function byttRet(dato){
-  const brugt = S.plan.map(d => d.ret);
-  const pulje = retterTilKost().filter(r => brugt.indexOf(r.id) === -1);
-  const kandidater = (pulje.length ? pulje : retterTilKost())
-    .slice().sort((a,b) => retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id));
-  if (kandidater.length) saetRet(dato, kandidater[0].id);
+  const valg = tilfaeldigRet(S.plan.map(d => d.ret));
+  if (valg) saetRet(dato, valg.id);
 }
 function dagNavn(dato){
   const d = new Date(dato + 'T00:00:00');
@@ -2013,10 +2026,7 @@ function vaelgKost(){
     S.plan.forEach(dag => {
       if (!dag.ret || dag.status === 'lavet' || dag.status === 'ude') return;
       if (retPasserKost(dag.ret, ny)) return;
-      const brugt = S.plan.map(d => d.ret);
-      const erstat = retterTilKost().filter(r => brugt.indexOf(r.id) === -1)
-        .sort((a,b) => retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id))[0]
-        || retterTilKost()[0];
+      const erstat = tilfaeldigRet(S.plan.map(d => d.ret));
       if (erstat){ dag.ret = erstat.id; skiftet++; }
     });
     synkroniserListe();
@@ -2370,7 +2380,7 @@ document.addEventListener('click', (e) => {
   }
 
   if (d.gen){
-    S.plan = nyMadplan(S.plan.map(x => x.ret));
+    S.plan = nyMadplan();
     synkroniserListe();
     logFør('Nyt ugeforslag · '+kr(planSum()), 0, 'plan');
     if (visning === 'retter') skiftFane('madplan'); else tegn();
@@ -2544,7 +2554,7 @@ document.addEventListener('input', (e) => {
 
 /* ---------------- start ---------------- */
 S = hent() || friskState();
-if (!S.plan.length){ S.plan = nyMadplan([]); synkroniserListe(); }
+if (!S.plan.length){ S.plan = nyMadplan(); synkroniserListe(); }
 tegn();
 </script>
 

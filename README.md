@@ -238,6 +238,9 @@ It covers:
 - **A Retter tab** — browse all dishes, search by name or raw ingredient, sort by
   offers, price or cooking time, and put any dish on any day. Nothing is picked
   at random unless you ask for a week suggestion.
+- **Random week suggestions** — a week is drawn at random from every dish that
+  fits the chosen diet, with one rule: no dish twice in the same week. Swapping
+  a single day draws another dish that is not already on the week.
 - **Per-day control** — swap a dish, pick a specific one, or mark the day
   *ude at spise*, which drops it from the plan and the shopping list.
 - **Opsparing** — several goals, pick which one you are following, and a running
