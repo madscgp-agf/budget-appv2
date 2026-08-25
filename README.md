@@ -206,6 +206,28 @@ self-contained page: meal plan, offers, shopping list and a budget that books
 itself. It is a PWA — installable on a phone home screen, and it keeps working
 in the shop with no signal.
 
+It covers:
+
+- **11 butikker** — Føtex, Bilka, Kvickly, SuperBrugsen, Brugsen, Coop 365,
+  Rema 1000, Netto, Lidl, ALDI and Meny. Each item carries offers from several
+  chains, so picking your shops actually changes what the basket costs and which
+  shop each line points at.
+- **Per-item decisions** — every line can be *købt*, *har den i forvejen* or
+  *købes ikke*. Only *købt* touches the budget; the other two leave it alone and
+  are respected when a dish is cooked.
+- **Kostform** — alt / halal / vegetarisk / vegansk. A dish's diet is derived
+  from its ingredients rather than hand-tagged, and the setting is visible and
+  changeable straight from the meal plan.
+- **A Retter tab** — browse all dishes, search by name or raw ingredient, sort by
+  offers, price or cooking time, and put any dish on any day. Nothing is picked
+  at random unless you ask for a week suggestion.
+- **Per-day control** — swap a dish, pick a specific one, or mark the day
+  *ude at spise*, which drops it from the plan and the shopping list.
+- **Opsparing** — several goals, pick which one you are following, and a running
+  *sparet i alt* since the day you started, which you can move into a goal.
+- **Editable finances** — income, spending categories with their monthly limits,
+  and fixed expenses are all yours to add, rename, re-price and delete.
+
 The automation is the point:
 
 - Tick an item in **Indkøb** → the amount is booked as `Dagligvarer` and

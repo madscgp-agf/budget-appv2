@@ -363,6 +363,99 @@ button{font:inherit;color:inherit}
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
+
+/* ---------- segmenteret vælger (kost, sortering) ---------- */
+.seg{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:13px}
+.seg button{
+  flex:1;border:0;background:none;padding:10px 8px;border-radius:10px;min-height:44px;
+  font-size:13.5px;font-weight:500;color:var(--ink-2);cursor:pointer;font-family:var(--font-b);
+  transition:background .15s,color .15s;white-space:nowrap;
+}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+
+/* ---------- retvælger ---------- */
+.soeg{position:relative}
+.soeg input{
+  width:100%;padding:13px 15px 13px 42px;border-radius:13px;min-height:48px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font:inherit;font-size:15px;outline:none;
+}
+.soeg input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+.soeg .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
+.ret-kort{
+  display:flex;align-items:center;gap:13px;background:var(--surface-2);border-radius:var(--r-md);
+  padding:15px;min-height:70px;cursor:pointer;transition:transform .08s,background .2s;
+}
+.ret-kort:active{transform:scale(.985);background:var(--surface-3)}
+.ret-kort.paa-ugen{background:var(--brand-tint)}
+.ret-kort .rt{flex:1;min-width:0}
+.ret-kort .rt b{font-size:15px;font-weight:500;display:block}
+.ret-kort .rt .meta{font-size:12.5px;color:var(--ink-3);margin-top:3px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.ret-kort .rp{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;white-space:nowrap}
+.kost-maerke{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--surface-3);color:var(--ink-2)}
+.kost-maerke.v{background:var(--brand-tint);color:var(--brand-ink)}
+
+/* ---------- indkøbslinjer med status ---------- */
+.item.har .item-t .n b,.item.droppet .item-t .n b{text-decoration:none}
+.item.har{background:var(--brand-tint)}
+.item.droppet{opacity:.45}
+.item .status-btn{flex:none;color:var(--ink-3)}
+.linje-maerke{font-size:11.5px;font-weight:500;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.linje-maerke.har{background:var(--brand);color:#fff}
+.linje-maerke.droppet{background:var(--surface-3);color:var(--ink-2)}
+
+/* ---------- dage ---------- */
+.day.ude{background:var(--surface-2);opacity:.72}
+.day.ude .day-name>b{font-style:italic;color:var(--ink-2)}
+
+/* ---------- indstillinger ---------- */
+.set-blok{display:flex;flex-direction:column;gap:10px}
+.goal-row{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:var(--r-md);padding:14px 15px;min-height:64px}
+.goal-row.aktiv{background:var(--brand-tint)}
+.goal-row .gt{flex:1;min-width:0}
+.goal-row .gt b{font-size:14.5px;font-weight:500;display:block}
+.goal-row .gt span{font-size:12.5px;color:var(--ink-3)}
+.goal-row .gv{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-weight:500;font-size:14px;white-space:nowrap}
+
+/* ---------- butiksvalg ---------- */
+.butik-net{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.butik-kort{
+  display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--surface);
+  border-radius:13px;padding:12px 13px;min-height:52px;cursor:pointer;font-size:14px;font-weight:500;
+  transition:border-color .15s,background .15s,transform .08s;text-align:left;
+}
+.butik-kort:active{transform:scale(.97)}
+.butik-kort[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-ink)}
+.butik-kort .mark{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);flex:none;display:grid;place-items:center;color:#fff}
+.butik-kort[aria-pressed="true"] .mark{background:var(--brand);border-color:var(--brand)}
+.butik-kort .mark svg{opacity:0}
+.butik-kort[aria-pressed="true"] .mark svg{opacity:1}
+
+/* ---------- sheet-liste ---------- */
+.sheet-liste{display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet-valg{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  border:1px solid var(--line);background:var(--surface);border-radius:13px;padding:13px 15px;min-height:56px;
+  font:inherit;font-size:15px;cursor:pointer;color:var(--ink);transition:background .15s,transform .08s;
+}
+.sheet-valg:active{transform:scale(.98)}
+.sheet-valg[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-ink)}
+.sheet-valg .sv-ic{width:26px;flex:none;display:grid;place-items:center;color:var(--ink-3)}
+.sheet-valg[aria-pressed="true"] .sv-ic{color:var(--brand-ink)}
+.sheet-valg .sv-t{flex:1;min-width:0}
+.sheet-valg .sv-t b{display:block;font-weight:500;font-size:14.5px}
+.sheet-valg .sv-t span{display:block;font-size:12.5px;color:var(--ink-3)}
+.sheet-valg .sv-p{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink-2)}
+.sheet input[type=text],.sheet input[type=number]{
+  width:100%;padding:13px 15px;border-radius:13px;min-height:50px;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--ink);font:inherit;font-size:16px;outline:none;
+}
+.sheet input:focus{border-color:var(--brand)}
+.sheet label{font-size:13px;color:var(--ink-2);font-weight:500;display:block;margin-bottom:6px}
+
+/* seks faner: lidt strammere */
+.tab{font-size:9.8px;gap:3px}
+.tab .tn svg{width:21px;height:21px}
 </style>
 
 </head>
@@ -378,8 +471,7 @@ button{font:inherit;color:inherit}
 "use strict";
 
 /* ============================================================
-   Toget — husholdningsbudget der bogfører sig selv.
-   Alt hænger sammen: tilbud → madplan → indkøbsliste → budget.
+   Toget — madplan, tilbud og et budget der bogfører sig selv.
    ============================================================ */
 
 const ICONS = {
@@ -388,17 +480,20 @@ const ICONS = {
   tag:'<path d="M11.6 3.5H20v8.4l-8.7 8.7a1.6 1.6 0 0 1-2.3 0l-6.1-6.1a1.6 1.6 0 0 1 0-2.3z"/><circle cx="16.4" cy="7.6" r="1.3"/>',
   cal:'<rect x="3" y="5" width="18" height="16" rx="2.4"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   cart:'<circle cx="9.5" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.6l2.6 11.3h11l2.3-8.2H6.4"/>',
+  book:'<path d="M4 4.5h7a2.5 2.5 0 0 1 2.5 2.5v13a2 2 0 0 0-2-2H4z"/><path d="M20 4.5h-6.5A2.5 2.5 0 0 0 11 7v13a2 2 0 0 1 2-2h7z"/>',
   check:'<path d="M4.5 12.6 9.4 17.4 19.6 6.9"/>',
   bolt:'<path d="M13.2 2.5 4.8 13.4h5.6l-.6 8.1 8.4-10.9h-5.6z"/>',
   refresh:'<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.8 4.2v4.6h-4.6"/>',
   chev:'<path d="M6 9.2 12 15l6-5.8"/>',
+  back:'<path d="M15 5.5 8 12l7 6.5"/>',
   x:'<path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/>',
   shuffle:'<path d="M3.5 6.5h3.2l9.8 11h3.9M3.5 17.5h3.2l3.1-3.5M14.4 8.2l2-1.7h3.9"/><path d="M17.6 3.6 20.6 6.5l-3 2.9M17.6 14.6l3 2.9-3 2.9"/>',
   gear:'<circle cx="12" cy="12" r="3.1"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.9 1.9M7.4 16.6l-1.9 1.9M18.5 18.5l-1.9-1.9M7.4 7.4 5.5 5.5"/>',
   plus:'<path d="M12 5.2v13.6M5.2 12h13.6"/>',
-  cam:'<path d="M3 8.6A2.1 2.1 0 0 1 5.1 6.5h2.3l1.3-2h6.6l1.3 2h2.3A2.1 2.1 0 0 1 21 8.6v9.3A2.1 2.1 0 0 1 18.9 20H5.1A2.1 2.1 0 0 1 3 17.9z"/><circle cx="12" cy="12.6" r="3.4"/>',
+  minus:'<path d="M5.2 12h13.6"/>',
+  pencil:'<path d="M4 20h4L18.5 9.5a2.8 2.8 0 0 0-4-4L4 16z"/>',
+  trash:'<path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/>',
   house:'<path d="M3.6 10.8 12 4.2l8.4 6.6"/><path d="M5.8 9.6V19.8h12.4V9.6"/>',
-  spark:'<path d="M6.5 3.5v5M4 6h5"/><path d="M15 10.5 17.2 16l5.3 2.2-5.3 2.2L15 25"/><path d="M14.8 9.4 17 15l5.5 2.2L17 19.4l-2.2 5.5-2.2-5.5L7.1 17.2 12.6 15z"/>',
   leaf:'<path d="M4.5 19.5C3 14 6.5 5.5 19.5 4.5c1 12-7 16.5-12.5 15"/><path d="M4.5 19.5 13 11"/>',
   car:'<path d="M4.5 16.5h15M5.5 16.5v2.2M18.5 16.5v2.2"/><path d="M4.2 16.5 5.6 10a2 2 0 0 1 2-1.6h8.8a2 2 0 0 1 2 1.6l1.4 6.5"/><circle cx="7.6" cy="13.4" r=".9" fill="currentColor" stroke="none"/><circle cx="16.4" cy="13.4" r=".9" fill="currentColor" stroke="none"/>',
   fork:'<path d="M6 3v6.5a2 2 0 0 0 4 0V3M8 11.5V21"/><path d="M16.5 3c-1.6 1.2-2.2 3-2.2 5.2 0 1.6.8 2.6 2.2 2.8V21"/>',
@@ -407,12 +502,17 @@ const ICONS = {
   bulb:'<path d="M9 17.5h6M10 20.5h4"/><path d="M12 3.5a5.6 5.6 0 0 1 3.4 10.1c-.6.5-.9 1.1-.9 1.8H9.5c0-.7-.3-1.3-.9-1.8A5.6 5.6 0 0 1 12 3.5z"/>',
   clock:'<circle cx="12" cy="12" r="8.6"/><path d="M12 7.2V12l3.2 2"/>',
   undo:'<path d="M4 9.5h9.5a5.5 5.5 0 0 1 0 11H8"/><path d="M7.6 5.4 3.4 9.5l4.2 4.2"/>',
-  bag:'<path d="M5 8h14l-1 12.5H6z"/><path d="M9 8V6.4a3 3 0 0 1 6 0V8"/>'
+  bag:'<path d="M5 8h14l-1 12.5H6z"/><path d="M9 8V6.4a3 3 0 0 1 6 0V8"/>',
+  search:'<circle cx="11" cy="11" r="6.6"/><path d="M20 20l-3.6-3.6"/>',
+  ban:'<circle cx="12" cy="12" r="8.6"/><path d="M6 6l12 12"/>',
+  box:'<path d="M3.5 7.5 12 3.5l8.5 4v9L12 20.5l-8.5-4z"/><path d="M3.5 7.5 12 11.5l8.5-4M12 11.5v9"/>',
+  ude:'<path d="M4 20.5h16"/><path d="M6.5 17.5a5.5 5.5 0 0 1 11 0z"/><path d="M12 8.5V5M9.5 6.5 12 3.5l2.5 3"/>',
+  maal:'<circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.2"/>',
+  pig:'<path d="M4.5 12.5a6.5 6.5 0 0 1 6.5-6h3a6.5 6.5 0 0 1 6.5 6.5c0 2-1 3.7-2.5 4.8V20h-3v-1.5h-5V20h-3v-2.2A6.4 6.4 0 0 1 4.5 12.5z"/><path d="M4.5 11 2.5 9v4z"/><circle cx="16" cy="12" r=".9" fill="currentColor" stroke="none"/>',
+  sprout:'<path d="M12 20.5v-7"/><path d="M12 13.5C12 9.9 9.1 7 5.5 7c0 3.6 2.9 6.5 6.5 6.5z"/><path d="M12 13.5c0-3 2.5-5.5 5.5-5.5 0 3-2.5 5.5-5.5 5.5z"/>',
+  moon:'<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/>'
 };
-function icon(name, size){
-  size = size || 20;
-  return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[name]||'')+'</svg>';
-}
+function icon(n, s){ s = s || 20; return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[n]||'')+'</svg>'; }
 
 /* ---------- penge & datoer ---------- */
 const nf = new Intl.NumberFormat('da-DK', {maximumFractionDigits:0});
@@ -420,74 +520,117 @@ const kr = (n) => nf.format(Math.round(n)) + ' kr.';
 const krPlain = (n) => nf.format(Math.round(n));
 const DAYS = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 const MONTHS = ['januar','februar','marts','april','maj','juni','juli','august','september','oktober','november','december'];
-
-function mondayOf(d){
-  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const wd = (x.getDay() + 6) % 7;
-  x.setDate(x.getDate() - wd);
-  return x;
-}
+function mondayOf(d){ const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay()+6)%7)); return x; }
 function isoWeek(d){
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const day = (t.getUTCDay() + 6) % 7;
-  t.setUTCDate(t.getUTCDate() - day + 3);
-  const first = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
-  const fday = (first.getUTCDay() + 6) % 7;
-  first.setUTCDate(first.getUTCDate() - fday + 3);
-  return 1 + Math.round((t - first) / 604800000);
+  t.setUTCDate(t.getUTCDate() - ((t.getUTCDay()+6)%7) + 3);
+  const f = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+  f.setUTCDate(f.getUTCDate() - ((f.getUTCDay()+6)%7) + 3);
+  return 1 + Math.round((t - f) / 604800000);
 }
 const ymd = (d) => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const shortDay = (d) => d.getDate() + '. ' + MONTHS[d.getMonth()].slice(0,3);
+const uid = () => Math.random().toString(36).slice(2, 10);
 
-/* ---------- varekatalog: normalpris + aktuelt tilbud ---------- */
+/* ---------- butikker ---------- */
+const BUTIKKER = ['Føtex','Bilka','Kvickly','SuperBrugsen','Brugsen','Coop 365','Rema 1000','Netto','Lidl','ALDI','Meny'];
+
+/* ---------- varekatalog ----------
+   tags styrer hvilke kostformer en ret passer til.
+   tilbud er en liste, så butiksvalget faktisk betyder noget.        */
 const CATALOG = {
-  kylling:      {navn:'Kyllingebrystfilet', sektion:'Kød',      normal:45, tilbud:20, butik:'Lidl',    enhed:'900 g'},
-  oksekod:      {navn:'Hakket oksekød',     sektion:'Kød',      normal:42, tilbud:30, butik:'Lidl',    enhed:'400 g'},
-  bacon:        {navn:'Bacon i strimler',   sektion:'Kød',      normal:28, tilbud:20, butik:'Lidl',    enhed:'2x140 g'},
-  aeg:          {navn:'Æg',                 sektion:'Mejeri',   normal:30, tilbud:26, butik:'Føtex',   enhed:'10 stk.'},
-  ost:          {navn:'Revet ost',          sektion:'Mejeri',   normal:25, tilbud:15, butik:'Lidl',    enhed:'200 g'},
-  flode:        {navn:'Madlavningsfløde',   sektion:'Mejeri',   normal:14, tilbud:null, butik:'Lidl',    enhed:'250 ml'},
-  maelk:        {navn:'Mælk',               sektion:'Mejeri',   normal:11, tilbud:null, butik:'Føtex', enhed:'1 l'},
-  mozzarella:   {navn:'Mozzarella',         sektion:'Mejeri',   normal:22, tilbud:18, butik:'Føtex',   enhed:'125 g'},
-  smoer:        {navn:'Smør',               sektion:'Mejeri',   normal:22, tilbud:10, butik:'Lidl',    enhed:'200 g'},
-  pasta:        {navn:'Pasta',              sektion:'Kolonial', normal:12, tilbud:6,  butik:'Lidl',    enhed:'500 g'},
-  ris:          {navn:'Ris',                sektion:'Kolonial', normal:16, tilbud:null, butik:'Lidl',    enhed:'1 kg'},
-  tomater:      {navn:'Hakkede tomater',    sektion:'Kolonial', normal:10, tilbud:8,    butik:'Lidl',    enhed:'400 g'},
-  tomatsauce:   {navn:'Tomatsauce',         sektion:'Kolonial', normal:9,  tilbud:null, butik:'Lidl',    enhed:'500 g'},
-  karry:        {navn:'Karry',              sektion:'Kolonial', normal:18, tilbud:null, butik:'Føtex',   enhed:'50 g'},
-  mel:          {navn:'Pizzadej / mel',     sektion:'Kolonial', normal:12, tilbud:null, butik:'Lidl',    enhed:'1 kg'},
-  tortilla:     {navn:'Tortillas',          sektion:'Kolonial', normal:17, tilbud:null, butik:'Føtex',   enhed:'8 stk.'},
-  broed:        {navn:'Rugbrød',            sektion:'Kolonial', normal:18, tilbud:null, butik:'Føtex',   enhed:'1 stk.'},
-  lok:          {navn:'Løg',                sektion:'Frugt & grønt', normal:10, tilbud:8, butik:'Lidl', enhed:'1 kg'},
-  hvidlog:      {navn:'Hvidløg',            sektion:'Frugt & grønt', normal:8,  tilbud:null, butik:'Lidl', enhed:'3 stk.'},
-  peberfrugt:   {navn:'Peberfrugt',         sektion:'Frugt & grønt', normal:16, tilbud:12, butik:'Lidl', enhed:'3 stk.'},
-  salat:        {navn:'Salat',              sektion:'Frugt & grønt', normal:14, tilbud:null, butik:'Føtex', enhed:'1 pose'},
-  agurk:        {navn:'Agurk',              sektion:'Frugt & grønt', normal:10, tilbud:null, butik:'Lidl', enhed:'1 stk.'},
-  kaffe:        {navn:'Kaffe',              sektion:'Kolonial', normal:55, tilbud:39, butik:'Lidl',    enhed:'400 g'}
+  kylling:    {navn:'Kyllingebrystfilet', sektion:'Kød', normal:45, enhed:'900 g', tags:['koed'], tilbud:[{b:'Lidl',p:20},{b:'Rema 1000',p:25},{b:'Netto',p:27}]},
+  hakketkyl:  {navn:'Hakket kylling',     sektion:'Kød', normal:38, enhed:'400 g', tags:['koed'], tilbud:[{b:'Rema 1000',p:28},{b:'Coop 365',p:30}]},
+  oksekod:    {navn:'Hakket oksekød',     sektion:'Kød', normal:42, enhed:'400 g', tags:['koed'], tilbud:[{b:'Lidl',p:30},{b:'Netto',p:32},{b:'SuperBrugsen',p:34}]},
+  bacon:      {navn:'Bacon i strimler',   sektion:'Kød', normal:28, enhed:'2x140 g', tags:['koed','svin'], tilbud:[{b:'Lidl',p:20},{b:'ALDI',p:22}]},
+  laks:       {navn:'Laksefilet',         sektion:'Kød', normal:60, enhed:'250 g', tags:['fisk'], tilbud:[{b:'Føtex',p:45},{b:'Meny',p:49}]},
+  aeg:        {navn:'Æg',                 sektion:'Mejeri', normal:30, enhed:'10 stk.', tags:['aeg'], tilbud:[{b:'Netto',p:25},{b:'Føtex',p:26}]},
+  ost:        {navn:'Revet ost',          sektion:'Mejeri', normal:25, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Lidl',p:15},{b:'SuperBrugsen',p:19}]},
+  mozzarella: {navn:'Mozzarella',         sektion:'Mejeri', normal:22, enhed:'125 g', tags:['mejeri'], tilbud:[{b:'Føtex',p:18},{b:'Brugsen',p:19}]},
+  flode:      {navn:'Madlavningsfløde',   sektion:'Mejeri', normal:14, enhed:'250 ml', tags:['mejeri'], tilbud:[]},
+  maelk:      {navn:'Mælk',               sektion:'Mejeri', normal:11, enhed:'1 l', tags:['mejeri'], tilbud:[]},
+  smoer:      {navn:'Smør',               sektion:'Mejeri', normal:22, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Lidl',p:10},{b:'ALDI',p:13}]},
+  havredrik:  {navn:'Havredrik',          sektion:'Mejeri', normal:14, enhed:'1 l', tags:[], tilbud:[{b:'Coop 365',p:10}]},
+  pasta:      {navn:'Pasta',              sektion:'Kolonial', normal:12, enhed:'500 g', tags:[], tilbud:[{b:'Lidl',p:6},{b:'ALDI',p:7}]},
+  ris:        {navn:'Ris',                sektion:'Kolonial', normal:16, enhed:'1 kg', tags:[], tilbud:[{b:'Rema 1000',p:12}]},
+  tomater:    {navn:'Hakkede tomater',    sektion:'Kolonial', normal:10, enhed:'400 g', tags:[], tilbud:[{b:'Netto',p:7},{b:'Lidl',p:8}]},
+  tomatsauce: {navn:'Tomatsauce',         sektion:'Kolonial', normal:9,  enhed:'500 g', tags:[], tilbud:[]},
+  karry:      {navn:'Karry',              sektion:'Kolonial', normal:18, enhed:'50 g', tags:[], tilbud:[]},
+  mel:        {navn:'Pizzadej / mel',     sektion:'Kolonial', normal:12, enhed:'1 kg', tags:[], tilbud:[{b:'Lidl',p:10}]},
+  tortilla:   {navn:'Tortillas',          sektion:'Kolonial', normal:17, enhed:'8 stk.', tags:[], tilbud:[{b:'Føtex',p:14}]},
+  broed:      {navn:'Rugbrød',            sektion:'Kolonial', normal:18, enhed:'1 stk.', tags:[], tilbud:[]},
+  linser:     {navn:'Røde linser',        sektion:'Kolonial', normal:15, enhed:'500 g', tags:[], tilbud:[{b:'Coop 365',p:11}]},
+  kikaerter:  {navn:'Kikærter',           sektion:'Kolonial', normal:9,  enhed:'400 g', tags:[], tilbud:[{b:'ALDI',p:7}]},
+  kokosmaelk: {navn:'Kokosmælk',          sektion:'Kolonial', normal:12, enhed:'400 ml', tags:[], tilbud:[{b:'Rema 1000',p:9}]},
+  pesto:      {navn:'Pesto',              sektion:'Kolonial', normal:20, enhed:'190 g', tags:['mejeri'], tilbud:[{b:'Føtex',p:15}]},
+  falafel:    {navn:'Falafelmix',         sektion:'Kolonial', normal:18, enhed:'200 g', tags:[], tilbud:[{b:'Brugsen',p:14}]},
+  olie:       {navn:'Olivenolie',         sektion:'Kolonial', normal:30, enhed:'500 ml', tags:[], tilbud:[{b:'Meny',p:24}]},
+  kaffe:      {navn:'Kaffe',              sektion:'Kolonial', normal:55, enhed:'400 g', tags:[], tilbud:[{b:'Lidl',p:39},{b:'Bilka',p:42}]},
+  lok:        {navn:'Løg',                sektion:'Frugt & grønt', normal:10, enhed:'1 kg', tags:[], tilbud:[{b:'Lidl',p:8}]},
+  hvidlog:    {navn:'Hvidløg',            sektion:'Frugt & grønt', normal:8, enhed:'3 stk.', tags:[], tilbud:[]},
+  peberfrugt: {navn:'Peberfrugt',         sektion:'Frugt & grønt', normal:16, enhed:'3 stk.', tags:[], tilbud:[{b:'Lidl',p:12},{b:'Netto',p:13}]},
+  salat:      {navn:'Salat',              sektion:'Frugt & grønt', normal:14, enhed:'1 pose', tags:[], tilbud:[]},
+  agurk:      {navn:'Agurk',              sektion:'Frugt & grønt', normal:10, enhed:'1 stk.', tags:[], tilbud:[]},
+  tomat:      {navn:'Tomater',            sektion:'Frugt & grønt', normal:16, enhed:'500 g', tags:[], tilbud:[{b:'Brugsen',p:12}]},
+  kartofler:  {navn:'Kartofler',          sektion:'Frugt & grønt', normal:18, enhed:'2 kg', tags:[], tilbud:[{b:'Rema 1000',p:12}]},
+  gulerodder: {navn:'Gulerødder',         sektion:'Frugt & grønt', normal:12, enhed:'1 kg', tags:[], tilbud:[{b:'ALDI',p:8}]},
+  spinat:     {navn:'Spinat',             sektion:'Frugt & grønt', normal:15, enhed:'200 g', tags:[], tilbud:[{b:'Føtex',p:12}]},
+  broccoli:   {navn:'Broccoli',           sektion:'Frugt & grønt', normal:13, enhed:'1 stk.', tags:[], tilbud:[{b:'Coop 365',p:9}]},
+  champignon: {navn:'Champignon',         sektion:'Frugt & grønt', normal:14, enhed:'250 g', tags:[], tilbud:[{b:'SuperBrugsen',p:10}]},
+  squash:     {navn:'Squash',             sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', tags:[], tilbud:[]}
 };
-const pris = (k) => { const v = CATALOG[k]; return v.tilbud != null ? v.tilbud : v.normal; };
-const erTilbud = (k) => CATALOG[k].tilbud != null;
 const SEKTIONER = ['Kød','Mejeri','Kolonial','Frugt & grønt'];
+
+/* ---------- kostformer ---------- */
+const KOST = {
+  alle:    {navn:'Alt',        kort:'Alt',      forbud:[],                        ic:'fork'},
+  halal:   {navn:'Halal',      kort:'Halal',    forbud:['svin'],                  ic:'moon'},
+  vegetar: {navn:'Vegetarisk', kort:'Vegetar',  forbud:['koed','fisk'],           ic:'sprout'},
+  vegansk: {navn:'Vegansk',    kort:'Vegansk',  forbud:['koed','fisk','mejeri','aeg'], ic:'leaf'}
+};
+const vareTags = (k) => CATALOG[k].tags || [];
+function retPasserKost(retId, kost){
+  const forbud = KOST[kost].forbud;
+  if (!forbud.length) return true;
+  return retById(retId).varer.every(k => vareTags(k).every(t => forbud.indexOf(t) === -1));
+}
+/** De kostformer en ret i sig selv opfylder — bruges til mærkaterne. */
+function retKostMaerker(retId){
+  return ['vegansk','vegetar','halal'].filter(k => retPasserKost(retId, k));
+}
 
 /* ---------- opskrifter ---------- */
 const RETTER = [
-  {id:'karry',      navn:'Kylling i karry',     tid:30, varer:['kylling','karry','ris','lok','flode']},
-  {id:'bolognese',  navn:'Pasta bolognese',     tid:25, varer:['oksekod','pasta','tomater','lok','hvidlog']},
-  {id:'omelet',     navn:'Omelet med brød',     tid:15, varer:['aeg','ost','broed','smoer']},
-  {id:'wrap',       navn:'Kylling-wrap',        tid:20, varer:['kylling','tortilla','salat','agurk','peberfrugt']},
-  {id:'pizza',      navn:'Hjemmelavet pizza',   tid:40, varer:['mel','tomatsauce','mozzarella','peberfrugt','bacon']},
-  {id:'carbonara',  navn:'Spaghetti carbonara', tid:20, varer:['pasta','bacon','aeg','ost','flode']},
-  {id:'aeggekage',  navn:'Æggekage og bacon',   tid:25, varer:['aeg','bacon','broed','maelk']},
-  {id:'chili',      navn:'Chili con carne',     tid:35, varer:['oksekod','tomater','lok','ris','hvidlog']},
-  {id:'tomatpasta', navn:'Pasta i tomatsauce',  tid:18, varer:['pasta','tomatsauce','ost','lok','hvidlog']},
-  {id:'baconpizza', navn:'Bacon-tortillapizza', tid:20, varer:['tortilla','tomatsauce','ost','bacon','peberfrugt']}
+  {id:'karry',        navn:'Kylling i karry',        tid:30, varer:['kylling','karry','ris','lok','kokosmaelk']},
+  {id:'bolognese',    navn:'Pasta bolognese',        tid:25, varer:['oksekod','pasta','tomater','lok','hvidlog']},
+  {id:'omelet',       navn:'Omelet med brød',        tid:15, varer:['aeg','ost','broed','smoer']},
+  {id:'wrap',         navn:'Kylling-wrap',           tid:20, varer:['kylling','tortilla','salat','agurk','peberfrugt']},
+  {id:'pizza',        navn:'Hjemmelavet pizza',      tid:40, varer:['mel','tomatsauce','mozzarella','peberfrugt','bacon']},
+  {id:'carbonara',    navn:'Spaghetti carbonara',    tid:20, varer:['pasta','bacon','aeg','ost','flode']},
+  {id:'aeggekage',    navn:'Æggekage og bacon',      tid:25, varer:['aeg','bacon','broed','maelk']},
+  {id:'chili',        navn:'Chili con carne',        tid:35, varer:['oksekod','tomater','lok','ris','hvidlog']},
+  {id:'tomatpasta',   navn:'Pasta i tomatsauce',     tid:18, varer:['pasta','tomatsauce','ost','lok','hvidlog']},
+  {id:'baconpizza',   navn:'Bacon-tortillapizza',    tid:20, varer:['tortilla','tomatsauce','ost','bacon','peberfrugt']},
+  {id:'frikadeller',  navn:'Kyllingefrikadeller',    tid:35, varer:['hakketkyl','aeg','mel','kartofler','gulerodder']},
+  {id:'laksepasta',   navn:'Laks med pasta',         tid:25, varer:['laks','pasta','flode','spinat','hvidlog']},
+  {id:'kyllingsalat', navn:'Kyllingesalat',          tid:20, varer:['kylling','salat','tomat','agurk','olie']},
+  {id:'linsegryde',   navn:'Linsegryde',             tid:30, varer:['linser','gulerodder','lok','tomater','kokosmaelk']},
+  {id:'kikcurry',     navn:'Kikærtecurry',           tid:25, varer:['kikaerter','kokosmaelk','karry','ris','spinat']},
+  {id:'falafelwrap',  navn:'Falafel-wrap',           tid:20, varer:['falafel','tortilla','salat','agurk','tomat']},
+  {id:'wok',          navn:'Grøntsagswok',           tid:20, varer:['broccoli','gulerodder','peberfrugt','ris','olie']},
+  {id:'sincarne',     navn:'Chili sin carne',        tid:30, varer:['kikaerter','tomater','lok','ris','hvidlog']},
+  {id:'tomatsuppe',   navn:'Tomatsuppe med brød',    tid:20, varer:['tomater','lok','hvidlog','broed','olie']},
+  {id:'bagtkartof',   navn:'Bagt kartoffel m. salsa',tid:45, varer:['kartofler','tomat','lok','kikaerter','olie']},
+  {id:'pastapesto',   navn:'Pasta med pesto',        tid:15, varer:['pasta','pesto','tomat','spinat','olie']},
+  {id:'gratin',       navn:'Kartoffelgratin',        tid:50, varer:['kartofler','flode','ost','lok','smoer']},
+  {id:'vegpizza',     navn:'Vegetarpizza',           tid:40, varer:['mel','tomatsauce','mozzarella','champignon','peberfrugt']},
+  {id:'taerte',       navn:'Spinattærte',            tid:45, varer:['spinat','aeg','ost','mel','flode']},
+  {id:'squashpasta',  navn:'Squashpasta',            tid:20, varer:['squash','pasta','hvidlog','olie','tomat']}
 ];
 const retById = (id) => RETTER.find(r => r.id === id);
-const retPris = (id) => retById(id).varer.reduce((s,k) => s + pris(k), 0);
-const retTilbud = (id) => retById(id).varer.filter(erTilbud).length;
 
-/* ---------- faste udgifter & kategorier ---------- */
-const FASTE = [
+/* ---------- standardopsætning (kan ændres i indstillinger) ---------- */
+const STD_FASTE = [
   {navn:'Husleje', belob:6700, ic:'house'},
   {navn:'El, vand og varme', belob:1500, ic:'bolt'},
   {navn:'Forsikringer', belob:540, ic:'bag'},
@@ -495,41 +638,51 @@ const FASTE = [
   {navn:'Kolonihaven', belob:750, ic:'leaf'},
   {navn:'Playstation', belob:100, ic:'ticket'}
 ];
-const KATEGORIER = [
-  {key:'dagligvarer', navn:'Dagligvarer', graense:2600, ic:'basket'},
-  {key:'transport',   navn:'Transport',   graense:1200, ic:'car'},
-  {key:'ud',          navn:'Ud at spise', graense:3000, ic:'fork'},
-  {key:'fritid',      navn:'Fritid',      graense:3000, ic:'ticket'}
+const STD_KATEGORIER = [
+  {navn:'Dagligvarer', graense:2600, ic:'basket', dagligvare:true},
+  {navn:'Transport',   graense:1200, ic:'car'},
+  {navn:'Ud at spise', graense:3000, ic:'fork'},
+  {navn:'Fritid',      graense:3000, ic:'ticket'}
 ];
-const INDKOMST = 26500;
+const IKONVALG = ['basket','car','fork','ticket','house','bolt','bag','leaf','cart','pig','maal','clock'];
 const UGEBUDGET_MAD = 650;
-const FASTE_IALT = FASTE.reduce((s,f) => s + f.belob, 0);
 
 /* ============================================================
    State
    ============================================================ */
-const NOEGLE = 'toget.v1';
+const NOEGLE = 'toget.v2';
 let S = null;
 let visning = 'hjem';
-let sidsteHandling = null;
 
-function nyMadplan(frav){
-  // Vælger ugens retter: flest tilbudsvarer først, men hold ugebudgettet.
-  const pulje = RETTER.slice().sort((a,b) => {
-    const t = retTilbud(b.id) - retTilbud(a.id);
-    return t !== 0 ? t : retPris(a.id) - retPris(b.id);
-  });
+/* ---------- priser: billigst blandt de valgte butikker ---------- */
+function bedstePris(k){
+  const v = CATALOG[k];
+  const mulige = (v.tilbud || []).filter(t => S.butikker[t.b]);
+  if (!mulige.length) return {pris:v.normal, butik:null, tilbud:false};
+  const b = mulige.reduce((a, c) => c.p < a.p ? c : a);
+  return {pris:b.p, butik:b.b, tilbud:true};
+}
+const pris = (k) => bedstePris(k).pris;
+const erTilbud = (k) => bedstePris(k).tilbud;
+const retPris = (id) => retById(id).varer.reduce((s,k) => s + pris(k), 0);
+const retTilbud = (id) => retById(id).varer.filter(erTilbud).length;
+
+/* ---------- madplan ---------- */
+function retterTilKost(){ return RETTER.filter(r => retPasserKost(r.id, S ? S.kost : 'alle')); }
+
+function nyMadplan(undgaa){
+  const pulje = retterTilKost().slice().sort((a,b) =>
+    retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id));
   const valgte = [];
   let sum = 0;
   for (const r of pulje){
     if (valgte.length === 7) break;
-    if (frav && frav.includes(r.id) && pulje.length - valgte.length > 7) continue;
+    if (undgaa && undgaa.indexOf(r.id) !== -1 && pulje.length - valgte.length > 7) continue;
     if (sum + retPris(r.id) > UGEBUDGET_MAD && valgte.length >= 5) continue;
-    valgte.push(r.id);
-    sum += retPris(r.id);
+    valgte.push(r.id); sum += retPris(r.id);
   }
   let i = 0;
-  while (valgte.length < 7){ valgte.push(pulje[i % pulje.length].id); i++; }
+  while (valgte.length < 7 && pulje.length){ valgte.push(pulje[i % pulje.length].id); i++; }
   const man = mondayOf(new Date());
   return valgte.map((id, n) => {
     const d = new Date(man); d.setDate(man.getDate() + n);
@@ -537,147 +690,202 @@ function nyMadplan(frav){
   });
 }
 
-function listeFraPlan(plan, spisekammer){
-  // Én linje pr. vare, uanset hvor mange retter den indgår i.
+/* ---------- indkøbsliste ----------
+   status: 'skal' | 'koebt' | 'har' (i forvejen) | 'droppet' (køber ikke)  */
+function listeFraPlan(plan){
   const brug = new Map();
   plan.forEach(dag => {
-    if (dag.status === 'lavet' || dag.status === 'sprunget') return;
+    if (dag.status === 'lavet' || dag.status === 'ude' || !dag.ret) return;
     retById(dag.ret).varer.forEach(k => {
-      const e = brug.get(k) || {antal:0, retter:[]};
-      e.antal += 1;
-      if (!e.retter.includes(dag.ret)) e.retter.push(dag.ret);
+      const e = brug.get(k) || {retter:[]};
+      if (e.retter.indexOf(dag.ret) === -1) e.retter.push(dag.ret);
       brug.set(k, e);
     });
   });
   const ud = [];
-  brug.forEach((e, k) => {
-    if ((spisekammer[k] || 0) > 0) return; // har den allerede
-    ud.push({vare:k, antal:1, retter:e.retter, koebt:false});
-  });
-  return ud.sort((a,b) =>
+  brug.forEach((e, k) => ud.push({vare:k, retter:e.retter, status:'skal'}));
+  return sorterListe(ud);
+}
+function sorterListe(l){
+  return l.sort((a,b) =>
     SEKTIONER.indexOf(CATALOG[a.vare].sektion) - SEKTIONER.indexOf(CATALOG[b.vare].sektion)
     || CATALOG[a.vare].navn.localeCompare(CATALOG[b.vare].navn, 'da'));
 }
+/** Listen følger madplanen, men beslutninger du har taget bliver stående. */
+function synkroniserListe(){
+  const gamle = new Map(S.liste.map(i => [i.vare, i.status]));
+  const frisk = listeFraPlan(S.plan);
+  S.liste = frisk.map(i => Object.assign(i, {status: gamle.get(i.vare) || 'skal'}));
+  gamle.forEach((st, v) => {
+    if (st !== 'skal' && !S.liste.some(i => i.vare === v)) S.liste.push({vare:v, retter:[], status:st});
+  });
+  S.liste = sorterListe(S.liste);
+}
 
 function friskState(){
-  const plan = nyMadplan([]);
-  return {
+  const iDag = ymd(new Date());
+  const s = {
+    version: 2,
+    start: iDag,
     uge: isoWeek(new Date()),
     ugestart: ymd(mondayOf(new Date())),
-    plan,
-    spisekammer: {},
-    liste: listeFraPlan(plan, {}),
-    udgifter: [],
-    log: [],
-    opsparing: {navn:'Sommerferie-opsparing', maal:12000, sparet:8160},
+    kost: 'alle',
+    indkomst: 26500,
+    faste: STD_FASTE.map(f => Object.assign({id:uid()}, f)),
+    kategorier: STD_KATEGORIER.map(k => Object.assign({id:uid()}, k)),
+    opsparinger: [
+      {id:uid(), navn:'Sommerferie', maal:12000, sparet:8160},
+      {id:uid(), navn:'Buffer', maal:20000, sparet:4500}
+    ],
+    aktivOpsparing: null,
+    sparetIalt: 0,
+    plan: [], liste: [], spisekammer: {}, udgifter: [], log: [],
     auto: {koeb:true, madlav:true, ugeskift:true},
-    butikker: {'Føtex':true, 'Lidl':true, 'Bilka':false, 'Kvickly':false}
+    butikker: {}
   };
+  BUTIKKER.forEach(b => { s.butikker[b] = ['Føtex','Lidl','Rema 1000','Netto'].indexOf(b) !== -1; });
+  s.aktivOpsparing = s.opsparinger[0].id;
+  S = s;                       // nyMadplan læser S.kost og butiksvalg
+  s.plan = nyMadplan([]);
+  s.liste = listeFraPlan(s.plan);
+  return s;
 }
 
-function gem(){
-  try { localStorage.setItem(NOEGLE, JSON.stringify(S)); } catch(e){ /* privat vindue */ }
-}
+function gem(){ try { localStorage.setItem(NOEGLE, JSON.stringify(S)); } catch(e){} }
 function hent(){
   try {
-    const raw = localStorage.getItem(NOEGLE);
+    const raw = localStorage.getItem(NOEGLE) || localStorage.getItem('toget.v1');
     if (!raw) return null;
     const d = JSON.parse(raw);
-    if (!d || !d.plan || !d.liste) return null;
+    if (!d || !d.plan) return null;
+    migrer(d);
+    S = d;
     if (d.ugestart !== ymd(mondayOf(new Date())) && d.auto && d.auto.ugeskift){
-      // Ny uge: madplanen starter forfra, spisekammeret følger med.
-      const plan = nyMadplan([]);
       d.uge = isoWeek(new Date());
       d.ugestart = ymd(mondayOf(new Date()));
-      d.plan = plan;
-      d.liste = listeFraPlan(plan, d.spisekammer || {});
-      d.log = [{id:uid(), tid:Date.now(), slags:'uge', tekst:'Ny uge – madplan og indkøbsliste er lavet forfra', belob:0}].concat(d.log || []);
+      d.plan = nyMadplan([]);
+      synkroniserListe();
+      d.log.unshift({id:uid(), tid:Date.now(), slags:'uge', tekst:'Ny uge – madplan og indkøbsliste er lavet forfra', belob:0});
     }
     return d;
   } catch(e){ return null; }
 }
-const uid = () => Math.random().toString(36).slice(2, 10);
+/** Gør gemte data fra en tidligere version brugbare i stedet for at smide dem væk. */
+function migrer(d){
+  if (d.version === 2) return;
+  d.version = 2;
+  d.start = d.start || ymd(new Date());
+  d.kost = d.kost || 'alle';
+  d.indkomst = d.indkomst || 26500;
+  d.faste = d.faste || STD_FASTE.map(f => Object.assign({id:uid()}, f));
+  d.kategorier = d.kategorier || STD_KATEGORIER.map(k => Object.assign({id:uid()}, k));
+  d.sparetIalt = d.sparetIalt || 0;
+  if (!d.opsparinger){
+    const g = d.opsparing || {navn:'Opsparing', maal:12000, sparet:0};
+    d.opsparinger = [{id:uid(), navn:g.navn, maal:g.maal, sparet:g.sparet}];
+    d.aktivOpsparing = d.opsparinger[0].id;
+  }
+  (d.liste || []).forEach(i => {
+    if (i.status) return;
+    i.status = i.koebt ? 'koebt' : 'skal';
+    delete i.koebt;
+  });
+  (d.plan || []).forEach(p => { if (!p.status) p.status = 'planlagt'; });
+  // Gamle udgifter pegede på en kategorinøgle, ikke et id.
+  const dagligvare = (d.kategorier.find(k => k.dagligvare) || d.kategorier[0] || {}).id;
+  (d.udgifter || []).forEach(u => {
+    if (u.kategori === 'dagligvarer' || !d.kategorier.some(k => k.id === u.kategori)) u.kategori = dagligvare;
+  });
+  const butikker = {};
+  BUTIKKER.forEach(b => { butikker[b] = d.butikker && d.butikker[b] != null ? !!d.butikker[b] : ['Føtex','Lidl','Rema 1000','Netto'].indexOf(b) !== -1; });
+  d.butikker = butikker;
+}
 
 /* ============================================================
-   Beregninger — alt afledt af state, aldrig gemt dobbelt
+   Beregninger
    ============================================================ */
-function brugtIKategori(key){
-  return S.udgifter.filter(u => u.kategori === key).reduce((s,u) => s + u.belob, 0);
-}
+const fasteIalt = () => S.faste.reduce((s,f) => s + f.belob, 0);
+const dagligvareKat = () => S.kategorier.find(k => k.dagligvare) || S.kategorier[0];
+const brugtIKategori = (id) => S.udgifter.filter(u => u.kategori === id).reduce((s,u) => s + u.belob, 0);
 const variabeltBrugt = () => S.udgifter.reduce((s,u) => s + u.belob, 0);
-const tilRaadighed = () => INDKOMST - FASTE_IALT - variabeltBrugt();
-function sparetIUgen(){
-  // Forskellen mellem normalpris og tilbudspris på det, vi faktisk har købt.
-  return S.udgifter.filter(u => u.vare && CATALOG[u.vare])
-    .reduce((s,u) => s + Math.max(0, CATALOG[u.vare].normal - u.belob), 0);
-}
-const listeTilbage = () => S.liste.filter(i => !i.koebt);
-function listeSum(kunTilbage){
-  return S.liste.filter(i => kunTilbage ? !i.koebt : true).reduce((s,i) => s + pris(i.vare), 0);
-}
+const tilRaadighed = () => S.indkomst - fasteIalt() - variabeltBrugt();
+const sparetIUgen = () => S.udgifter
+  .filter(u => u.vare && CATALOG[u.vare] && u.dato >= S.ugestart)
+  .reduce((s,u) => s + Math.max(0, CATALOG[u.vare].normal - u.belob), 0);
+const skalKoebes = () => S.liste.filter(i => i.status === 'skal');
+const listeSum = () => skalKoebes().reduce((s,i) => s + pris(i.vare), 0);
 function butikSum(butik){
-  return S.liste.filter(i => !i.koebt).reduce((s,i) => {
-    const v = CATALOG[i.vare];
-    return s + (v.butik === butik && v.tilbud != null ? v.tilbud : v.normal);
+  return skalKoebes().reduce((s,i) => {
+    const t = (CATALOG[i.vare].tilbud || []).find(x => x.b === butik);
+    return s + (t ? t.p : CATALOG[i.vare].normal);
   }, 0);
 }
-const planSum = () => S.plan.filter(d => d.status !== 'sprunget').reduce((s,d) => s + retPris(d.ret), 0);
+const valgteButikker = () => BUTIKKER.filter(b => S.butikker[b]);
+const planSum = () => S.plan.filter(d => d.ret && d.status !== 'ude').reduce((s,d) => s + retPris(d.ret), 0);
+const aktivMaal = () => S.opsparinger.find(o => o.id === S.aktivOpsparing) || S.opsparinger[0];
 
 /* ============================================================
-   Automatikken — det hele hænger sammen her
+   Automatik
    ============================================================ */
 function logFør(tekst, belob, slags){
   S.log.unshift({id:uid(), tid:Date.now(), tekst, belob:belob||0, slags:slags||'koeb'});
   if (S.log.length > 40) S.log.length = 40;
 }
+function bogfoer(vare, belob){
+  S.udgifter.unshift({
+    id:uid(), tid:Date.now(), dato:ymd(new Date()), vare,
+    tekst: CATALOG[vare].navn, belob, kategori: dagligvareKat().id,
+    butik: bedstePris(vare).butik, kilde:'auto'
+  });
+  S.sparetIalt += Math.max(0, CATALOG[vare].normal - belob);
+}
+function fjernBogfoering(vare){
+  const i = S.udgifter.findIndex(u => u.vare === vare && u.kilde === 'auto');
+  if (i < 0) return;
+  S.sparetIalt = Math.max(0, S.sparetIalt - Math.max(0, CATALOG[vare].normal - S.udgifter[i].belob));
+  S.udgifter.splice(i, 1);
+}
 
-/** Kryds en vare af → udgift bogføres, varen ryger i spisekammeret. */
-function koebVare(vare, stille){
+/** Sæt en linje til købt / har den / køber ikke. Kun 'koebt' rammer budgettet. */
+function saetStatus(vare, status, stille){
   const linje = S.liste.find(i => i.vare === vare);
-  if (!linje || linje.koebt) return;
-  linje.koebt = true;
-  S.spisekammer[vare] = (S.spisekammer[vare] || 0) + 1;
-  if (S.auto.koeb){
-    const p = pris(vare);
-    S.udgifter.unshift({
-      id:uid(), tid:Date.now(), vare,
-      tekst: CATALOG[vare].navn, belob:p, kategori:'dagligvarer',
-      butik: CATALOG[vare].butik, kilde:'auto'
-    });
-    if (!stille) logFør(CATALOG[vare].navn + ' købt i ' + CATALOG[vare].butik, p, 'koeb');
+  if (!linje || linje.status === status) return;
+  const foer = linje.status;
+  if (foer === 'koebt'){                       // ryd op efter et tidligere køb
+    fjernBogfoering(vare);
+    S.spisekammer[vare] = Math.max(0, (S.spisekammer[vare] || 0) - 1);
+  }
+  linje.status = status;
+  if (status === 'koebt'){
+    S.spisekammer[vare] = (S.spisekammer[vare] || 0) + 1;
+    if (S.auto.koeb){
+      const p = pris(vare);
+      bogfoer(vare, p);
+      if (!stille) logFør(CATALOG[vare].navn + ' købt' + (bedstePris(vare).butik ? ' i ' + bedstePris(vare).butik : ''), p, 'koeb');
+    }
+  } else if (status === 'har'){
+    S.spisekammer[vare] = Math.max(1, S.spisekammer[vare] || 0);
+    if (!stille) logFør(CATALOG[vare].navn + ' — har den i forvejen, intet trukket', 0, 'fri');
+  } else if (status === 'droppet'){
+    if (!stille) logFør(CATALOG[vare].navn + ' — købes ikke', 0, 'fri');
   }
 }
-function fortrydKoeb(vare){
-  const linje = S.liste.find(i => i.vare === vare);
-  if (!linje || !linje.koebt) return;
-  linje.koebt = false;
-  S.spisekammer[vare] = Math.max(0, (S.spisekammer[vare] || 0) - 1);
-  const idx = S.udgifter.findIndex(u => u.vare === vare && u.kilde === 'auto');
-  if (idx >= 0) S.udgifter.splice(idx, 1);
-  S.log = S.log.filter(l => !(l.tekst.indexOf(CATALOG[vare].navn) === 0));
-}
 
-/** Marker en ret som lavet → spisekammeret tømmes, manglende varer bogføres. */
+/** Ret markeret som lavet: spisekammeret tømmes, kun det du faktisk mangler bogføres. */
 function lavRet(dato){
   const dag = S.plan.find(d => d.dato === dato);
-  if (!dag || dag.status === 'lavet') return;
+  if (!dag || !dag.ret || dag.status === 'lavet') return null;
   const ret = retById(dag.ret);
-  let manglede = [];
+  const manglede = [];
   ret.varer.forEach(k => {
-    if ((S.spisekammer[k] || 0) > 0){
-      S.spisekammer[k] -= 1;
-    } else if (S.auto.madlav){
-      // Ikke købt via listen — bogfør den alligevel, så budgettet passer.
-      const p = pris(k);
-      S.udgifter.unshift({
-        id:uid(), tid:Date.now(), vare:k,
-        tekst: CATALOG[k].navn, belob:p, kategori:'dagligvarer',
-        butik: CATALOG[k].butik, kilde:'auto'
-      });
-      manglede.push(k);
-      const l = S.liste.find(i => i.vare === k);
-      if (l) l.koebt = true;
-    }
+    const linje = S.liste.find(i => i.vare === k);
+    if ((S.spisekammer[k] || 0) > 0){ S.spisekammer[k] -= 1; return; }
+    if (linje && linje.status === 'droppet') return;   // valgt fra: skal aldrig trækkes
+    if (!S.auto.madlav) return;
+    const p = pris(k);
+    bogfoer(k, p);
+    manglede.push(k);
+    if (linje) linje.status = 'koebt';
   });
   dag.status = 'lavet';
   const ekstra = manglede.reduce((s,k) => s + pris(k), 0);
@@ -691,60 +899,36 @@ function fortrydRet(dato){
   retById(dag.ret).varer.forEach(k => { S.spisekammer[k] = (S.spisekammer[k] || 0) + 1; });
   logFør(retById(dag.ret).navn + ' sat tilbage på madplanen', 0, 'fortryd');
 }
-
-function byttRet(dato){
+function saetRet(dato, retId){
   const dag = S.plan.find(d => d.dato === dato);
   if (!dag) return;
-  const brugt = S.plan.map(d => d.ret);
-  const kandidater = RETTER.filter(r => brugt.indexOf(r.id) === -1);
-  const pulje = kandidater.length ? kandidater : RETTER.filter(r => r.id !== dag.ret);
-  pulje.sort((a,b) => retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id));
-  dag.ret = pulje[0].id;
-  dag.status = 'planlagt';
+  dag.ret = retId; dag.status = 'planlagt';
   synkroniserListe();
-  logFør('Ny ret på ' + DAYS[(new Date(dato).getDay()+6)%7].toLowerCase() + 'dag: ' + pulje[0].navn, 0, 'plan');
+  logFør(retById(retId).navn + ' lagt på ' + dagNavn(dato).toLowerCase(), 0, 'plan');
 }
-
-/** Listen følger madplanen — det du allerede har købt bliver stående. */
-function synkroniserListe(){
-  const koebt = new Set(S.liste.filter(i => i.koebt).map(i => i.vare));
-  const frisk = listeFraPlan(S.plan, {});
-  S.liste = frisk.map(i => Object.assign(i, {koebt: koebt.has(i.vare)}));
-  // Købte varer der ikke længere er på planen bliver stående, så udgiften stemmer.
-  koebt.forEach(v => {
-    if (!S.liste.some(i => i.vare === v)) S.liste.push({vare:v, antal:1, retter:[], koebt:true});
-  });
+function udeAtSpise(dato){
+  const dag = S.plan.find(d => d.dato === dato);
+  if (!dag) return;
+  dag.status = 'ude';
+  synkroniserListe();
+  logFør(dagNavn(dato) + ': ude at spise — retten er taget af planen', 0, 'plan');
+}
+function byttRet(dato){
+  const brugt = S.plan.map(d => d.ret);
+  const pulje = retterTilKost().filter(r => brugt.indexOf(r.id) === -1);
+  const kandidater = (pulje.length ? pulje : retterTilKost())
+    .slice().sort((a,b) => retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id));
+  if (kandidater.length) saetRet(dato, kandidater[0].id);
+}
+function dagNavn(dato){
+  const d = new Date(dato + 'T00:00:00');
+  return DAYS[(d.getDay()+6)%7] + '. d. ' + d.getDate() + '.';
 }
 
 /* ============================================================
-   Visninger
+   UI-hjælpere
    ============================================================ */
-const el = (h) => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content; };
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
-function sheet({titel, tekst, ok, farlig, naar}){
-  const scrim = document.createElement('div');
-  scrim.className = 'scrim';
-  scrim.innerHTML =
-      '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(titel)+'">'
-    +   '<div class="grip"></div>'
-    +   '<h3>'+esc(titel)+'</h3>'
-    +   '<p>'+esc(tekst)+'</p>'
-    +   '<div class="acts">'
-    +     '<button class="btn btn-brand" data-ja="1" style="min-height:52px'+(farlig?';background:var(--danger);border-color:var(--danger)':'')+'">'+esc(ok)+'</button>'
-    +     '<button class="btn" data-nej="1" style="min-height:52px">Annullér</button>'
-    +   '</div>'
-    + '</div>';
-  const luk = () => scrim.remove();
-  scrim.addEventListener('click', (e) => {
-    if (e.target === scrim || e.target.closest('[data-nej]')) return luk();
-    if (e.target.closest('[data-ja]')){ luk(); naar(); }
-  });
-  document.body.appendChild(scrim);
-  setTimeout(() => scrim.querySelector('[data-ja]').focus(), 60);
-}
-
-/** Kort vibration hvor telefonen kan — gør afkrydsning håndgribelig. */
 function bump(ms){ try { navigator.vibrate && navigator.vibrate(ms || 8); } catch(e){} }
 
 function toast(tekst, fortrydFn){
@@ -760,82 +944,108 @@ function toast(tekst, fortrydFn){
     n.appendChild(b);
   }
   wrap.appendChild(n);
-  setTimeout(() => { n.style.transition = 'opacity .25s'; n.style.opacity = '0'; setTimeout(() => n.remove(), 260); }, fortrydFn ? 4200 : 2600);
+  setTimeout(() => { n.style.transition='opacity .25s'; n.style.opacity='0'; setTimeout(() => n.remove(), 260); }, fortrydFn ? 4200 : 2600);
 }
 
-/* ---------------- Hjem ---------------- */
+/** Én bundskuffe til alt: valg, bekræftelser og små formularer. */
+function visSheet({titel, under, html, ved, luk}){
+  const scrim = document.createElement('div');
+  scrim.className = 'scrim';
+  scrim.innerHTML = '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(titel)+'">'
+    + '<div class="grip"></div><h3>'+esc(titel)+'</h3>'
+    + (under ? '<p>'+esc(under)+'</p>' : '')
+    + html + '</div>';
+  const fjern = () => { scrim.remove(); if (luk) luk(); };
+  scrim.addEventListener('click', (e) => {
+    if (e.target === scrim || e.target.closest('[data-luk]')) return fjern();
+    if (ved) ved(e, fjern);
+  });
+  document.body.appendChild(scrim);
+  setTimeout(() => { const f = scrim.querySelector('input,button:not([data-luk])'); if (f) f.focus(); }, 70);
+  return {luk: fjern, node: scrim};
+}
+const knapRaekke = (ok, farlig) =>
+  '<div class="acts"><button class="btn btn-brand" data-ok="1" style="min-height:52px'+(farlig?';background:var(--danger);border-color:var(--danger)':'')+'">'+esc(ok)+'</button>'
+  + '<button class="btn" data-luk="1" style="min-height:52px">Annullér</button></div>';
+
+function bekraeft(titel, tekst, ok, naar, farlig){
+  visSheet({titel, under:tekst, html:knapRaekke(ok, farlig), ved:(e, fjern) => {
+    if (e.target.closest('[data-ok]')){ fjern(); naar(); }
+  }});
+}
+
+/* ============================================================
+   Skærme
+   ============================================================ */
 function tegnHjem(){
   const raad = tilRaadighed();
-  const brugt = variabeltBrugt();
-  const raadPct = Math.max(0, Math.min(1, raad / (INDKOMST - FASTE_IALT)));
+  const raadPct = Math.max(0, Math.min(1, raad / Math.max(1, S.indkomst - fasteIalt())));
   const C = 2 * Math.PI * 54;
-  const sparet = sparetIUgen();
-  const opsPct = Math.round(S.opsparing.sparet / S.opsparing.maal * 100);
-  const lavet = S.plan.filter(d => d.status === 'lavet').length;
-  const koebt = S.liste.filter(i => i.koebt).length;
+  const maal = aktivMaal();
+  const opsPct = maal ? Math.round(maal.sparet / Math.max(1, maal.maal) * 100) : 0;
+  const dageSiden = Math.max(1, Math.round((new Date() - new Date(S.start + 'T00:00:00')) / 86400000));
 
   let h = '';
   h += '<div class="hero">'
-    +   '<div class="ring">'
-    +     '<svg viewBox="0 0 120 120" width="132" height="132">'
-    +       '<circle cx="60" cy="60" r="54" fill="none" stroke="var(--surface-3)" stroke-width="11"/>'
-    +       '<circle cx="60" cy="60" r="54" fill="none" stroke="var(--brand)" stroke-width="11" stroke-linecap="round"'
-    +         ' stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-raadPct))+'" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1)"/>'
-    +     '</svg>'
-    +     '<div class="rv"><b>'+krPlain(raad)+'</b><span>tilbage</span></div>'
-    +   '</div>'
+    +   '<div class="ring"><svg viewBox="0 0 120 120" width="132" height="132">'
+    +     '<circle cx="60" cy="60" r="54" fill="none" stroke="var(--surface-3)" stroke-width="11"/>'
+    +     '<circle cx="60" cy="60" r="54" fill="none" stroke="var(--brand)" stroke-width="11" stroke-linecap="round"'
+    +       ' stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-raadPct))+'" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1)"/>'
+    +   '</svg><div class="rv"><b>'+krPlain(raad)+'</b><span>tilbage</span></div></div>'
     +   '<div class="hero-lines">'
     +     '<div class="hero-title">Til rådighed i '+MONTHS[new Date().getMonth()]+'</div>'
-    +     '<div class="hl"><span>Indkomst</span><b>'+kr(INDKOMST)+'</b></div>'
-    +     '<div class="hl"><span>Faste udgifter</span><b>'+kr(FASTE_IALT)+'</b></div>'
-    +     '<div class="hl"><span>Brugt variabelt</span><b>'+kr(brugt)+'</b></div>'
+    +     '<div class="hl"><span>Indkomst</span><b>'+kr(S.indkomst)+'</b></div>'
+    +     '<div class="hl"><span>Faste udgifter</span><b>'+kr(fasteIalt())+'</b></div>'
+    +     '<div class="hl"><span>Brugt variabelt</span><b>'+kr(variabeltBrugt())+'</b></div>'
     +   '</div>'
     + '</div>';
 
   h += '<div class="row">'
-    +   '<div class="card-tint">'
-    +     '<div class="stat-l" style="color:var(--brand-ink)">Sparet i denne uge</div>'
-    +     '<div class="stat-v pos">+'+kr(sparet)+'</div>'
-    +     '<div class="stat-s" style="color:var(--brand-ink);opacity:.75">på tilbud vs. normalpris</div>'
-    +   '</div>'
-    +   '<div class="card-flat">'
-    +     '<div class="stat-l">'+esc(S.opsparing.navn)+'</div>'
-    +     '<div class="stat-v">'+opsPct+'%</div>'
-    +     '<div class="bar violet" style="margin-top:9px"><i style="width:'+opsPct+'%"></i></div>'
-    +   '</div>'
+    +   '<div class="card-tint"><div class="stat-l" style="color:var(--brand-ink)">Sparet i denne uge</div>'
+    +     '<div class="stat-v pos">+'+kr(sparetIUgen())+'</div>'
+    +     '<div class="stat-s" style="color:var(--brand-ink);opacity:.75">på tilbud vs. normalpris</div></div>'
+    +   '<div class="card-flat"><div class="stat-l">Sparet i alt</div>'
+    +     '<div class="stat-v">'+kr(S.sparetIalt)+'</div>'
+    +     '<div class="stat-s">på '+dageSiden+' dag'+(dageSiden===1?'':'e')+' med appen</div></div>'
     + '</div>';
 
+  if (maal){
+    h += '<div class="card">'
+      +   '<div class="card-head"><h3>'+esc(maal.navn)+'</h3>'
+      +     '<button class="link" data-skiftmaal="1" style="background:none;border:0;color:var(--brand);font-weight:600;font-size:13px;cursor:pointer">Skift mål</button></div>'
+      +   '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px">'
+      +     '<div class="num" style="font-size:25px;font-weight:600">'+kr(maal.sparet)+'</div>'
+      +     '<div style="font-size:13px;color:var(--ink-3)">af '+kr(maal.maal)+' · '+opsPct+'%</div></div>'
+      +   '<div class="bar violet"><i style="width:'+Math.min(100,opsPct)+'%"></i></div>'
+      +   '<div style="display:flex;gap:8px;margin-top:13px">'
+      +     '<button class="btn btn-block" data-laegtil="'+maal.id+'">'+icon('plus',16)+'Læg penge til side</button>'
+      +     (S.sparetIalt >= 1 ? '<button class="btn" data-flytsparet="'+maal.id+'" title="Flyt det sparede hertil">'+icon('pig',16)+'</button>' : '')
+      +   '</div>'
+      + '</div>';
+  }
+
+  const lavet = S.plan.filter(d => d.status === 'lavet').length;
+  const koebt = S.liste.filter(i => i.status === 'koebt').length;
   h += '<div class="row">'
     +   '<div class="card-flat"><div class="stat-l">Retter lavet</div><div class="stat-v">'+lavet+'<span style="font-size:15px;color:var(--ink-3);font-weight:400">/7</span></div></div>'
     +   '<div class="card-flat"><div class="stat-l">Varer købt</div><div class="stat-v">'+koebt+'<span style="font-size:15px;color:var(--ink-3);font-weight:400">/'+S.liste.length+'</span></div></div>'
     + '</div>';
 
-  h += '<div class="card">'
-    +   '<div class="card-head"><h3>Automatik</h3><span class="tag">'+icon('bolt',13)+'kører selv</span></div>'
-    +   '<div class="tog-row"><div class="tt"><b>Træk fra budgettet når jeg krydser af</b><span>Varen bogføres som dagligvarer med det samme</span></div>'
-    +     '<label class="sw"><input type="checkbox" data-auto="koeb"'+(S.auto.koeb?' checked':'')+'><i></i><span class="sr">Træk fra budgettet</span></label></div>'
-    +   '<div class="tog-row"><div class="tt"><b>Bogfør manglende varer når jeg laver en ret</b><span>Har du ikke købt dem, ryger de på budgettet alligevel</span></div>'
-    +     '<label class="sw"><input type="checkbox" data-auto="madlav"'+(S.auto.madlav?' checked':'')+'><i></i><span class="sr">Bogfør manglende varer</span></label></div>'
-    +   '<div class="tog-row"><div class="tt"><b>Ny madplan hver mandag</b><span>Ugen ruller videre af sig selv</span></div>'
-    +     '<label class="sw"><input type="checkbox" data-auto="ugeskift"'+(S.auto.ugeskift?' checked':'')+'><i></i><span class="sr">Ny madplan hver mandag</span></label></div>'
-    + '</div>';
-
-  h += '<div class="card">'
-    +   '<div class="card-head"><h3>Det er sket automatisk</h3>'
-    +     (S.log.length ? '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px" data-ryd="1">Ryd</button>' : '')
-    +   '</div>';
+  h += '<div class="card"><div class="card-head"><h3>Det er sket automatisk</h3>'
+    +  (S.log.length ? '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-ryd="1">Ryd</button>' : '') + '</div>';
   if (!S.log.length){
     h += '<div class="empty">Kryds en vare af i Indkøb, eller marker en ret som lavet — så bogfører appen det her.</div>';
   } else {
     h += '<div class="feed">';
     S.log.slice(0, 8).forEach(l => {
       const cls = l.slags === 'mad' ? 'v' : (l.slags === 'fortryd' ? 'd' : '');
-      const ic = l.slags === 'mad' ? 'fork' : (l.slags === 'fortryd' ? 'undo' : (l.slags === 'plan' ? 'shuffle' : (l.slags === 'uge' ? 'refresh' : 'basket')));
-      h += '<div class="feed-item">'
-        +   '<div class="feed-ic '+cls+'">'+icon(ic,15)+'</div>'
-        +   '<div class="feed-tx"><b>'+esc(l.tekst)+'</b><span>'+tidSiden(l.tid)+'</span></div>'
-        +   (l.belob ? '<div class="feed-amt neg">−'+kr(l.belob)+'</div>' : '')
-        + '</div>';
+      const ic = l.slags === 'mad' ? 'fork' : l.slags === 'fortryd' ? 'undo'
+               : l.slags === 'plan' ? 'shuffle' : l.slags === 'uge' ? 'refresh'
+               : l.slags === 'fri' ? 'ban' : l.slags === 'opsparing' ? 'pig' : 'basket';
+      h += '<div class="feed-item"><div class="feed-ic '+cls+'">'+icon(ic,15)+'</div>'
+        +  '<div class="feed-tx"><b>'+esc(l.tekst)+'</b><span>'+tidSiden(l.tid)+'</span></div>'
+        +  (l.belob ? '<div class="feed-amt neg">−'+kr(l.belob)+'</div>' : '')
+        +  '</div>';
     });
     h += '</div>';
   }
@@ -853,41 +1063,43 @@ function tidSiden(t){
 /* ---------------- Budget ---------------- */
 function tegnBudget(){
   let h = '';
-  h += '<div class="card"><div class="card-head"><h3>Forbrug pr. kategori</h3><span class="tag grey">'+MONTHS[new Date().getMonth()]+'</span></div>';
-  KATEGORIER.forEach(k => {
-    const b = brugtIKategori(k.key);
-    const pct = Math.min(100, Math.round(b / k.graense * 100));
+  h += '<div class="card"><div class="card-head"><h3>Forbrug pr. kategori</h3>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Redigér</button></div>';
+  if (!S.kategorier.length){
+    h += '<div class="empty">Ingen kategorier endnu. Tilføj dem i indstillinger.</div>';
+  }
+  S.kategorier.forEach(k => {
+    const b = brugtIKategori(k.id);
+    const pct = Math.min(100, Math.round(b / Math.max(1, k.graense) * 100));
     const cls = b > k.graense ? ' over' : (pct > 85 ? ' warn' : '');
-    h += '<div class="cat">'
-      +   '<div class="cat-top"><span class="ci">'+icon(k.ic,19)+'</span>'
-      +     '<span class="cn">'+k.navn+'</span>'
-      +     '<span class="cv">'+krPlain(b)+' / '+kr(k.graense)+'</span></div>'
-      +   '<div class="bar'+cls+'"><i style="width:'+pct+'%"></i></div>'
-      + '</div>';
+    h += '<div class="cat"><div class="cat-top"><span class="ci">'+icon(k.ic,19)+'</span>'
+      +  '<span class="cn">'+esc(k.navn)+(k.dagligvare?' <span class="tag" style="font-size:10.5px">auto</span>':'')+'</span>'
+      +  '<span class="cv">'+krPlain(b)+' / '+kr(k.graense)+'</span></div>'
+      +  '<div class="bar'+cls+'"><i style="width:'+pct+'%"></i></div></div>';
   });
   h += '</div>';
 
-  h += '<div class="sec-label">Faste udgifter · '+kr(FASTE_IALT)+' / måned</div>';
+  h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
+    +  '<span>Faste udgifter · '+kr(fasteIalt())+' / måned</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Redigér</button></div>';
   h += '<div style="display:flex;flex-direction:column;gap:9px">';
-  FASTE.forEach(f => {
+  S.faste.forEach(f => {
     h += '<div class="line-item"><span class="li-ic">'+icon(f.ic,18)+'</span>'
-      +  '<span class="li-n">'+f.navn+'</span>'
-      +  '<span class="li-v">'+kr(f.belob)+'</span></div>';
+      +  '<span class="li-n">'+esc(f.navn)+'</span><span class="li-v">'+kr(f.belob)+'</span></div>';
   });
+  if (!S.faste.length) h += '<div class="empty">Ingen faste udgifter tilføjet.</div>';
   h += '</div>';
 
-  h += '<div class="card">'
-    +  '<div class="card-head"><h3>Seneste udgifter</h3>'
-    +   '<span class="tag">'+icon('bolt',13)+krPlain(S.udgifter.filter(u=>u.kilde==='auto').length)+' automatisk</span></div>';
+  h += '<div class="card"><div class="card-head"><h3>Seneste udgifter</h3>'
+    +  '<span class="tag">'+icon('bolt',13)+krPlain(S.udgifter.filter(u=>u.kilde==='auto').length)+' automatisk</span></div>';
   if (!S.udgifter.length){
     h += '<div class="empty">Ingen udgifter endnu. De kommer af sig selv, når du krydser varer af eller laver en ret.</div>';
   } else {
     S.udgifter.slice(0, 12).forEach(u => {
-      h += '<div class="exp">'
-        +   '<div class="ei'+(u.kilde==='auto'?' auto':'')+'">'+icon(u.kilde==='auto'?'bolt':'plus',15)+'</div>'
-        +   '<div class="et"><b>'+esc(u.tekst)+'</b><span>'+(u.butik?esc(u.butik)+' · ':'')+tidSiden(u.tid)+'</span></div>'
-        +   '<div class="ev">'+kr(u.belob)+'</div>'
-        + '</div>';
+      const kat = S.kategorier.find(k => k.id === u.kategori);
+      h += '<div class="exp"><div class="ei'+(u.kilde==='auto'?' auto':'')+'">'+icon(u.kilde==='auto'?'bolt':'plus',15)+'</div>'
+        +  '<div class="et"><b>'+esc(u.tekst)+'</b><span>'+(u.butik?esc(u.butik)+' · ':'')+(kat?esc(kat.navn)+' · ':'')+tidSiden(u.tid)+'</span></div>'
+        +  '<div class="ev">'+kr(u.belob)+'</div></div>';
     });
     if (S.udgifter.length > 12) h += '<div class="empty" style="padding:12px 0 0">+ '+(S.udgifter.length-12)+' mere</div>';
   }
@@ -897,50 +1109,44 @@ function tegnBudget(){
 
 /* ---------------- Tilbud ---------------- */
 function tegnTilbud(){
-  const valgte = Object.keys(S.butikker).filter(b => S.butikker[b]);
+  const valgte = valgteButikker();
   let h = '';
-  h += '<div class="sec-label">Vælg dine butikker</div>';
+  h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
+    +  '<span>Dine butikker · '+valgte.length+' valgt</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Vælg butikker</button></div>';
   h += '<div class="chips">';
-  Object.keys(S.butikker).forEach(b => {
-    h += '<button class="chip" data-butik="'+b+'" aria-pressed="'+(S.butikker[b]?'true':'false')+'">'+b+'</button>';
-  });
+  BUTIKKER.forEach(b => { h += '<button class="chip" data-butik="'+esc(b)+'" aria-pressed="'+(S.butikker[b]?'true':'false')+'">'+esc(b)+'</button>'; });
   h += '</div>';
 
-  const split = listeSum(true);
-  const enButik = valgte.length ? Math.min.apply(null, valgte.map(butikSum)) : 0;
+  const split = listeSum();
+  const enButik = valgte.length ? Math.min.apply(null, valgte.map(butikSum)) : split;
   const billigst = valgte.length ? valgte.reduce((a,b) => butikSum(a) < butikSum(b) ? a : b) : '—';
-  h += '<div class="card-tint">'
-    +   '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px">'
-    +     '<div><div class="stat-l" style="color:var(--brand-ink)">Din liste · billigst delt op</div>'
-    +       '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Samlet i én butik: '+kr(enButik)+' ('+esc(billigst)+')</div></div>'
-    +     '<div class="num" style="font-size:29px;font-weight:600;color:var(--brand-ink)">'+kr(split)+'</div>'
-    +   '</div>'
-    + '</div>';
+  h += '<div class="card-tint"><div style="display:flex;align-items:center;justify-content:space-between;gap:14px">'
+    +  '<div><div class="stat-l" style="color:var(--brand-ink)">Din liste · billigst delt op</div>'
+    +  '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Samlet i én butik: '+kr(enButik)+' ('+esc(billigst)+')</div></div>'
+    +  '<div class="num" style="font-size:28px;font-weight:600;color:var(--brand-ink)">'+kr(split)+'</div></div></div>';
 
-  h += '<div class="sec-label">Ugens tilbud · varer du bruger</div>';
-  h += '<div style="display:flex;flex-direction:column;gap:9px">';
-  Object.keys(CATALOG)
-    .filter(k => CATALOG[k].tilbud != null && S.butikker[CATALOG[k].butik])
-    .sort((a,b) => (CATALOG[b].normal - CATALOG[b].tilbud) - (CATALOG[a].normal - CATALOG[a].tilbud))
-    .forEach(k => {
-      const v = CATALOG[k];
-      const paaListen = S.liste.some(i => i.vare === k);
-      h += '<div class="offer">'
-        +   '<div class="ot"><b>'+esc(v.navn)+'</b><span>'+esc(v.enhed)+' · '+esc(v.butik)+(paaListen?' · på din liste':'')+'</span></div>'
-        +   '<div class="op"><b class="pos">'+kr(v.tilbud)+'</b><span class="was">'+kr(v.normal)+'</span></div>'
-        + '</div>';
-    });
-  h += '</div>';
-
-  const uden = Object.keys(CATALOG).filter(k => CATALOG[k].tilbud == null);
-  if (uden.length){
-    h += '<div class="sec-label">Intet tilbud lige nu</div><div style="display:flex;flex-direction:column;gap:9px">';
-    uden.forEach(k => {
-      h += '<div class="offer"><div class="ot"><b>'+esc(CATALOG[k].navn)+'</b><span>'+esc(CATALOG[k].enhed)+'</span></div>'
-        +  '<div class="op"><b style="color:var(--ink-3)">'+kr(CATALOG[k].normal)+'</b></div></div>';
+  if (valgte.length > 1){
+    h += '<div class="card"><div class="card-head"><h3>Hvad koster kurven hvor?</h3></div>';
+    valgte.map(b => ({b, s:butikSum(b)})).sort((a,b) => a.s - b.s).forEach((r, i) => {
+      h += '<div class="exp"><div class="ei'+(i===0?' auto':'')+'">'+(i===0?icon('check',15):icon('bag',15))+'</div>'
+        +  '<div class="et"><b>'+esc(r.b)+'</b><span>'+(i===0?'billigst samlet':'+ '+kr(r.s - butikSum(valgte.reduce((a,c)=>butikSum(a)<butikSum(c)?a:c)))+' mere')+'</span></div>'
+        +  '<div class="ev">'+kr(r.s)+'</div></div>';
     });
     h += '</div>';
   }
+
+  const paaTilbud = Object.keys(CATALOG).filter(k => erTilbud(k));
+  h += '<div class="sec-label">Ugens tilbud · '+paaTilbud.length+' varer i dine butikker</div>';
+  h += '<div style="display:flex;flex-direction:column;gap:9px">';
+  paaTilbud.sort((a,b) => (CATALOG[b].normal - pris(b)) - (CATALOG[a].normal - pris(a))).forEach(k => {
+    const v = CATALOG[k], bp = bedstePris(k);
+    const paaListen = S.liste.some(i => i.vare === k && i.status === 'skal');
+    h += '<div class="offer"><div class="ot"><b>'+esc(v.navn)+'</b>'
+      +  '<span>'+esc(v.enhed)+' · '+esc(bp.butik)+(paaListen?' · på din liste':'')+'</span></div>'
+      +  '<div class="op"><b class="pos">'+kr(bp.pris)+'</b><span class="was">'+kr(v.normal)+'</span></div></div>';
+  });
+  h += '</div>';
   h += '<div class="foot-note">'+icon('clock',15)+'<span>Priser fra ugens aviser. I den rigtige app hentes de fra minetilbud.dk og caches i en time.</span></div>';
   return h;
 }
@@ -948,11 +1154,9 @@ function tegnTilbud(){
 /* ---------------- Madplan ---------------- */
 function tegnMadplan(){
   const est = planSum();
-  const lavet = S.plan.filter(d => d.status === 'lavet');
-  const spist = lavet.reduce((s,d) => s + retPris(d.ret), 0);
-  const tilbudsretter = S.plan.filter(d => retTilbud(d.ret) >= 2).length;
-  const tilbudsvarer = new Set();
-  S.plan.forEach(d => retById(d.ret).varer.forEach(k => { if (erTilbud(k)) tilbudsvarer.add(k); }));
+  const spist = S.plan.filter(d => d.status === 'lavet').reduce((s,d) => s + retPris(d.ret), 0);
+  const ude = S.plan.filter(d => d.status === 'ude').length;
+  const k = KOST[S.kost];
 
   let h = '';
   h += '<div class="card">'
@@ -961,49 +1165,70 @@ function tegnMadplan(){
     +       '<div class="stat-v" style="font-size:21px;white-space:nowrap">'+kr(UGEBUDGET_MAD)+'</div></div>'
     +     '<div style="min-width:0;flex:1"><div class="stat-l" style="white-space:nowrap">Estimeret</div>'
     +       '<div class="stat-v '+(est>UGEBUDGET_MAD?'neg':'pos')+'" style="font-size:21px;white-space:nowrap">'+kr(est)+'</div></div>'
-    +     '<button class="btn btn-brand" data-gen="1" style="padding:11px 15px;border-radius:13px;flex:none">'+icon('refresh',16)+'Generér</button>'
+    +     '<button class="btn btn-brand" data-gen="1" style="padding:11px 15px;border-radius:13px;flex:none">'+icon('refresh',16)+'Ugeforslag</button>'
     +   '</div>'
     +   '<div class="bar'+(est>UGEBUDGET_MAD?' over':'')+'" style="margin-top:14px"><i style="width:'+Math.min(100, Math.round(est/UGEBUDGET_MAD*100))+'%"></i></div>'
     +   '<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:12.5px;color:var(--ink-3)">'
-    +     '<span>Spist for '+kr(spist)+'</span><span>'+Math.round(est/UGEBUDGET_MAD*100)+'% af ugebudgettet</span></div>'
+    +     '<span>Spist for '+kr(spist)+(ude?' · '+ude+' dag'+(ude>1?'e':'')+' ude':'')+'</span>'
+    +     '<span>'+Math.round(est/UGEBUDGET_MAD*100)+'% af ugebudgettet</span></div>'
+    + '</div>';
+
+  /* Kostformen skal være synlig og let at skifte her. */
+  h += '<div class="card-flat" style="display:flex;align-items:center;gap:12px">'
+    +   '<span style="color:var(--brand-deep)">'+icon(k.ic,20)+'</span>'
+    +   '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500">Madplanen følger: '+esc(k.navn)+'</div>'
+    +     '<div style="font-size:12.5px;color:var(--ink-3)">'+retterTilKost().length+' retter passer til dig</div></div>'
+    +   '<button class="btn btn-sm" data-kost="1" style="min-height:40px;padding:9px 14px">Skift</button>'
     + '</div>';
 
   S.plan.forEach(dag => {
-    const r = retById(dag.ret);
     const d = new Date(dag.dato + 'T00:00:00');
     const wd = DAYS[(d.getDay()+6)%7];
-    const nTilbud = retTilbud(dag.ret);
     const gjort = dag.status === 'lavet';
-    h += '<div class="day'+(gjort?' done':'')+'" data-dag="'+dag.dato+'">'
+    const erUde = dag.status === 'ude';
+    const r = dag.ret ? retById(dag.ret) : null;
+    const nTilbud = r ? retTilbud(r.id) : 0;
+
+    h += '<div class="day'+(gjort?' done':'')+(erUde?' ude':'')+'" data-dag="'+dag.dato+'">'
       +   '<div class="day-top">'
       +     '<div class="day-date"><span>'+wd+'</span><b>'+d.getDate()+'</b></div>'
-      +     '<div class="day-name"><b>'+esc(r.navn)+'</b>'
-      +       (nTilbud ? '<span class="tag">'+icon('tag',12)+nTilbud+'</span>' : '')
+      +     '<div class="day-name"><b>'+(erUde ? 'Ude at spise' : esc(r ? r.navn : 'Ingen ret'))+'</b>'
+      +       (!erUde && nTilbud ? '<span class="tag">'+icon('tag',12)+nTilbud+'</span>' : '')
       +       (gjort ? '<span class="tag done">'+icon('check',12)+'lavet</span>' : '')
       +     '</div>'
-      +     '<div class="day-cost">'+kr(retPris(dag.ret))+'</div>'
-      +     '<button class="icon-btn" data-aabn="'+dag.dato+'" aria-label="Vis ingredienser">'+icon('chev',18)+'</button>'
+      +     '<div class="day-cost">'+(erUde ? '—' : kr(r ? retPris(r.id) : 0))+'</div>'
+      +     '<button class="icon-btn" data-aabn="'+dag.dato+'" aria-label="Vis muligheder">'+icon('chev',18)+'</button>'
       +   '</div>'
-      +   '<div class="day-body">'
-      +     '<div>';
-    r.varer.forEach(k => {
-      const har = (S.spisekammer[k] || 0) > 0 || S.liste.some(i => i.vare === k && i.koebt);
-      h += '<div class="ing"><span class="dot'+(har?' have':'')+'"></span>'
-        +  '<span class="in">'+esc(CATALOG[k].navn)+'</span>'
-        +  '<span class="iv">'+kr(pris(k))+(erTilbud(k)?' · tilbud':'')+'</span></div>';
-    });
-    h += '</div>'
-      +     '<div style="display:flex;gap:8px">'
-      +       (gjort
-                ? '<button class="btn btn-block" data-fortryd="'+dag.dato+'">'+icon('undo',16)+'Fortryd</button>'
-                : '<button class="btn btn-brand btn-block" data-lavet="'+dag.dato+'">'+icon('check',16)+'Jeg har lavet den</button>')
-      +       '<button class="btn" data-byt="'+dag.dato+'" aria-label="Byt ret">'+icon('shuffle',16)+'</button>'
-      +     '</div>'
-      +   '</div>'
-      + '</div>';
+      +   '<div class="day-body">';
+
+    if (!erUde && r){
+      h += '<div>';
+      r.varer.forEach(vk => {
+        const linje = S.liste.find(i => i.vare === vk);
+        const har = (S.spisekammer[vk] || 0) > 0 || (linje && (linje.status === 'koebt' || linje.status === 'har'));
+        const droppet = linje && linje.status === 'droppet';
+        h += '<div class="ing"><span class="dot'+(har?' have':'')+'"></span>'
+          +  '<span class="in"'+(droppet?' style="text-decoration:line-through;opacity:.6"':'')+'>'+esc(CATALOG[vk].navn)+'</span>'
+          +  '<span class="iv">'+(droppet ? 'købes ikke' : kr(pris(vk))+(erTilbud(vk)?' · tilbud':''))+'</span></div>';
+      });
+      h += '</div>';
+    }
+
+    h += '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+      +   (erUde
+            ? '<button class="btn btn-block" data-tilbagepaa="'+dag.dato+'">'+icon('undo',16)+'Sæt en ret på igen</button>'
+            : gjort
+              ? '<button class="btn btn-block" data-fortryd="'+dag.dato+'">'+icon('undo',16)+'Fortryd</button>'
+              : '<button class="btn btn-brand" style="flex:1;min-width:150px" data-lavet="'+dag.dato+'">'+icon('check',16)+'Jeg har lavet den</button>')
+      +   (!erUde ? '<button class="btn" data-vaelg="'+dag.dato+'" aria-label="Vælg en anden ret">'+icon('book',16)+'</button>' : '')
+      +   (!erUde ? '<button class="btn" data-byt="'+dag.dato+'" aria-label="Byt til en anden ret">'+icon('shuffle',16)+'</button>' : '')
+      +   (!erUde ? '<button class="btn" data-ude="'+dag.dato+'" aria-label="Ude at spise">'+icon('ude',16)+'</button>' : '')
+      + '</div></div></div>';
   });
 
-  h += '<div class="foot-note">'+icon('leaf',15)+'<span>Bygget på '+tilbudsvarer.size+' varer på tilbud · '+tilbudsretter+'/7 retter er tilbudsretter</span></div>';
+  const tilbudsvarer = new Set();
+  S.plan.forEach(d => { if (d.ret && d.status !== 'ude') retById(d.ret).varer.forEach(k => { if (erTilbud(k)) tilbudsvarer.add(k); }); });
+  h += '<div class="foot-note">'+icon('leaf',15)+'<span>Bygget på '+tilbudsvarer.size+' varer på tilbud i dine butikker</span></div>';
   h += '<div class="foot-note">'+icon('cal',15)+'<span>'+ugeTekst()+'</span></div>';
   return h;
 }
@@ -1014,14 +1239,69 @@ function ugeTekst(){
   return 'Ny uge om '+dage+' dag'+(dage===1?'':'e')+' (mandag d. '+shortDay(naeste)+') — så starter madplanen forfra.';
 }
 
+/* ---------------- Retter (vælg selv) ---------------- */
+let retSoeg = '';
+let retSort = 'tilbud';
+function tegnRetter(){
+  const paaUgen = S.plan.filter(d => d.ret && d.status !== 'ude').map(d => d.ret);
+  let liste = retterTilKost();
+  if (retSoeg.trim()){
+    const q = retSoeg.trim().toLowerCase();
+    liste = liste.filter(r => r.navn.toLowerCase().indexOf(q) !== -1
+      || r.varer.some(k => CATALOG[k].navn.toLowerCase().indexOf(q) !== -1));
+  }
+  liste = liste.slice().sort((a,b) =>
+    retSort === 'pris'  ? retPris(a.id) - retPris(b.id)
+  : retSort === 'tid'   ? a.tid - b.tid
+  : retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id));
+
+  let h = '';
+  h += '<div class="card-flat" style="display:flex;align-items:center;gap:12px">'
+    +   '<span style="color:var(--brand-deep)">'+icon(KOST[S.kost].ic,20)+'</span>'
+    +   '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500">'+esc(KOST[S.kost].navn)+'</div>'
+    +     '<div style="font-size:12.5px;color:var(--ink-3)">Du vælger selv — intet bliver valgt tilfældigt</div></div>'
+    +   '<button class="btn btn-sm" data-kost="1" style="min-height:40px;padding:9px 14px">Skift</button></div>';
+
+  h += '<div class="soeg"><span class="ic">'+icon('search',18)+'</span>'
+    +  '<input type="text" id="retsoeg" placeholder="Søg ret eller råvare" value="'+esc(retSoeg)+'" autocomplete="off"></div>';
+
+  h += '<div class="seg">'
+    +  '<button data-sort="tilbud" aria-pressed="'+(retSort==='tilbud')+'">Flest tilbud</button>'
+    +  '<button data-sort="pris" aria-pressed="'+(retSort==='pris')+'">Billigst</button>'
+    +  '<button data-sort="tid" aria-pressed="'+(retSort==='tid')+'">Hurtigst</button></div>';
+
+  h += '<button class="btn btn-brand btn-block" data-gen="1">'+icon('refresh',17)+'Lav et ugeforslag til mig</button>';
+
+  h += '<div class="sec-label">'+liste.length+' retter</div>';
+  h += '<div style="display:flex;flex-direction:column;gap:9px">';
+  if (!liste.length) h += '<div class="empty">Ingen retter passer til søgningen og din kostform.</div>';
+  liste.forEach(r => {
+    const paa = paaUgen.indexOf(r.id) !== -1;
+    const maerker = retKostMaerker(r.id);
+    h += '<div class="ret-kort'+(paa?' paa-ugen':'')+'" data-ret="'+r.id+'">'
+      +   '<div class="rt"><b>'+esc(r.navn)+'</b><div class="meta">'
+      +     '<span>'+r.tid+' min.</span>'
+      +     (retTilbud(r.id) ? '<span class="tag">'+icon('tag',11)+retTilbud(r.id)+' på tilbud</span>' : '')
+      +     maerker.map(m => '<span class="kost-maerke v">'+icon(KOST[m].ic,11)+KOST[m].kort+'</span>').join('')
+      +     (paa ? '<span class="kost-maerke">på ugen</span>' : '')
+      +   '</div></div>'
+      +   '<div class="rp">'+kr(retPris(r.id))+'</div>'
+      +   '<span class="status-btn">'+icon('plus',18)+'</span>'
+      + '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
 /* ---------------- Indkøb ---------------- */
 function tegnIndkoeb(){
-  const tilbage = listeTilbage();
-  const valgte = Object.keys(S.butikker).filter(b => S.butikker[b]);
-  const split = listeSum(true);
+  const skal = skalKoebes();
+  const valgte = valgteButikker();
+  const split = listeSum();
   const enButik = valgte.length ? Math.min.apply(null, valgte.map(butikSum)) : split;
   const billigst = valgte.length ? valgte.reduce((a,b) => butikSum(a) < butikSum(b) ? a : b) : '—';
   const forskel = Math.max(0, enButik - split);
+  const fravalgt = S.liste.filter(i => i.status === 'har' || i.status === 'droppet').length;
 
   let h = '';
   h += '<div class="row">'
@@ -1034,231 +1314,589 @@ function tegnIndkoeb(){
     + '</div>';
 
   h += '<div class="foot-note" style="padding-top:0">'+icon('bulb',15)
-    +  '<span>'+S.plan.length+' retter · '+tilbage.length+' varer at købe'
+    +  '<span>'+skal.length+' varer at købe'+(fravalgt?' · '+fravalgt+' valgt fra':'')
     +  (forskel > 0 ? ' · spar '+kr(forskel)+' ved at dele på flere butikker' : '')+'</span></div>';
 
-  if (tilbage.length){
-    h += '<button class="btn btn-brand btn-block btn-lg" data-alle="1">'+icon('check',17)+'Marker alt som købt ('+kr(split)+')</button>';
-  }
+  if (skal.length) h += '<button class="btn btn-brand btn-block" data-alle="1">'+icon('check',17)+'Marker alt som købt ('+kr(split)+')</button>';
 
   SEKTIONER.forEach(sek => {
     const varer = S.liste.filter(i => CATALOG[i.vare].sektion === sek);
     if (!varer.length) return;
     h += '<div class="sec-label">'+sek+'</div><div style="display:flex;flex-direction:column;gap:9px">';
     varer.forEach(i => {
-      const v = CATALOG[i.vare];
+      const v = CATALOG[i.vare], bp = bedstePris(i.vare);
       const retNavne = i.retter.map(id => retById(id).navn).join(', ');
-      h += '<div class="item'+(i.koebt?' bought':'')+'">'
-        +   '<label class="cb"><input type="checkbox" data-vare="'+i.vare+'"'+(i.koebt?' checked':'')+'>'
+      const cls = i.status === 'koebt' ? ' bought' : i.status === 'har' ? ' har' : i.status === 'droppet' ? ' droppet' : '';
+      h += '<div class="item'+cls+'" data-linje="'+i.vare+'">'
+        +   '<label class="cb"><input type="checkbox" data-vare="'+i.vare+'"'+(i.status==='koebt'?' checked':'')+'>'
         +     '<i>'+icon('check',14)+'</i><span class="sr">'+esc(v.navn)+'</span></label>'
         +   '<div class="item-t"><div class="n"><b>'+esc(v.navn)+'</b>'
-        +     (erTilbud(i.vare) ? '<span class="tag">'+icon('tag',12)+'tilbud</span>' : '')+'</div>'
-        +     '<div class="m">'+esc(v.enhed)+' · '+esc(v.butik)+(retNavne?' · '+esc(retNavne):'')+'</div></div>'
-        +   '<div class="item-p">'+kr(pris(i.vare))+'</div>'
+        +     (i.status === 'har' ? '<span class="linje-maerke har">har den</span>' : '')
+        +     (i.status === 'droppet' ? '<span class="linje-maerke droppet">købes ikke</span>' : '')
+        +     (i.status === 'skal' && bp.tilbud ? '<span class="tag">'+icon('tag',12)+'tilbud</span>' : '')+'</div>'
+        +     '<div class="m">'+esc(v.enhed)+(bp.butik?' · '+esc(bp.butik):'')+(retNavne?' · '+esc(retNavne):'')+'</div></div>'
+        +   '<div class="item-p">'+(i.status === 'droppet' ? '—' : kr(pris(i.vare)))+'</div>'
+        +   '<button class="icon-btn status-btn" data-valg="'+i.vare+'" aria-label="Valgmuligheder for '+esc(v.navn)+'">'+icon('chev',17)+'</button>'
         + '</div>';
     });
     h += '</div>';
   });
 
-  if (!S.liste.length) h += '<div class="empty">Listen er tom. Generér en madplan, så fyldes den af sig selv.</div>';
-  h += '<div class="foot-note">'+icon('bolt',15)+'<span>Hver vare du krydser af bliver bogført som dagligvarer med det samme.</span></div>';
+  if (!S.liste.length) h += '<div class="empty">Listen er tom. Lav et ugeforslag, så fyldes den af sig selv.</div>';
+  h += '<div class="foot-note">'+icon('bolt',15)+'<span>Kun varer du krydser af bliver trukket. "Har den" og "købes ikke" rører ikke budgettet.</span></div>';
   return h;
 }
 
-/* ---------------- header + faner ---------------- */
+/* ---------------- Indstillinger ---------------- */
+function tegnIndstillinger(){
+  let h = '';
+
+  h += '<div class="card"><div class="card-head"><h3>Indkomst</h3>'
+    +  '<button class="btn btn-sm" data-redigerindkomst="1" style="min-height:38px;padding:8px 13px">Ret</button></div>'
+    +  '<div class="num" style="font-size:26px;font-weight:600">'+kr(S.indkomst)+'</div>'
+    +  '<div class="stat-s">Udbetalt pr. måned. Alt andet regnes ud fra den.</div></div>';
+
+  h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
+    +  '<span>Forbrugskategorier</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-nykat="1">'+icon('plus',14)+'Tilføj</button></div>';
+  h += '<div class="set-blok">';
+  S.kategorier.forEach(k => {
+    h += '<div class="goal-row'+(k.dagligvare?' aktiv':'')+'">'
+      +   '<span style="color:var(--ink-2)">'+icon(k.ic,19)+'</span>'
+      +   '<div class="gt"><b>'+esc(k.navn)+'</b><span>'+(k.dagligvare?'Mad bogføres automatisk her':'Månedligt loft')+'</span></div>'
+      +   '<span class="gv">'+kr(k.graense)+'</span>'
+      +   '<button class="icon-btn" data-retkat="'+k.id+'" aria-label="Ret">'+icon('pencil',16)+'</button>'
+      +   '<button class="icon-btn" data-sletkat="'+k.id+'" aria-label="Slet">'+icon('trash',16)+'</button>'
+      + '</div>';
+  });
+  if (!S.kategorier.length) h += '<div class="empty">Ingen kategorier. Tilføj mindst én, så mad kan bogføres.</div>';
+  h += '</div>';
+
+  h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
+    +  '<span>Faste udgifter · '+kr(fasteIalt())+'</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-nyfast="1">'+icon('plus',14)+'Tilføj</button></div>';
+  h += '<div class="set-blok">';
+  S.faste.forEach(f => {
+    h += '<div class="goal-row"><span style="color:var(--ink-2)">'+icon(f.ic,19)+'</span>'
+      +  '<div class="gt"><b>'+esc(f.navn)+'</b><span>hver måned</span></div>'
+      +  '<span class="gv">'+kr(f.belob)+'</span>'
+      +  '<button class="icon-btn" data-retfast="'+f.id+'" aria-label="Ret">'+icon('pencil',16)+'</button>'
+      +  '<button class="icon-btn" data-sletfast="'+f.id+'" aria-label="Slet">'+icon('trash',16)+'</button></div>';
+  });
+  if (!S.faste.length) h += '<div class="empty">Ingen faste udgifter.</div>';
+  h += '</div>';
+
+  h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
+    +  '<span>Opsparingsmål</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-nymaal="1">'+icon('plus',14)+'Tilføj</button></div>';
+  h += '<div class="set-blok">';
+  S.opsparinger.forEach(o => {
+    const pct = Math.round(o.sparet / Math.max(1, o.maal) * 100);
+    h += '<div class="goal-row'+(o.id===S.aktivOpsparing?' aktiv':'')+'" data-vaelgmaal="'+o.id+'">'
+      +  '<span style="color:'+(o.id===S.aktivOpsparing?'var(--brand-ink)':'var(--ink-2)')+'">'+icon(o.id===S.aktivOpsparing?'maal':'pig',19)+'</span>'
+      +  '<div class="gt"><b>'+esc(o.navn)+'</b><span>'+kr(o.sparet)+' af '+kr(o.maal)+' · '+pct+'%</span></div>'
+      +  '<button class="icon-btn" data-retmaal="'+o.id+'" aria-label="Ret">'+icon('pencil',16)+'</button>'
+      +  '<button class="icon-btn" data-sletmaal="'+o.id+'" aria-label="Slet">'+icon('trash',16)+'</button></div>';
+  });
+  if (!S.opsparinger.length) h += '<div class="empty">Ingen mål endnu. Du kan også bare følge "Sparet i alt" på forsiden.</div>';
+  h += '</div>';
+
+  h += '<div class="card"><div class="card-head"><h3>Kostform</h3></div>'
+    +  '<div class="seg">'
+    +  Object.keys(KOST).map(k => '<button data-saetkost="'+k+'" aria-pressed="'+(S.kost===k)+'">'+esc(KOST[k].kort)+'</button>').join('')
+    +  '</div><div class="stat-s" style="margin-top:10px">Madplan og retter viser kun det, der passer. '+retterTilKost().length+' retter passer nu.</div></div>';
+
+  h += '<div class="sec-label">Butikker · '+valgteButikker().length+' valgt</div>';
+  h += '<div class="butik-net">';
+  BUTIKKER.forEach(b => {
+    h += '<button class="butik-kort" data-butik="'+esc(b)+'" aria-pressed="'+(S.butikker[b]?'true':'false')+'">'
+      +  '<span class="mark">'+icon('check',13)+'</span><span>'+esc(b)+'</span></button>';
+  });
+  h += '</div>';
+
+  h += '<div class="card"><div class="card-head"><h3>Automatik</h3><span class="tag">'+icon('bolt',13)+'kører selv</span></div>'
+    +   '<div class="tog-row"><div class="tt"><b>Træk fra budgettet når jeg krydser af</b><span>Varen bogføres som '+esc(dagligvareKat() ? dagligvareKat().navn : 'mad')+' med det samme</span></div>'
+    +     '<label class="sw"><input type="checkbox" data-auto="koeb"'+(S.auto.koeb?' checked':'')+'><i></i><span class="sr">Træk fra budgettet</span></label></div>'
+    +   '<div class="tog-row"><div class="tt"><b>Bogfør manglende varer når jeg laver en ret</b><span>Varer du har valgt fra bliver aldrig trukket</span></div>'
+    +     '<label class="sw"><input type="checkbox" data-auto="madlav"'+(S.auto.madlav?' checked':'')+'><i></i><span class="sr">Bogfør manglende varer</span></label></div>'
+    +   '<div class="tog-row"><div class="tt"><b>Ny madplan hver mandag</b><span>Ugen ruller videre af sig selv</span></div>'
+    +     '<label class="sw"><input type="checkbox" data-auto="ugeskift"'+(S.auto.ugeskift?' checked':'')+'><i></i><span class="sr">Ny madplan hver mandag</span></label></div>'
+    + '</div>';
+
+  h += '<button class="btn btn-block" data-nulstil="1" style="color:var(--danger)">'+icon('trash',16)+'Nulstil alt</button>';
+  return h;
+}
+
+/* ============================================================
+   Skuffer med formularer
+   ============================================================ */
+function felt(navn, id, vaerdi, type){
+  return '<div style="margin-bottom:13px"><label for="'+id+'">'+esc(navn)+'</label>'
+    + '<input type="'+(type||'text')+'" id="'+id+'" value="'+esc(vaerdi==null?'':vaerdi)+'"'
+    + (type === 'number' ? ' inputmode="numeric"' : '') + '></div>';
+}
+function ikonVaelger(valgt){
+  return '<div style="margin-bottom:13px"><label>Ikon</label><div class="chips">'
+    + IKONVALG.map(i => '<button type="button" class="icon-btn" data-vaelgikon="'+i+'" aria-pressed="'+(i===valgt)+'" '
+      + 'style="border:1.5px solid '+(i===valgt?'var(--brand)':'var(--line)')+';border-radius:11px;color:'+(i===valgt?'var(--brand-ink)':'var(--ink-2)')+'">'
+      + icon(i,19)+'</button>').join('')
+    + '</div></div>';
+}
+
+function redigerPost({titel, navn, belob, ic, gem: gemFn, felter}){
+  let valgtIkon = ic || 'basket';
+  const html = felt('Navn', 'f-navn', navn)
+    + felt(felter === 'maal' ? 'Målbeløb (kr.)' : 'Beløb pr. måned (kr.)', 'f-belob', belob, 'number')
+    + (felter === 'maal' ? felt('Sparet indtil nu (kr.)', 'f-sparet', arguments[0].sparet || 0, 'number') : ikonVaelger(valgtIkon))
+    + knapRaekke('Gem');
+  const sh = visSheet({titel, html, ved:(e, fjern) => {
+    const ik = e.target.closest('[data-vaelgikon]');
+    if (ik){
+      valgtIkon = ik.dataset.vaelgikon;
+      sh.node.querySelectorAll('[data-vaelgikon]').forEach(b => {
+        const paa = b.dataset.vaelgikon === valgtIkon;
+        b.setAttribute('aria-pressed', paa);
+        b.style.borderColor = paa ? 'var(--brand)' : 'var(--line)';
+        b.style.color = paa ? 'var(--brand-ink)' : 'var(--ink-2)';
+      });
+      return;
+    }
+    if (e.target.closest('[data-ok]')){
+      const n = sh.node.querySelector('#f-navn').value.trim();
+      const b = Math.max(0, Math.round(Number(sh.node.querySelector('#f-belob').value) || 0));
+      if (!n) return toast('Giv den et navn');
+      const sparetFelt = sh.node.querySelector('#f-sparet');
+      fjern();
+      gemFn({navn:n, belob:b, ic:valgtIkon, sparet: sparetFelt ? Math.max(0, Math.round(Number(sparetFelt.value) || 0)) : 0});
+    }
+  }});
+}
+
+function vaelgKost(){
+  const html = '<div class="sheet-liste">'
+    + Object.keys(KOST).map(k => {
+        const n = RETTER.filter(r => retPasserKost(r.id, k)).length;
+        return '<button class="sheet-valg" data-kostvalg="'+k+'" aria-pressed="'+(S.kost===k)+'">'
+          + '<span class="sv-ic">'+icon(KOST[k].ic,19)+'</span>'
+          + '<span class="sv-t"><b>'+esc(KOST[k].navn)+'</b><span>'+n+' retter passer</span></span>'
+          + (S.kost===k ? '<span class="sv-p">'+icon('check',17)+'</span>' : '') + '</button>';
+      }).join('')
+    + '</div>';
+  visSheet({titel:'Kostform', under:'Madplan og retter tilpasser sig med det samme.', html, ved:(e, fjern) => {
+    const b = e.target.closest('[data-kostvalg]');
+    if (!b) return;
+    const ny = b.dataset.kostvalg;
+    fjern();
+    if (ny === S.kost) return;
+    S.kost = ny;
+    // Retter der ikke længere passer skiftes ud, resten får lov at blive.
+    let skiftet = 0;
+    S.plan.forEach(dag => {
+      if (!dag.ret || dag.status === 'lavet' || dag.status === 'ude') return;
+      if (retPasserKost(dag.ret, ny)) return;
+      const brugt = S.plan.map(d => d.ret);
+      const erstat = retterTilKost().filter(r => brugt.indexOf(r.id) === -1)
+        .sort((a,b) => retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id))[0]
+        || retterTilKost()[0];
+      if (erstat){ dag.ret = erstat.id; skiftet++; }
+    });
+    synkroniserListe();
+    logFør('Kostform sat til ' + KOST[ny].navn + (skiftet ? ' · ' + skiftet + ' ret'+(skiftet>1?'ter':')')+' skiftet ud' : ''), 0, 'plan');
+    tegn();
+    toast(KOST[ny].navn + (skiftet ? ' · ' + skiftet + ' ret'+(skiftet>1?'ter':'')+' skiftet ud' : ''));
+  }});
+}
+
+function vaelgRetTilDag(dato){
+  const html = '<div class="sheet-liste">'
+    + retterTilKost().slice().sort((a,b) => retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id))
+        .map(r => '<button class="sheet-valg" data-retvalg="'+r.id+'">'
+          + '<span class="sv-ic">'+icon('fork',18)+'</span>'
+          + '<span class="sv-t"><b>'+esc(r.navn)+'</b><span>'+r.tid+' min.'+(retTilbud(r.id)?' · '+retTilbud(r.id)+' på tilbud':'')+'</span></span>'
+          + '<span class="sv-p">'+kr(retPris(r.id))+'</span></button>').join('')
+    + '</div>';
+  visSheet({titel:'Vælg ret til ' + dagNavn(dato), under:'Kun retter der passer til ' + KOST[S.kost].navn.toLowerCase() + '.', html, ved:(e, fjern) => {
+    const b = e.target.closest('[data-retvalg]');
+    if (!b) return;
+    fjern(); saetRet(dato, b.dataset.retvalg); tegn();
+    toast(retById(b.dataset.retvalg).navn + ' lagt på ' + dagNavn(dato).toLowerCase());
+  }});
+}
+
+function laegRetPaaDag(retId){
+  const html = '<div class="sheet-liste">'
+    + S.plan.map(d => {
+        const nu = d.status === 'ude' ? 'Ude at spise' : d.ret ? retById(d.ret).navn : 'Tom';
+        return '<button class="sheet-valg" data-dagvalg="'+d.dato+'">'
+          + '<span class="sv-ic">'+icon('cal',18)+'</span>'
+          + '<span class="sv-t"><b>'+dagNavn(d.dato)+'</b><span>nu: '+esc(nu)+'</span></span>'
+          + (d.status === 'lavet' ? '<span class="sv-p">lavet</span>' : '') + '</button>';
+      }).join('')
+    + '</div>';
+  visSheet({titel:retById(retId).navn, under:'Hvilken dag skal den ligge på?', html, ved:(e, fjern) => {
+    const b = e.target.closest('[data-dagvalg]');
+    if (!b) return;
+    fjern(); saetRet(b.dataset.dagvalg, retId); tegn();
+    toast(retById(retId).navn + ' lagt på ' + dagNavn(b.dataset.dagvalg).toLowerCase());
+  }});
+}
+
+function linjeValg(vare){
+  const linje = S.liste.find(i => i.vare === vare);
+  if (!linje) return;
+  const v = CATALOG[vare], bp = bedstePris(vare);
+  const valg = [
+    {k:'koebt',   ic:'check', navn:'Købt', txt:'Trækkes fra budgettet: ' + kr(bp.pris)},
+    {k:'har',     ic:'box',   navn:'Har den i forvejen', txt:'Bruges i madplanen, men koster ikke noget'},
+    {k:'droppet', ic:'ban',   navn:'Købes ikke', txt:'Springes over — rører aldrig budgettet'},
+    {k:'skal',    ic:'cart',  navn:'Sæt tilbage på listen', txt:'Skal købes igen'}
+  ];
+  const html = '<div class="sheet-liste">'
+    + valg.map(o => '<button class="sheet-valg" data-linjevalg="'+o.k+'" aria-pressed="'+(linje.status===o.k)+'">'
+        + '<span class="sv-ic">'+icon(o.ic,18)+'</span>'
+        + '<span class="sv-t"><b>'+o.navn+'</b><span>'+esc(o.txt)+'</span></span>'
+        + (linje.status===o.k ? '<span class="sv-p">'+icon('check',17)+'</span>' : '') + '</button>').join('')
+    + '</div>';
+  visSheet({titel:v.navn, under:v.enhed + (bp.butik ? ' · billigst i ' + bp.butik : ''), html, ved:(e, fjern) => {
+    const b = e.target.closest('[data-linjevalg]');
+    if (!b) return;
+    const ny = b.dataset.linjevalg;
+    fjern();
+    saetStatus(vare, ny);
+    bump(8); tegn();
+    toast(ny === 'koebt' ? v.navn + ' · ' + kr(bp.pris) + ' trukket'
+        : ny === 'har' ? v.navn + ' — har den, intet trukket'
+        : ny === 'droppet' ? v.navn + ' — købes ikke'
+        : v.navn + ' tilbage på listen',
+      () => { saetStatus(vare, linje.status === ny ? 'skal' : linje.status, true); });
+  }});
+}
+
+/* ============================================================
+   Ramme: header, faner, hændelser
+   ============================================================ */
 const FANER = [
-  {key:'hjem',    navn:'Hjem',     ic:'home'},
-  {key:'budget',  navn:'Budget',   ic:'wallet'},
-  {key:'tilbud',  navn:'Tilbud',   ic:'tag'},
-  {key:'madplan', navn:'Madplan',  ic:'cal'},
-  {key:'indkob',  navn:'Indkøb',   ic:'cart'}
+  {key:'hjem',    navn:'Hjem',    ic:'home'},
+  {key:'budget',  navn:'Budget',  ic:'wallet'},
+  {key:'tilbud',  navn:'Tilbud',  ic:'tag'},
+  {key:'madplan', navn:'Madplan', ic:'cal'},
+  {key:'retter',  navn:'Retter',  ic:'book'},
+  {key:'indkob',  navn:'Indkøb',  ic:'cart'}
 ];
 const TITLER = {
-  hjem:    () => ({t:'Hej, Mads', s:'Dit budget · '+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear(), h:'<button class="icon-btn" data-nulstil="1" aria-label="Nulstil">'+icon('gear',20)+'</button>'}),
-  budget:  () => ({t:'Budget', s:'Alt bogføres automatisk', h:'<span class="hdr-note">'+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear()+'</span>'}),
-  tilbud:  () => ({t:'Tilbud', s:'Ugens aviser', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'}),
+  hjem:    () => ({t:'Hej, Mads', s:'Dit budget · '+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear(),
+                   h:'<button class="icon-btn" data-gaatil="indstillinger" aria-label="Indstillinger">'+icon('gear',21)+'</button>'}),
+  budget:  () => ({t:'Budget', s:'Alt bogføres automatisk', h:'<span class="hdr-note">'+MONTHS[new Date().getMonth()]+'</span>'}),
+  tilbud:  () => ({t:'Tilbud', s:valgteButikker().length+' butikker · ugens aviser', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'}),
   madplan: () => ({t:'Madplan', s:'Uge '+S.uge+' · '+shortDay(mondayOf(new Date()))+' – '+shortDay(new Date(mondayOf(new Date()).getTime()+6*86400000)), h:'<span class="hdr-note">Deles · fælles</span>'}),
-  indkob:  () => ({t:'Indkøbsliste', s:'Uge '+S.uge+' · deles', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'})
+  retter:  () => ({t:'Retter', s:'Vælg selv hvad I skal spise', h:'<span class="hdr-note">'+RETTER.length+' retter</span>'}),
+  indkob:  () => ({t:'Indkøbsliste', s:'Uge '+S.uge+' · deles', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'}),
+  indstillinger: () => ({t:'Indstillinger', s:'Din opsætning', h:'<button class="icon-btn" data-gaatil="hjem" aria-label="Tilbage">'+icon('x',21)+'</button>'})
 };
 
 const rulle = {};
 function tegn(){
-  const hdr = document.getElementById('hdr');
-  const view = document.getElementById('view');
-  const tab = document.getElementById('tabbar');
   const m = TITLER[visning]();
+  document.getElementById('hdr').innerHTML =
+    (visning === 'indstillinger' ? '<button class="icon-btn" data-gaatil="hjem" aria-label="Tilbage" style="margin:-4px 0 0 -8px">'+icon('back',22)+'</button>' : '')
+    + '<div style="flex:1;min-width:0"><h1>'+esc(m.t)+'</h1><div class="sub">'+m.s+'</div></div>' + (m.h || '');
 
-  hdr.innerHTML = '<div><h1>'+esc(m.t)+'</h1><div class="sub">'+m.s+'</div></div>'+(m.h||'');
-  view.innerHTML =
+  document.getElementById('view').innerHTML =
       visning === 'hjem'    ? tegnHjem()
     : visning === 'budget'  ? tegnBudget()
     : visning === 'tilbud'  ? tegnTilbud()
     : visning === 'madplan' ? tegnMadplan()
-    :                         tegnIndkoeb();
+    : visning === 'retter'  ? tegnRetter()
+    : visning === 'indkob'  ? tegnIndkoeb()
+    :                         tegnIndstillinger();
 
-  const mangler = listeTilbage().length;
-  tab.innerHTML = FANER.map(f =>
+  const mangler = skalKoebes().length;
+  document.getElementById('tabbar').innerHTML = FANER.map(f =>
     '<button class="tab" data-fane="'+f.key+'"'+(visning===f.key?' aria-current="page"':'')+'>'
-    + '<span class="tn">'+icon(f.ic,22)+(f.key==='indkob'&&mangler?'<span class="dot">'+mangler+'</span>':'')+'</span>'
-    + '<span>'+f.navn+'</span></button>'
-  ).join('');
+    + '<span class="tn">'+icon(f.ic,21)+(f.key==='indkob'&&mangler?'<span class="dot">'+mangler+'</span>':'')+'</span>'
+    + '<span>'+f.navn+'</span></button>').join('');
 
+  const soeg = document.getElementById('retsoeg');
+  if (soeg && visning === 'retter' && retSoeg) { soeg.focus(); soeg.setSelectionRange(retSoeg.length, retSoeg.length); }
   gem();
 }
-
-/* ---------------- hændelser ---------------- */
-document.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-fane],[data-vare],[data-alle],[data-lavet],[data-fortryd],[data-byt],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil]');
-  if (!t) return;
-
-  if (t.dataset.fane){ return skiftFane(t.dataset.fane); }
-
-  if (t.dataset.aabn){
-    const d = t.closest('.day');
-    d.classList.toggle('open');
-    t.style.transform = d.classList.contains('open') ? 'rotate(180deg)' : '';
-    return;
-  }
-
-  if (t.dataset.alle){
-    const varer = listeTilbage().map(i => i.vare);
-    if (!varer.length) return;
-    const sum = varer.reduce((s,v) => s + pris(v), 0);
-    varer.forEach(v => koebVare(v, true));
-    logFør(varer.length + ' varer købt', sum, 'koeb');
-    tegn();
-    return toast(varer.length+' varer bogført · '+kr(sum)+' fra dagligvarer', () => {
-      varer.forEach(fortrydKoeb);
-      S.log = S.log.filter(l => l.tekst !== varer.length + ' varer købt');
-    });
-  }
-
-  if (t.dataset.lavet){
-    bump(14);
-    const r = lavRet(t.dataset.lavet);
-    const dato = t.dataset.lavet;
-    tegn();
-    if (r) toast(r.manglede.length
-      ? r.ret+' ✓ · '+r.manglede.length+' manglende vare'+(r.manglede.length>1?'r':'')+' bogført ('+kr(r.ekstra)+')'
-      : r.ret+' ✓ · varerne er brugt fra spisekammeret',
-      () => { fortrydRet(dato); r.manglede.forEach(fortrydKoeb); });
-    return;
-  }
-
-  if (t.dataset.fortryd){ fortrydRet(t.dataset.fortryd); return tegn(); }
-  if (t.dataset.byt){ byttRet(t.dataset.byt); return tegn(); }
-
-  if (t.dataset.gen){
-    const gamle = S.plan.map(d => d.ret);
-    S.plan = nyMadplan(gamle);
-    synkroniserListe();
-    logFør('Ny madplan genereret · '+kr(planSum()), 0, 'plan');
-    tegn();
-    return toast('Madplan og indkøbsliste er lavet om');
-  }
-
-  if (t.dataset.butik){
-    S.butikker[t.dataset.butik] = !S.butikker[t.dataset.butik];
-    return tegn();
-  }
-
-  if (t.dataset.ryd){ S.log = []; return tegn(); }
-
-  if (t.dataset.nulstil){
-    sheet({
-      titel:'Start ugen forfra?',
-      tekst:'Madplan, indkøbsliste og alle bogførte udgifter bliver ryddet.',
-      ok:'Nulstil', farlig:true,
-      naar: () => { S = friskState(); tegn(); toast('Ugen er nulstillet'); }
-    });
-    return;
-  }
-});
-
-/** Hele varelinjen er et trykfelt — ikke kun det lille felt. */
-document.addEventListener('click', (e) => {
-  if (!e.target || !e.target.closest) return;
-  if (e.target.closest('label.cb') || e.target.closest('button')) return;
-  const rk = e.target.closest('.item');
-  if (rk){
-    const cb = rk.querySelector('input[data-vare]');
-    if (cb){ cb.checked = !cb.checked; cb.dispatchEvent(new Event('change', {bubbles:true})); }
-    return;
-  }
-  const dagTop = e.target.closest('.day-top');
-  if (dagTop){
-    const d = dagTop.closest('.day');
-    d.classList.toggle('open');
-    const pil = d.querySelector('[data-aabn]');
-    if (pil) pil.style.transform = d.classList.contains('open') ? 'rotate(180deg)' : '';
-  }
-});
 
 function skiftFane(key){
   if (key === visning) return;
   rulle[visning] = window.scrollY;
   visning = key;
   tegn();
-  window.scrollTo(0, rulle[key] || 0);
+  window.scrollTo(0, key === 'indstillinger' ? 0 : (rulle[key] || 0));
 }
 
-/* Stryg til side for at skifte faneblad. */
+/* ---------------- klik ---------------- */
+document.addEventListener('click', (e) => {
+  if (!e.target || !e.target.closest) return;
+  if (e.target.closest('.scrim')) return;                    // skuffen har sin egen håndtering
+
+  const t = e.target.closest('[data-fane],[data-gaatil],[data-vare],[data-valg],[data-alle],[data-lavet],[data-fortryd],'
+    + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
+    + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
+    + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],'
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost]');
+
+  if (!t){
+    // Tryk hvor som helst på en varelinje eller en dag
+    const linje = e.target.closest('.item');
+    if (linje && !e.target.closest('label.cb')){
+      const cb = linje.querySelector('input[data-vare]');
+      if (cb){ cb.checked = !cb.checked; cb.dispatchEvent(new Event('change', {bubbles:true})); }
+      return;
+    }
+    const dagTop = e.target.closest('.day-top');
+    if (dagTop){
+      const d = dagTop.closest('.day');
+      d.classList.toggle('open');
+      const pil = d.querySelector('[data-aabn]');
+      if (pil) pil.style.transform = d.classList.contains('open') ? 'rotate(180deg)' : '';
+    }
+    return;
+  }
+  const d = t.dataset;
+
+  if (d.fane) return skiftFane(d.fane);
+  if (d.gaatil) return skiftFane(d.gaatil);
+
+  if (d.aabn){
+    const dag = t.closest('.day');
+    dag.classList.toggle('open');
+    t.style.transform = dag.classList.contains('open') ? 'rotate(180deg)' : '';
+    return;
+  }
+
+  /* --- indkøb --- */
+  if (d.valg) return linjeValg(d.valg);
+  if (d.alle){
+    const varer = skalKoebes().map(i => i.vare);
+    if (!varer.length) return;
+    const sum = varer.reduce((s,v) => s + pris(v), 0);
+    varer.forEach(v => saetStatus(v, 'koebt', true));
+    logFør(varer.length + ' varer købt', sum, 'koeb');
+    bump(12); tegn();
+    return toast(varer.length+' varer bogført · '+kr(sum), () => {
+      varer.forEach(v => saetStatus(v, 'skal', true));
+      S.log = S.log.filter(l => l.tekst !== varer.length + ' varer købt');
+    });
+  }
+
+  /* --- madplan --- */
+  if (d.lavet){
+    bump(14);
+    const dato = d.lavet, r = lavRet(dato);
+    tegn();
+    if (r) toast(r.manglede.length
+      ? r.ret+' ✓ · '+r.manglede.length+' manglende vare'+(r.manglede.length>1?'r':'')+' bogført ('+kr(r.ekstra)+')'
+      : r.ret+' ✓ · varerne er brugt fra spisekammeret',
+      () => { fortrydRet(dato); r.manglede.forEach(v => saetStatus(v, 'skal', true)); });
+    return;
+  }
+  if (d.fortryd){ fortrydRet(d.fortryd); return tegn(); }
+  if (d.byt){ byttRet(d.byt); tegn(); return toast('Byttet til en anden ret'); }
+  if (d.vaelg) return vaelgRetTilDag(d.vaelg);
+  if (d.ude){
+    const dato = d.ude;
+    udeAtSpise(dato); tegn();
+    return toast(dagNavn(dato)+': ude at spise', () => {
+      const dag = S.plan.find(x => x.dato === dato);
+      if (dag){ dag.status = 'planlagt'; synkroniserListe(); }
+    });
+  }
+  if (d.tilbagepaa) return vaelgRetTilDag(d.tilbagepaa);
+  if (d.ret) return laegRetPaaDag(d.ret);
+  if (d.sort){ retSort = d.sort; return tegn(); }
+  if (d.kost) return vaelgKost();
+  if (d.saetkost){
+    if (S.kost !== d.saetkost){ S.kost = d.saetkost; synkroniserListe(); }
+    return tegn();
+  }
+
+  if (d.gen){
+    S.plan = nyMadplan(S.plan.map(x => x.ret));
+    synkroniserListe();
+    logFør('Nyt ugeforslag · '+kr(planSum()), 0, 'plan');
+    if (visning === 'retter') skiftFane('madplan'); else tegn();
+    return toast('Ugeforslag lavet — ret det til som du vil');
+  }
+
+  if (d.butik){
+    S.butikker[d.butik] = !S.butikker[d.butik];
+    return tegn();
+  }
+  if (d.ryd){ S.log = []; return tegn(); }
+
+  /* --- opsparing --- */
+  if (d.skiftmaal || d.vaelgmaal){
+    if (d.vaelgmaal && !e.target.closest('[data-retmaal],[data-sletmaal]')){
+      S.aktivOpsparing = d.vaelgmaal; tegn(); return toast('Følger nu '+aktivMaal().navn);
+    }
+    if (d.skiftmaal){
+      const html = '<div class="sheet-liste">'
+        + S.opsparinger.map(o => '<button class="sheet-valg" data-maalvalg="'+o.id+'" aria-pressed="'+(o.id===S.aktivOpsparing)+'">'
+            + '<span class="sv-ic">'+icon('pig',18)+'</span>'
+            + '<span class="sv-t"><b>'+esc(o.navn)+'</b><span>'+kr(o.sparet)+' af '+kr(o.maal)+'</span></span></button>').join('')
+        + '</div>';
+      return visSheet({titel:'Hvad sparer I op til?', html, ved:(ev, fjern) => {
+        const b = ev.target.closest('[data-maalvalg]');
+        if (!b) return;
+        S.aktivOpsparing = b.dataset.maalvalg; fjern(); tegn();
+      }});
+    }
+  }
+  if (d.laegtil){
+    const o = S.opsparinger.find(x => x.id === d.laegtil);
+    return visSheet({titel:'Læg til '+o.navn, html: felt('Beløb (kr.)','f-belob',500,'number') + knapRaekke('Læg til'),
+      ved:(ev, fjern) => {
+        if (!ev.target.closest('[data-ok]')) return;
+        const v = Math.round(Number(ev.target.closest('.sheet').querySelector('#f-belob').value) || 0);
+        fjern();
+        if (v <= 0) return;
+        o.sparet += v;
+        logFør(kr(v)+' lagt til '+o.navn, 0, 'opsparing');
+        tegn(); toast(kr(v)+' lagt til '+o.navn);
+      }});
+  }
+  if (d.flytsparet){
+    const o = S.opsparinger.find(x => x.id === d.flytsparet);
+    const beloeb = Math.round(S.sparetIalt);
+    return bekraeft('Flyt det sparede?', 'Læg de '+kr(beloeb)+' du har sparet på tilbud over i '+o.navn+'.', 'Flyt '+kr(beloeb), () => {
+      o.sparet += beloeb;
+      logFør(kr(beloeb)+' sparet på tilbud flyttet til '+o.navn, 0, 'opsparing');
+      tegn(); toast('Flyttet til '+o.navn);
+    });
+  }
+
+  /* --- indstillinger: indkomst, kategorier, faste, mål --- */
+  if (d.redigerindkomst){
+    return visSheet({titel:'Månedlig indkomst', html: felt('Udbetalt pr. måned (kr.)','f-belob',S.indkomst,'number') + knapRaekke('Gem'),
+      ved:(ev, fjern) => {
+        if (!ev.target.closest('[data-ok]')) return;
+        const v = Math.max(0, Math.round(Number(ev.target.closest('.sheet').querySelector('#f-belob').value) || 0));
+        fjern(); S.indkomst = v; tegn(); toast('Indkomst gemt');
+      }});
+  }
+  if (d.nykat) return redigerPost({titel:'Ny kategori', navn:'', belob:1000, ic:'basket', gem:(r) => {
+    S.kategorier.push({id:uid(), navn:r.navn, graense:r.belob, ic:r.ic});
+    tegn(); toast(r.navn+' tilføjet');
+  }});
+  if (d.retkat){
+    const k = S.kategorier.find(x => x.id === d.retkat);
+    return redigerPost({titel:'Ret '+k.navn, navn:k.navn, belob:k.graense, ic:k.ic, gem:(r) => {
+      k.navn = r.navn; k.graense = r.belob; k.ic = r.ic; tegn(); toast('Gemt');
+    }});
+  }
+  if (d.sletkat){
+    const k = S.kategorier.find(x => x.id === d.sletkat);
+    return bekraeft('Slet '+k.navn+'?', 'Udgifter i kategorien flyttes til den første kategori.', 'Slet', () => {
+      const rest = S.kategorier.filter(x => x.id !== k.id);
+      if (!rest.length) return toast('Du skal have mindst én kategori');
+      if (k.dagligvare && rest.length) rest[0].dagligvare = true;
+      S.udgifter.forEach(u => { if (u.kategori === k.id) u.kategori = rest[0].id; });
+      S.kategorier = rest;
+      tegn(); toast(k.navn+' slettet');
+    }, true);
+  }
+  if (d.nyfast) return redigerPost({titel:'Ny fast udgift', navn:'', belob:0, ic:'house', gem:(r) => {
+    S.faste.push({id:uid(), navn:r.navn, belob:r.belob, ic:r.ic});
+    tegn(); toast(r.navn+' tilføjet');
+  }});
+  if (d.retfast){
+    const f = S.faste.find(x => x.id === d.retfast);
+    return redigerPost({titel:'Ret '+f.navn, navn:f.navn, belob:f.belob, ic:f.ic, gem:(r) => {
+      f.navn = r.navn; f.belob = r.belob; f.ic = r.ic; tegn(); toast('Gemt');
+    }});
+  }
+  if (d.sletfast){
+    const f = S.faste.find(x => x.id === d.sletfast);
+    return bekraeft('Slet '+f.navn+'?', 'Den fjernes fra dine faste udgifter.', 'Slet', () => {
+      S.faste = S.faste.filter(x => x.id !== f.id); tegn(); toast(f.navn+' slettet');
+    }, true);
+  }
+  if (d.nymaal) return redigerPost({titel:'Nyt opsparingsmål', navn:'', belob:10000, sparet:0, felter:'maal', gem:(r) => {
+    const o = {id:uid(), navn:r.navn, maal:r.belob, sparet:r.sparet};
+    S.opsparinger.push(o);
+    if (!S.aktivOpsparing) S.aktivOpsparing = o.id;
+    tegn(); toast(r.navn+' tilføjet');
+  }});
+  if (d.retmaal){
+    const o = S.opsparinger.find(x => x.id === d.retmaal);
+    return redigerPost({titel:'Ret '+o.navn, navn:o.navn, belob:o.maal, sparet:o.sparet, felter:'maal', gem:(r) => {
+      o.navn = r.navn; o.maal = r.belob; o.sparet = r.sparet; tegn(); toast('Gemt');
+    }});
+  }
+  if (d.sletmaal){
+    const o = S.opsparinger.find(x => x.id === d.sletmaal);
+    return bekraeft('Slet '+o.navn+'?', 'Målet fjernes. "Sparet i alt" på forsiden bliver stående.', 'Slet', () => {
+      S.opsparinger = S.opsparinger.filter(x => x.id !== o.id);
+      if (S.aktivOpsparing === o.id) S.aktivOpsparing = S.opsparinger.length ? S.opsparinger[0].id : null;
+      tegn(); toast(o.navn+' slettet');
+    }, true);
+  }
+
+  if (d.nulstil){
+    return bekraeft('Nulstil alt?', 'Madplan, indkøbsliste, udgifter og opsætning sættes tilbage til start.', 'Nulstil', () => {
+      S = friskState(); visning = 'hjem'; tegn(); toast('Nulstillet');
+    }, true);
+  }
+});
+
+/* ---------------- ændringer ---------------- */
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (!el.dataset) return;
+  if (el.dataset.vare){
+    const v = el.dataset.vare;
+    const linje = S.liste.find(i => i.vare === v);
+    const foer = linje ? linje.status : 'skal';
+    saetStatus(v, el.checked ? 'koebt' : 'skal');
+    bump(10); tegn();
+    if (el.checked) toast(CATALOG[v].navn+' · '+kr(pris(v))+' trukket fra '+dagligvareKat().navn.toLowerCase(),
+      () => saetStatus(v, foer, true));
+    return;
+  }
+  if (el.dataset.auto){ S.auto[el.dataset.auto] = el.checked; gem(); }
+});
+
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.id === 'retsoeg'){ retSoeg = e.target.value; tegn(); }
+});
+
+/* ---------------- stryg mellem faner ---------------- */
 (function(){
   let x0 = null, y0 = null, t0 = 0;
-  const ræk = () => FANER.map(f => f.key);
   document.addEventListener('touchstart', (e) => {
     if (e.touches.length !== 1) return;
-    const mål = e.target;
-    if (mål && mål.closest && mål.closest('.scrim')) return;   // sheet er åben
+    const m = e.target;
+    if (m && m.closest && (m.closest('.scrim') || m.closest('input'))) return;
     x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
   }, {passive:true});
   document.addEventListener('touchend', (e) => {
     if (x0 == null) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - x0, dy = t.clientY - y0;
+    const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
     x0 = null;
-    if (Date.now() - t0 > 600) return;
-    if (Math.abs(dx) < 65 || Math.abs(dy) > 45) return;
-    const r = ræk(), i = r.indexOf(visning);
-    const næste = dx < 0 ? i + 1 : i - 1;
-    if (næste < 0 || næste >= r.length) return;
-    bump(6);
-    skiftFane(r[næste]);
+    if (Date.now() - t0 > 600 || Math.abs(dx) < 65 || Math.abs(dy) > 45) return;
+    if (visning === 'indstillinger') return;
+    const r = FANER.map(f => f.key), i = r.indexOf(visning);
+    const n = dx < 0 ? i + 1 : i - 1;
+    if (n < 0 || n >= r.length) return;
+    bump(6); skiftFane(r[n]);
   }, {passive:true});
 })();
 
-document.addEventListener('change', (e) => {
-  const cb = e.target;
-  if (cb.dataset && cb.dataset.vare){
-    const v = cb.dataset.vare;
-    if (cb.checked){
-      koebVare(v);
-      bump(10);
-      tegn();
-      toast(CATALOG[v].navn+' · '+kr(pris(v))+' trukket fra dagligvarer', () => fortrydKoeb(v));
-    } else {
-      fortrydKoeb(v);
-      tegn();
-    }
-    return;
-  }
-  if (cb.dataset && cb.dataset.auto){
-    S.auto[cb.dataset.auto] = cb.checked;
-    gem();
-    return;
-  }
-});
-
 /* ---------------- start ---------------- */
 S = hent() || friskState();
+if (!S.plan.length){ S.plan = nyMadplan([]); synkroniserListe(); }
 tegn();
 </script>
 
 <script>
-/* Registrer service worker, så appen starter offline og kan lægges på hjemmeskærmen. */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('sw.js').catch(function () { /* uden den virker appen stadig online */ });
+    navigator.serviceWorker.register('sw.js').catch(function () {});
   });
 }
 </script>
