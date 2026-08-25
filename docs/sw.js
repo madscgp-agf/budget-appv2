@@ -1,5 +1,5 @@
 /* Toget — offline-first shell, så appen også virker inde i butikken. */
-const CACHE = 'toget-v10';
+const CACHE = 'toget-v11';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
