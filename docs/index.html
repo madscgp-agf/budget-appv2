@@ -184,6 +184,13 @@ button{font:inherit;color:inherit}
 .hero-lines .hl b{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap;flex:none}
 .hero-title{font-size:13px;color:var(--ink-3);margin-bottom:2px}
 
+.regne{display:flex;flex-direction:column;gap:2px}
+.r-linje{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 0;font-size:14.5px}
+.r-linje span{color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-linje b{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.r-linje.sum{border-top:1px solid var(--line);margin-top:5px;padding-top:11px;font-size:16px}
+.r-linje.sum span{color:var(--ink);font-weight:500}
+.r-linje.sum b{font-size:19px;font-weight:600}
 .bar{height:8px;border-radius:999px;background:var(--surface-3);overflow:hidden}
 .bar>i{display:block;height:100%;border-radius:999px;background:var(--brand);transition:width .45s cubic-bezier(.22,1,.36,1)}
 .bar.violet>i{background:var(--violet)}
@@ -387,6 +394,20 @@ button{font:inherit;color:inherit}
   transition:background .15s,color .15s;white-space:nowrap;
 }
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.mad-seg-baand{
+  position:sticky;top:var(--hdr-h, 104px);z-index:25;
+  background:var(--ground);padding:2px 0 10px;margin:-2px 0 -4px;
+}
+.mad-seg-baand::after{
+  content:"";position:absolute;left:0;right:0;bottom:-14px;height:14px;pointer-events:none;
+  background:linear-gradient(var(--ground),transparent);
+}
+.mad-seg{margin-bottom:0}
+.mad-seg button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.seg-tal{
+  background:var(--danger);color:#fff;border-radius:999px;font-size:10px;font-weight:700;
+  padding:1px 6px;font-family:var(--font-d);
+}
 
 /* ---------- retvælger ---------- */
 .soeg{position:relative}
@@ -482,8 +503,8 @@ button{font:inherit;color:inherit}
 .kat-chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-ink)}
 
 /* seks faner: lidt strammere */
-.tab{font-size:9.8px;gap:3px}
-.tab .tn svg{width:21px;height:21px}
+.tab{font-size:11px;gap:4px}
+.tab .tn svg{width:23px;height:23px}
 </style>
 
 </head>
@@ -846,6 +867,8 @@ const ICONS = {
   bolt:'<path d="M13.2 2.5 4.8 13.4h5.6l-.6 8.1 8.4-10.9h-5.6z"/>',
   refresh:'<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.8 4.2v4.6h-4.6"/>',
   chev:'<path d="M6 9.2 12 15l6-5.8"/>',
+  chevronLeft:'<path d="M15 5.5 8.5 12l6.5 6.5"/>',
+  chevronRight:'<path d="M9 5.5 15.5 12 9 18.5"/>',
   back:'<path d="M15 5.5 8 12l7 6.5"/>',
   x:'<path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/>',
   shuffle:'<path d="M3.5 6.5h3.2l9.8 11h3.9M3.5 17.5h3.2l3.1-3.5M14.4 8.2l2-1.7h3.9"/><path d="M17.6 3.6 20.6 6.5l-3 2.9M17.6 14.6l3 2.9-3 2.9"/>',
@@ -1574,6 +1597,7 @@ function friskState(){
     ugestart: ymd(mondayOf(new Date())),
     kost: 'alle',
     indkomst: 26500,
+    indtaegter: [{id:uid(), navn:'Løn', belob:26500, dag:1}],
     faste: STD_FASTE.map(f => Object.assign({id:uid()}, f)),
     kategorier: STD_KATEGORIER.map(k => Object.assign({id:uid()}, k)),
     opsparinger: [
@@ -1699,6 +1723,11 @@ function migrer(d){
   d.start = d.start || ymd(new Date());
   d.kost = d.kost || 'alle';
   d.indkomst = d.indkomst || 26500;
+  // Ét indkomsttal bliver til en liste, så flere kilder kan stå hver for sig.
+  if (!d.indtaegter || !d.indtaegter.length){
+    d.indtaegter = [{id:uid(), navn:'Løn', belob:d.indkomst, dag:1}];
+  }
+  (d.faste || []).forEach(f => { if (f.dag == null) f.dag = 1; });
   d.faste = d.faste || STD_FASTE.map(f => Object.assign({id:uid()}, f));
   d.kategorier = d.kategorier || STD_KATEGORIER.map(k => Object.assign({id:uid()}, k));
   d.sparetIalt = d.sparetIalt || 0;
@@ -1917,10 +1946,19 @@ function skyMaerkat(){
    Beregninger
    ============================================================ */
 const fasteIalt = () => S.faste.reduce((s,f) => s + f.belob, 0);
+const indtaegtIalt = () => (S.indtaegter || []).reduce((s,i) => s + i.belob, 0);
+/** Faste udgifter der endnu ikke er betalt i denne måned, i dato-rækkefølge. */
+function kommendeFaste(){
+  const idag = new Date().getDate();
+  return S.faste.slice()
+    .map(f => ({f, dag: f.dag || 1, betalt: (f.dag || 1) < idag}))
+    .sort((a,b) => a.dag - b.dag);
+}
 const dagligvareKat = () => S.kategorier.find(k => k.dagligvare) || S.kategorier[0];
 const maanedNu = () => ymd(new Date()).slice(0, 7);
 const forrigeMaaned = () => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return ymd(d).slice(0, 7); };
 const maanedNavn = (m) => MONTHS[Number(m.split('-')[1]) - 1];
+const stort = (t) => t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
 const iMaaned = (u, m) => (u.dato || '').slice(0, 7) === m;
 const brugtIKategori = (id, m) => S.udgifter
   .filter(u => u.kategori === id && iMaaned(u, m || maanedNu()))
@@ -1939,7 +1977,7 @@ const restIForbrug = (m) => Math.max(0,
   restPrKategori(m).reduce((s,r) => s + r.rest, 0) - overfoertForMaaned(m || maanedNu()));
 /** Sidste måned kan først gøres op når den er slut — og kun hvis appen var i brug. */
 const kanFlytteSidsteMaaned = () => (S.start || '').slice(0, 7) <= forrigeMaaned();
-const tilRaadighed = () => S.indkomst - fasteIalt() - variabeltBrugt() - overfoertIMaaned();
+const tilRaadighed = () => indtaegtIalt() - fasteIalt() - variabeltBrugt() - overfoertIMaaned();
 const sparetIUgen = () => S.udgifter
   .filter(u => u.vare && CATALOG[u.vare] && u.dato >= S.ugestart)
   .reduce((s,u) => s + Math.max(0, CATALOG[u.vare].normal * (u.antal || 1) - u.belob), 0);
@@ -2173,7 +2211,7 @@ function bekraeft(titel, tekst, ok, naar, farlig){
    ============================================================ */
 function tegnHjem(){
   const raad = tilRaadighed();
-  const raadPct = Math.max(0, Math.min(1, raad / Math.max(1, S.indkomst - fasteIalt())));
+  const raadPct = Math.max(0, Math.min(1, raad / Math.max(1, indtaegtIalt() - fasteIalt())));
   const C = 2 * Math.PI * 54;
   const maal = aktivMaal();
   const opsPct = maal ? Math.round(maal.sparet / Math.max(1, maal.maal) * 100) : 0;
@@ -2188,7 +2226,7 @@ function tegnHjem(){
     +   '</svg><div class="rv"><b>'+krPlain(raad)+'</b><span>tilbage</span></div></div>'
     +   '<div class="hero-lines">'
     +     '<div class="hero-title">Til rådighed i '+MONTHS[new Date().getMonth()]+'</div>'
-    +     '<div class="hl"><span>Indkomst</span><b>'+kr(S.indkomst)+'</b></div>'
+    +     '<div class="hl"><span>Indkomst</span><b>'+kr(indtaegtIalt())+'</b></div>'
     +     '<div class="hl"><span>Faste udgifter</span><b>'+kr(fasteIalt())+'</b></div>'
     +     '<div class="hl"><span>Brugt variabelt</span><b>'+kr(variabeltBrugt())+'</b></div>'
     +   '</div>'
@@ -2204,7 +2242,7 @@ function tegnHjem(){
     + '</div>';
 
   if (maal){
-    h += '<div class="card">'
+    h += '<div class="card" data-gaatil="opsparing" style="cursor:pointer">'
       +   '<div class="card-head">'
       +     '<button data-retmaal="'+maal.id+'" style="background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;min-width:0;color:inherit">'
       +       '<h3 style="font-family:var(--font-d)">'+esc(maal.navn)+'</h3>'
@@ -2220,7 +2258,7 @@ function tegnHjem(){
       +   '<div class="bar violet"><i style="width:'+Math.min(100,opsPct)+'%"></i></div>'
       +   '<div style="display:flex;gap:8px;margin-top:13px">'
       +     '<button class="btn btn-block" data-laegtil="'+maal.id+'">'+icon('plus',16)+'Læg penge til side</button>'
-      +     (S.sparetIalt >= 1 ? '<button class="btn" data-flytsparet="'+maal.id+'" title="Flyt det sparede hertil">'+icon('pig',16)+'</button>' : '')
+      +     '<button class="btn" data-gaatil="opsparing" aria-label="Se al opsparing">'+icon('chevronRight',16)+'</button>'
       +   '</div>'
       + '</div>';
   } else {
@@ -2269,9 +2307,145 @@ function tidSiden(t){
   return Math.round(s/86400) + ' dage siden';
 }
 
+/** Seks måneder tilbage: hvad blev der brugt variabelt? */
+function tegnHistorik(){
+  const maaneder = [];
+  for (let i = 5; i >= 0; i--){
+    const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
+    const m = ymd(d).slice(0, 7);
+    maaneder.push({m, navn: MONTHS[d.getMonth()].slice(0,3), brugt: variabeltBrugt(m)});
+  }
+  const top = Math.max.apply(null, maaneder.map(x => x.brugt).concat([1]));
+  const medTal = maaneder.filter(x => x.brugt > 0);
+  const snit = medTal.length ? medTal.reduce((a,x) => a + x.brugt, 0) / medTal.length : 0;
+  const nu = maaneder[maaneder.length - 1].brugt;
+
+  let h = '<div class="card"><div class="card-head"><h3>Variabelt forbrug</h3>'
+    + (snit ? '<span class="tag grey">snit '+kr(snit)+'</span>' : '') + '</div>';
+  h += '<div class="chart" style="height:132px">'
+    + maaneder.map(x =>
+        '<div class="chart-col" title="'+esc(x.navn)+': '+kr(x.brugt)+'">'
+        + '<div class="chart-bars">'
+        +   '<div class="chart-bar" style="width:70%;max-width:26px;height:'+Math.max(2, Math.round(x.brugt / top * 100))+'%;'
+        +     'background:'+(x.m === maanedNu() ? 'var(--brand)' : 'var(--surface-3)')+'"></div>'
+        + '</div>'
+        + '<div class="chart-label">'+esc(x.navn)+'</div></div>').join('')
+    + '</div>';
+  h += '<div class="stat-s" style="margin-top:8px">'
+    + (snit && nu ? (nu > snit
+        ? kr(nu - snit) + ' mere end dit snit de sidste måneder'
+        : kr(snit - nu) + ' mindre end dit snit — godt gået')
+      : 'Historikken bygger sig op, efterhånden som du bruger appen.')
+    + '</div></div>';
+  return h;
+}
+
+/* ---------------- Opsparing ---------------- */
+function tegnOpsparing(){
+  const maal = aktivMaal();
+  const dageSiden = Math.max(1, Math.round((new Date() - new Date(S.start + 'T00:00:00')) / 86400000));
+  const sidste = forrigeMaaned();
+  const restSidste = kanFlytteSidsteMaaned() ? restIForbrug(sidste) : 0;
+  const samlet = S.opsparinger.reduce((sum, o) => sum + o.sparet, 0);
+  const samletMaal = S.opsparinger.reduce((sum, o) => sum + o.maal, 0);
+
+  let h = '';
+  h += '<div class="row">'
+    +   '<div class="card-flat"><div class="stat-l">Sparet op i alt</div>'
+    +     '<div class="stat-v">'+kr(samlet)+'</div>'
+    +     '<div class="stat-s">'+(samletMaal ? 'af '+kr(samletMaal)+' i mål' : 'ingen mål endnu')+'</div></div>'
+    +   '<div class="card-tint"><div class="stat-l" style="color:var(--brand-ink)">Sparet på tilbud</div>'
+    +     '<div class="stat-v pos">'+kr(S.sparetIalt)+'</div>'
+    +     '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">på '+dageSiden+' dag'+(dageSiden===1?'':'e')+'</div></div>'
+    + '</div>';
+
+  if (restSidste > 0 && S.opsparinger.length){
+    h += '<div class="card-tint">'
+      +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px">'
+      +     '<div style="min-width:0"><div class="stat-l" style="color:var(--brand-ink)">'+esc(maanedNavn(sidste))+' er gjort op</div>'
+      +       '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Så meget brugte I ikke af jeres lofter</div></div>'
+      +     '<div class="num" style="font-size:24px;font-weight:600;color:var(--brand-ink);white-space:nowrap">'+kr(restSidste)+'</div>'
+      +   '</div>'
+      +   '<button class="btn btn-block" data-flytforbrug="'+sidste+'">'+icon('pig',16)+'Flyt til opsparing</button>'
+      + '</div>';
+  }
+
+  h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
+    +  '<span>Dine mål</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-nymaal="1">'+icon('plus',14)+'Nyt mål</button></div>';
+
+  if (!S.opsparinger.length){
+    h += '<div class="card">' + '<div class="empty">Ingen mål endnu. Skriv hvad I sparer op til, og hvor meget der skal til.</div>'
+      +  '<button class="btn btn-brand btn-block" data-nymaal="1">'+icon('plus',16)+'Opret et mål</button></div>';
+  } else {
+    S.opsparinger.forEach(o => {
+      const pct = Math.round(o.sparet / Math.max(1, o.maal) * 100);
+      const aktiv = o.id === S.aktivOpsparing;
+      h += '<div class="card" style="margin-bottom:12px'+(aktiv?';border:1.5px solid var(--brand)':'')+'">'
+        +   '<div class="card-head">'
+        +     '<button data-retmaal="'+o.id+'" style="background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;min-width:0;color:inherit">'
+        +       '<h3 style="font-family:var(--font-d)">'+esc(o.navn)+'</h3>'
+        +       '<span style="color:var(--ink-3);display:flex">'+icon('pencil',15)+'</span></button>'
+        +     (aktiv ? '<span class="tag">følges</span>'
+                     : '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-vaelgmaal="'+o.id+'">Følg denne</button>')
+        +   '</div>'
+        +   '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px">'
+        +     '<div class="num" style="font-size:24px;font-weight:600">'+kr(o.sparet)+'</div>'
+        +     '<div style="font-size:13px;color:var(--ink-3)">af '+kr(o.maal)+' · '+pct+'%</div></div>'
+        +   '<div class="bar violet"><i style="width:'+Math.min(100,pct)+'%"></i></div>'
+        +   '<div style="display:flex;gap:8px;margin-top:13px">'
+        +     '<button class="btn btn-block" data-laegtil="'+o.id+'">'+icon('plus',16)+'Læg til side</button>'
+        +     (S.sparetIalt >= 1 ? '<button class="btn" data-flytsparet="'+o.id+'" aria-label="Flyt det sparede hertil">'+icon('pig',16)+'</button>' : '')
+        +     '<button class="icon-btn" data-sletmaal="'+o.id+'" aria-label="Slet">'+icon('trash',16)+'</button>'
+        +   '</div>'
+        + '</div>';
+    });
+  }
+
+  const indbetalinger = S.log.filter(l => l.slags === 'opsparing').slice(0, 6);
+  h += '<div class="card"><div class="card-head"><h3>Bevægelser</h3></div>';
+  if (!indbetalinger.length){
+    h += '<div class="empty">Endnu ingen indbetalinger. Læg penge til side, eller gør en måned op.</div>';
+  } else {
+    h += '<div class="feed">' + indbetalinger.map(l =>
+      '<div class="feed-item"><div class="feed-ic v">'+icon('pig',15)+'</div>'
+      + '<div class="feed-tx"><b>'+esc(l.tekst)+'</b><span>'+tidSiden(l.tid)+'</span></div></div>').join('') + '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
 /* ---------------- Budget ---------------- */
 function tegnBudget(){
   let h = '';
+  // Månedens regnestykke øverst, så budgettet er det man ser først.
+  const ind = indtaegtIalt(), fast = fasteIalt(), variabelt = variabeltBrugt();
+  h += '<div class="card">'
+    +   '<div class="card-head"><h3>'+esc(stort(MONTHS[new Date().getMonth()]))+' i tal</h3>'
+    +     '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Redigér</button></div>'
+    +   '<div class="regne">'
+    +     '<div class="r-linje"><span>Indtægter</span><b class="pos">'+kr(ind)+'</b></div>'
+    +     '<div class="r-linje"><span>Faste udgifter</span><b>−'+kr(fast)+'</b></div>'
+    +     '<div class="r-linje"><span>Brugt variabelt</span><b>−'+kr(variabelt)+'</b></div>'
+    +     (overfoertIMaaned() ? '<div class="r-linje"><span>Lagt til opsparing</span><b>−'+kr(overfoertIMaaned())+'</b></div>' : '')
+    +     '<div class="r-linje sum"><span>Tilbage</span><b class="'+(tilRaadighed()<0?'neg':'pos')+'">'+kr(tilRaadighed())+'</b></div>'
+    +   '</div>'
+    + '</div>';
+
+  const kommende = kommendeFaste().filter(x => !x.betalt).slice(0, 3);
+  if (kommende.length){
+    h += '<div class="card"><div class="card-head"><h3>Næste faste udgifter</h3>'
+      +  '<span class="tag grey">'+kr(kommende.reduce((a,x) => a + x.f.belob, 0))+'</span></div>';
+    kommende.forEach(x => {
+      const dage = x.dag - new Date().getDate();
+      h += '<div class="exp"><div class="ei">'+icon(x.f.ic,15)+'</div>'
+        +  '<div class="et"><b>'+esc(x.f.navn)+'</b><span>'
+        +    (dage === 0 ? 'i dag' : dage === 1 ? 'i morgen' : 'om '+dage+' dage') + ' · d. '+x.dag+'.</span></div>'
+        +  '<div class="ev">'+kr(x.f.belob)+'</div></div>';
+    });
+    h += '</div>';
+  }
+
   h += '<div class="card"><div class="card-head"><h3>Forbrug pr. kategori</h3>'
     +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Redigér</button></div>';
   if (!S.kategorier.length){
@@ -2316,7 +2490,7 @@ function tegnBudget(){
     return '1. ' + MONTHS[d.getMonth()];
   })();
 
-  h += '<div class="card-tint">'
+  h += '<div class="card-tint" data-gaatil="opsparing" style="cursor:pointer">'
     +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px">'
     +     '<div style="min-width:0"><div class="stat-l" style="color:var(--brand-ink)">Tilovers i '+maanedNavn(maanedNu())+'</div>'
     +       '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Dine lofter minus det du har brugt indtil nu</div></div>'
@@ -2346,6 +2520,8 @@ function tegnBudget(){
   h += '</div>';
 
   h += kvitteringKnapper();
+
+  h += tegnHistorik();
 
   h += '<div class="card"><div class="card-head"><h3>Seneste udgifter</h3>'
     +  '<span class="tag">'+icon('bolt',13)+krPlain(S.udgifter.filter(u=>u.kilde==='auto').length)+' automatisk</span></div>';
@@ -2421,6 +2597,37 @@ function tegnTilbud(){
   });
 
   h += '<div class="foot-note">'+icon('clock',15)+'<span>Priser fra ugens aviser. I den rigtige app hentes de fra minetilbud.dk og caches i en time.</span></div>';
+  return h;
+}
+
+/* ---------------- Mad: fire sider under én fane ---------------- */
+function tegnMad(){
+  const nu = MAD_SIDER.findIndex(x => x.key === madSide);
+  const mangler = skalKoebes().length;
+
+  let h = '<div class="mad-seg-baand"><div class="seg mad-seg">'
+    + MAD_SIDER.map(x => '<button data-madside="'+x.key+'" aria-pressed="'+(x.key===madSide)+'">'
+        + esc(x.navn)
+        + (x.key === 'indkob' && mangler ? '<span class="seg-tal">'+mangler+'</span>' : '')
+        + '</button>').join('')
+    + '</div></div>';
+
+  h += madSide === 'madplan' ? tegnMadplan()
+     : madSide === 'indkob'  ? tegnIndkoeb()
+     : madSide === 'retter'  ? tegnRetter()
+     :                         tegnTilbud();
+
+  // Frem og tilbage, så man kan klikke sig igennem uden at ramme småt
+  h += '<div style="display:flex;gap:9px;margin-top:6px">'
+    + (nu > 0
+        ? '<button class="btn" style="flex:1" data-madside="'+MAD_SIDER[nu-1].key+'">'
+          + icon('chevronLeft',16) + esc(MAD_SIDER[nu-1].navn) + '</button>'
+        : '<span style="flex:1"></span>')
+    + (nu < MAD_SIDER.length - 1
+        ? '<button class="btn" style="flex:1" data-madside="'+MAD_SIDER[nu+1].key+'">'
+          + esc(MAD_SIDER[nu+1].navn) + icon('chevronRight',16) + '</button>'
+        : '<span style="flex:1"></span>')
+    + '</div>';
   return h;
 }
 
@@ -2640,10 +2847,19 @@ function tegnIndstillinger(){
 
   h += tegnDeling();
 
-  h += '<div class="card"><div class="card-head"><h3>Indkomst</h3>'
-    +  '<button class="btn btn-sm" data-redigerindkomst="1" style="min-height:38px;padding:8px 13px">Ret</button></div>'
-    +  '<div class="num" style="font-size:26px;font-weight:600">'+kr(S.indkomst)+'</div>'
-    +  '<div class="stat-s">Udbetalt pr. måned. Alt andet regnes ud fra den.</div></div>';
+  h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
+    +  '<span>Indtægter · '+kr(indtaegtIalt())+' / måned</span>'
+    +  '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-nyindtaegt="1">'+icon('plus',14)+'Tilføj</button></div>';
+  h += '<div class="set-blok">';
+  (S.indtaegter || []).forEach(i => {
+    h += '<div class="goal-row"><span style="color:var(--brand-deep)">'+icon('wallet',19)+'</span>'
+      +  '<div class="gt"><b>'+esc(i.navn)+'</b><span>går ind d. '+(i.dag || 1)+'.</span></div>'
+      +  '<span class="gv pos">'+kr(i.belob)+'</span>'
+      +  '<button class="icon-btn" data-retindtaegt="'+i.id+'" aria-label="Ret">'+icon('pencil',16)+'</button>'
+      +  '<button class="icon-btn" data-sletindtaegt="'+i.id+'" aria-label="Slet">'+icon('trash',16)+'</button></div>';
+  });
+  if (!(S.indtaegter || []).length) h += '<div class="empty">Ingen indtægter tilføjet endnu.</div>';
+  h += '</div>';
 
   h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
     +  '<span>Forbrugskategorier</span>'
@@ -2667,7 +2883,7 @@ function tegnIndstillinger(){
   h += '<div class="set-blok">';
   S.faste.forEach(f => {
     h += '<div class="goal-row"><span style="color:var(--ink-2)">'+icon(f.ic,19)+'</span>'
-      +  '<div class="gt"><b>'+esc(f.navn)+'</b><span>hver måned</span></div>'
+      +  '<div class="gt"><b>'+esc(f.navn)+'</b><span>hver måned · d. '+(f.dag || 1)+'.</span></div>'
       +  '<span class="gv">'+kr(f.belob)+'</span>'
       +  '<button class="icon-btn" data-retfast="'+f.id+'" aria-label="Ret">'+icon('pencil',16)+'</button>'
       +  '<button class="icon-btn" data-sletfast="'+f.id+'" aria-label="Slet">'+icon('trash',16)+'</button></div>';
@@ -2815,11 +3031,15 @@ function ikonVaelger(valgt){
     + '</div></div>';
 }
 
-function redigerPost({titel, navn, belob, ic, gem: gemFn, felter}){
+function redigerPost(muligheder){
+  const titel = muligheder.titel, navn = muligheder.navn, belob = muligheder.belob;
+  const ic = muligheder.ic, gemFn = muligheder.gem, felter = muligheder.felter;
   let valgtIkon = ic || 'basket';
   const html = felt('Navn', 'f-navn', navn)
     + felt(felter === 'maal' ? 'Målbeløb (kr.)' : 'Beløb pr. måned (kr.)', 'f-belob', belob, 'number')
-    + (felter === 'maal' ? felt('Sparet indtil nu (kr.)', 'f-sparet', arguments[0].sparet || 0, 'number') : ikonVaelger(valgtIkon))
+    + (felter === 'dag' ? felt('Dag i måneden', 'f-dag', muligheder.dag || 1, 'number') : '')
+    + (felter === 'maal' ? felt('Sparet indtil nu (kr.)', 'f-sparet', muligheder.sparet || 0, 'number')
+       : felter === 'dag' ? '' : ikonVaelger(valgtIkon))
     + (felter === 'maal' ? '<div class="stat-s" style="margin:-4px 0 14px">Skriv hvad I sparer op til, og hvor meget målet er.</div>' : '')
     + knapRaekke('Gem');
   const sh = visSheet({titel, html, ved:(e, fjern) => {
@@ -2839,8 +3059,13 @@ function redigerPost({titel, navn, belob, ic, gem: gemFn, felter}){
       const b = Math.max(0, Math.round(Number(sh.node.querySelector('#f-belob').value) || 0));
       if (!n) return toast('Giv den et navn');
       const sparetFelt = sh.node.querySelector('#f-sparet');
+      const dagFelt = sh.node.querySelector('#f-dag');
       fjern();
-      gemFn({navn:n, belob:b, ic:valgtIkon, sparet: sparetFelt ? Math.max(0, Math.round(Number(sparetFelt.value) || 0)) : 0});
+      gemFn({
+        navn:n, belob:b, ic:valgtIkon,
+        sparet: sparetFelt ? Math.max(0, Math.round(Number(sparetFelt.value) || 0)) : 0,
+        dag: dagFelt ? Math.min(28, Math.max(1, Math.round(Number(dagFelt.value) || 1))) : 1
+      });
     }
   }});
 }
@@ -3487,20 +3712,24 @@ async function visKode(){
    Ramme: header, faner, hændelser
    ============================================================ */
 const FANER = [
-  {key:'hjem',    navn:'Hjem',    ic:'home'},
-  {key:'budget',  navn:'Budget',  ic:'wallet'},
-  {key:'madplan', navn:'Madplan', ic:'cal'},
-  {key:'retter',  navn:'Retter',  ic:'book'},
-  {key:'indkob',  navn:'Indkøb',  ic:'cart'},
-  {key:'tilbud',  navn:'Andre tilbud', ic:'tag'}
+  {key:'hjem',      navn:'Hjem',      ic:'home'},
+  {key:'budget',    navn:'Budget',    ic:'wallet'},
+  {key:'opsparing', navn:'Opsparing', ic:'pig'},
+  {key:'mad',       navn:'Mad',       ic:'fork'}
 ];
+/* Mad er én fane med fire sider, man klikker sig frem og tilbage mellem. */
+const MAD_SIDER = [
+  {key:'madplan', navn:'Madplan'},
+  {key:'indkob',  navn:'Indkøb'},
+  {key:'retter',  navn:'Retter'},
+  {key:'tilbud',  navn:'Tilbud'}
+];
+let madSide = 'madplan';
 const TITLER = {
-  hjem:    () => ({t: fornavn() ? 'Hej, ' + fornavn() : 'Hej', s:'Dit budget · '+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear()}),
-  budget:  () => ({t:'Budget', s:'Alt bogføres automatisk · '+MONTHS[new Date().getMonth()]}),
-  tilbud:  () => ({t:'Andre tilbud', s:'Tilbud der ikke er i din madplan', badge:true}),
-  madplan: () => ({t:'Madplan', s:'Uge '+S.uge+' · '+shortDay(mondayOf(new Date()))+' – '+shortDay(new Date(mondayOf(new Date()).getTime()+6*86400000))+(erPar()?' · deles':'')}),
-  retter:  () => ({t:'Retter', s:RETTER.length+' retter — vælg selv hvad I skal spise'}),
-  indkob:  () => ({t:'Indkøbsliste', s:'Uge '+S.uge+(erPar()?' · deles':''), badge:true}),
+  hjem:      () => ({t: fornavn() ? 'Hej, ' + fornavn() : 'Hej', s:'Dit budget · '+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear()}),
+  budget:    () => ({t:'Budget', s:MONTHS[new Date().getMonth()]+' · alt bogføres automatisk'}),
+  opsparing: () => ({t:'Opsparing', s: S.opsparinger.length ? S.opsparinger.length+' mål · '+kr(S.opsparinger.reduce((a,o)=>a+o.sparet,0))+' sparet op' : 'Sæt et mål for jeres penge'}),
+  mad:       () => ({t:'Mad', s:'Uge '+S.uge+' · madplan, indkøb og tilbud'+(erPar()?' · deles':'')}),
   indstillinger: () => ({t:'Indstillinger', s:'Din opsætning', tilbage:true})
 };
 const fornavn = () => {
@@ -3521,24 +3750,25 @@ function tegn(){
         + icon('person',20) + '<span>Mig</span></button>');
 
   document.getElementById('view').innerHTML =
-      visning === 'hjem'    ? tegnHjem()
-    : visning === 'budget'  ? tegnBudget()
-    : visning === 'tilbud'  ? tegnTilbud()
-    : visning === 'madplan' ? tegnMadplan()
-    : visning === 'retter'  ? tegnRetter()
-    : visning === 'indkob'  ? tegnIndkoeb()
-    :                         tegnIndstillinger();
+      visning === 'hjem'      ? tegnHjem()
+    : visning === 'budget'    ? tegnBudget()
+    : visning === 'opsparing' ? tegnOpsparing()
+    : visning === 'mad'       ? tegnMad()
+    :                           tegnIndstillinger();
+
+  const hdrEl = document.getElementById('hdr');
+  if (hdrEl) document.documentElement.style.setProperty('--hdr-h', hdrEl.offsetHeight + 'px');
 
   const mangler = skalKoebes().length;
   document.getElementById('tabbar').innerHTML = FANER.map(f =>
     '<button class="tab" data-fane="'+f.key+'"'+(visning===f.key?' aria-current="page"':'')+'>'
-    + '<span class="tn">'+icon(f.ic,21)+(f.key==='indkob'&&mangler?'<span class="dot">'+mangler+'</span>':'')+'</span>'
+    + '<span class="tn">'+icon(f.ic,21)+(f.key==='mad'&&mangler?'<span class="dot">'+mangler+'</span>':'')+'</span>'
     + '<span>'+f.navn+'</span></button>').join('');
 
   if (visning === 'indstillinger' && document.getElementById('hus-kode')) visKode();
 
   const soeg = document.getElementById('retsoeg');
-  if (soeg && visning === 'retter' && retSoeg) { soeg.focus(); soeg.setSelectionRange(retSoeg.length, retSoeg.length); }
+  if (soeg && visning === 'mad' && madSide === 'retter' && retSoeg) { soeg.focus(); soeg.setSelectionRange(retSoeg.length, retSoeg.length); }
   gem();
 }
 
@@ -3550,15 +3780,25 @@ function skiftFane(key){
   window.scrollTo(0, key === 'indstillinger' ? 0 : (rulle[key] || 0));
 }
 
+/** Skift side inde i Mad-fanen, med sin egen rulleposition. */
+function skiftMadSide(key){
+  if (key === madSide) return;
+  rulle['mad:' + madSide] = window.scrollY;
+  madSide = key;
+  if (visning !== 'mad') return skiftFane('mad');
+  tegn();
+  window.scrollTo(0, rulle['mad:' + key] || 0);
+}
+
 /* ---------------- klik ---------------- */
 document.addEventListener('click', (e) => {
   if (!e.target || !e.target.closest) return;
   if (e.target.closest('.scrim')) return;                    // skuffen har sin egen håndtering
 
-  const t = e.target.closest('[data-fane],[data-gaatil],[data-vare],[data-valg],[data-alle],[data-lavet],[data-fortryd],'
+  const t = e.target.closest('[data-fane],[data-gaatil],[data-madside],[data-vare],[data-valg],[data-alle],[data-lavet],[data-fortryd],'
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
-    + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],'
+    + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],[data-nyindtaegt],[data-retindtaegt],[data-sletindtaegt],'
     + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skema],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
 
   if (!t){
@@ -3582,6 +3822,7 @@ document.addEventListener('click', (e) => {
 
   if (d.fane) return skiftFane(d.fane);
   if (d.gaatil) return skiftFane(d.gaatil);
+  if (d.madside){ bump(6); return skiftMadSide(d.madside); }
 
   if (d.aabn){
     const dag = t.closest('.day');
@@ -3651,7 +3892,7 @@ document.addEventListener('click', (e) => {
     S.plan = nyMadplan();
     synkroniserListe();
     logFør('Nyt ugeforslag · '+kr(planSum()), 0, 'plan');
-    if (visning === 'retter') skiftFane('madplan'); else tegn();
+    if (madSide === 'retter') skiftMadSide('madplan'); else tegn();
     return toast('Ugeforslag lavet — ret det til som du vil');
   }
 
@@ -3743,14 +3984,6 @@ document.addEventListener('click', (e) => {
   }
 
   /* --- indstillinger: indkomst, kategorier, faste, mål --- */
-  if (d.redigerindkomst){
-    return visSheet({titel:'Månedlig indkomst', html: felt('Udbetalt pr. måned (kr.)','f-belob',S.indkomst,'number') + knapRaekke('Gem'),
-      ved:(ev, fjern) => {
-        if (!ev.target.closest('[data-ok]')) return;
-        const v = Math.max(0, Math.round(Number(ev.target.closest('.sheet').querySelector('#f-belob').value) || 0));
-        fjern(); S.indkomst = v; tegn(); toast('Indkomst gemt');
-      }});
-  }
   if (d.nykat) return redigerPost({titel:'Ny kategori', navn:'', belob:1000, ic:'basket', gem:(r) => {
     S.kategorier.push({id:uid(), navn:r.navn, graense:r.belob, ic:r.ic});
     tegn(); toast(r.navn+' tilføjet');
@@ -3772,15 +4005,36 @@ document.addEventListener('click', (e) => {
       tegn(); toast(k.navn+' slettet');
     }, true);
   }
-  if (d.nyfast) return redigerPost({titel:'Ny fast udgift', navn:'', belob:0, ic:'house', gem:(r) => {
-    S.faste.push({id:uid(), navn:r.navn, belob:r.belob, ic:r.ic});
+  if (d.nyfast) return redigerPost({titel:'Ny fast udgift', navn:'', belob:0, ic:'house', dag:1, felter:'dag', gem:(r) => {
+    S.faste.push({id:uid(), navn:r.navn, belob:r.belob, ic:'house', dag:r.dag});
     tegn(); toast(r.navn+' tilføjet');
   }});
   if (d.retfast){
     const f = S.faste.find(x => x.id === d.retfast);
-    return redigerPost({titel:'Ret '+f.navn, navn:f.navn, belob:f.belob, ic:f.ic, gem:(r) => {
-      f.navn = r.navn; f.belob = r.belob; f.ic = r.ic; tegn(); toast('Gemt');
+    return redigerPost({titel:'Ret '+f.navn, navn:f.navn, belob:f.belob, ic:f.ic, dag:f.dag, felter:'dag', gem:(r) => {
+      f.navn = r.navn; f.belob = r.belob; f.dag = r.dag; tegn(); toast('Gemt');
     }});
+  }
+  if (d.nyindtaegt) return redigerPost({titel:'Ny indtægt', navn:'', belob:0, dag:1, felter:'dag', gem:(r) => {
+    S.indtaegter.push({id:uid(), navn:r.navn, belob:r.belob, dag:r.dag});
+    S.indkomst = indtaegtIalt();
+    tegn(); toast(r.navn+' tilføjet');
+  }});
+  if (d.retindtaegt){
+    const i = S.indtaegter.find(x => x.id === d.retindtaegt);
+    return redigerPost({titel:'Ret '+i.navn, navn:i.navn, belob:i.belob, dag:i.dag, felter:'dag', gem:(r) => {
+      i.navn = r.navn; i.belob = r.belob; i.dag = r.dag;
+      S.indkomst = indtaegtIalt();
+      tegn(); toast('Gemt');
+    }});
+  }
+  if (d.sletindtaegt){
+    const i = S.indtaegter.find(x => x.id === d.sletindtaegt);
+    return bekraeft('Slet '+i.navn+'?', 'Indtægten fjernes fra dit månedlige regnestykke.', 'Slet', () => {
+      S.indtaegter = S.indtaegter.filter(x => x.id !== i.id);
+      S.indkomst = indtaegtIalt();
+      tegn(); toast(i.navn+' slettet');
+    }, true);
   }
   if (d.sletfast){
     const f = S.faste.find(x => x.id === d.sletfast);
@@ -3860,6 +4114,14 @@ document.addEventListener('input', (e) => {
     x0 = null;
     if (Date.now() - t0 > 600 || Math.abs(dx) < 65 || Math.abs(dy) > 45) return;
     if (visning === 'indstillinger') return;
+    if (visning === 'mad'){
+      // Inde i Mad bladrer man mellem siderne; kun i enderne skifter man fane.
+      const m = MAD_SIDER.map(x => x.key), j = m.indexOf(madSide);
+      const k = dx < 0 ? j + 1 : j - 1;
+      if (k >= 0 && k < m.length){ bump(6); return skiftMadSide(m[k]); }
+      if (dx > 0){ bump(6); return skiftFane('opsparing'); }
+      return;
+    }
     const r = FANER.map(f => f.key), i = r.indexOf(visning);
     const n = dx < 0 ? i + 1 : i - 1;
     if (n < 0 || n >= r.length) return;
