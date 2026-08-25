@@ -495,7 +495,13 @@ const Sky = (function(){
   const læs = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e){ return null; } };
   const skriv = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
 
+  /* Er projektet lagt ind på forhånd, skal ingen taste nøgler på en telefon. */
+  const FORUD = {
+    url: 'https://kbpxfrgxgrzmrdvldbbu.supabase.co',
+    key: ''            // sb_publishable_... indsættes her
+  };
   cfg = læs(NØGLE_CFG);
+  if (!cfg && FORUD.url && FORUD.key){ cfg = {url: FORUD.url, key: FORUD.key}; skriv(NØGLE_CFG, cfg); }
   session = læs(NØGLE_SES);
   husstandId = læs(NØGLE_HUS);
 
@@ -690,6 +696,84 @@ const Sky = (function(){
     return {konflikt:false, version: sidsteVersion};
   }
 
+  /* ----------------------------------------------------------------
+     Selvtest: kør den fra telefonen, hvor forbindelsen findes.
+     Hvert trin svarer på ét spørgsmål, så en fejl peger på årsagen.
+     ---------------------------------------------------------------- */
+  async function raa(sti, muligheder){
+    muligheder = muligheder || {};
+    const h = {'apikey': cfg.key, 'content-type': 'application/json'};
+    if (muligheder.auth !== false && session && session.access_token) h['authorization'] = 'Bearer ' + session.access_token;
+    const res = await fetch(cfg.url.replace(/\/$/, '') + sti, {
+      method: muligheder.metode || 'GET', headers: h,
+      body: muligheder.krop === undefined ? undefined : JSON.stringify(muligheder.krop)
+    });
+    let data = null;
+    try { data = JSON.parse(await res.text() || 'null'); } catch(e){}
+    return {status: res.status, data};
+  }
+
+  async function tjek(){
+    const ud = [];
+    // info = hverken godt eller skidt, fx at man endnu ikke er logget ind
+    const tilfoej = (navn, ok, detalje, info) => ud.push({navn, ok, detalje, info: !!info});
+
+    if (!opsat()){ tilfoej('Opsætning', false, 'Der er hverken URL eller nøgle endnu'); return ud; }
+
+    try {
+      const h = await raa('/auth/v1/health', {auth:false});
+      tilfoej('Projektet svarer', h.status === 200, h.status === 200 ? cfg.url.replace('https://','') : 'status ' + h.status);
+    } catch(e){
+      tilfoej('Projektet svarer', false, 'Ingen forbindelse — er du på nettet?');
+      return ud;
+    }
+
+    try {
+      const r = await raa('/rest/v1/', {auth:false});
+      tilfoej('Nøglen godtages', r.status === 200,
+        r.status === 200 ? 'sb_publishable / anon' : (r.status === 401 ? 'Nøglen afvises — er det den rigtige?' : 'status ' + r.status));
+    } catch(e){ tilfoej('Nøglen godtages', false, e.message); }
+
+    // Findes tabellerne? PostgREST svarer 404 hvis skemaet ikke er kørt.
+    for (const tabel of ['husstande','medlemmer']){
+      try {
+        const r = await raa('/rest/v1/' + tabel + '?select=id&limit=1', {auth:false});
+        const mangler = r.status === 404 || (r.data && /PGRST205|does not exist|find the table/i.test(JSON.stringify(r.data)));
+        tilfoej('Tabellen "' + tabel + '"', !mangler,
+          mangler ? 'Kør supabase/schema.sql i SQL Editor' : 'på plads');
+      } catch(e){ tilfoej('Tabellen "' + tabel + '"', false, e.message); }
+    }
+
+    if (!loggetInd()){
+      tilfoej('Login', false, 'Ikke logget ind endnu — næste skridt', true);
+      return ud;
+    }
+    tilfoej('Login', true, brugerMail());
+
+    try {
+      const r = await raa('/rest/v1/rpc/find_husstand', {metode:'POST', krop:{p_kode:'FINDES-IKKE-00'}});
+      tilfoej('Invitationskoder virker', r.status === 200, r.status === 200 ? 'opslag svarer' : 'status ' + r.status);
+    } catch(e){ tilfoej('Invitationskoder virker', false, e.message); }
+
+    if (husstandId){
+      try {
+        const r = await raa('/rest/v1/husstande?select=id,version&id=eq.' + husstandId);
+        tilfoej('Din husstand kan hentes', r.status === 200 && r.data && r.data.length, 'version ' + (r.data && r.data[0] ? r.data[0].version : '?'));
+      } catch(e){ tilfoej('Din husstand kan hentes', false, e.message); }
+
+      // Sikkerheden: en husstand vi ikke er med i, må ikke kunne læses.
+      try {
+        const falsk = '00000000-0000-4000-8000-000000000000';
+        const r = await raa('/rest/v1/husstande?select=id&id=eq.' + falsk);
+        const tomt = r.status === 200 && Array.isArray(r.data) && r.data.length === 0;
+        tilfoej('Fremmede holdes ude', tomt, tomt ? 'Row Level Security er aktiv' : 'ADVARSEL: uventet svar (' + r.status + ')');
+      } catch(e){ tilfoej('Fremmede holdes ude', false, e.message); }
+    } else {
+      tilfoej('Husstand', false, 'Du er ikke med i en husstand endnu — næste skridt', true);
+    }
+    return ud;
+  }
+
   /* ---------------- hold øje med den anden telefon ---------------- */
   function startLytning(kald_tilbage, sekunder){
     stopLytning();
@@ -716,7 +800,7 @@ const Sky = (function(){
     opret, login, logUd, brugerId, brugerMail,
     opretHusstand, tilslut, minHusstand, medlemmer, saetMitNavn, forlad,
     harHusstand: () => !!husstandId, husstandsId: () => husstandId,
-    hent, gem, startLytning, stopLytning,
+    hent, gem, startLytning, stopLytning, tjek,
     get version(){ return sidsteVersion; }
   };
 })();
@@ -2637,6 +2721,7 @@ function tegnDeling(){
     h += '<div class="stat-s" style="margin-bottom:14px">Log ind med samme mail på begge telefoner? Nej — I skal have '
       +  '<b>hver jeres</b> login, og så deler I en husstand.</div>'
       +  '<button class="btn btn-brand btn-block" data-skylogin="1">'+icon('users',16)+'Log ind eller opret bruger</button>'
+      +  '<button class="btn btn-block" data-skytjek="1" style="margin-top:9px">'+icon('check',16)+'Test forbindelsen</button>'
       +  '<button class="btn btn-block" data-skyglem="1" style="margin-top:9px;color:var(--ink-2)">Skift Supabase-projekt</button>';
     return h + '</div>';
   }
@@ -2646,6 +2731,7 @@ function tegnDeling(){
       +  'Opret en husstand og giv koden til din partner — eller indtast den kode, du har fået.</div>'
       +  '<button class="btn btn-brand btn-block" data-nyhusstand="1">'+icon('house',16)+'Opret husstand</button>'
       +  '<button class="btn btn-block" data-tilslut="1" style="margin-top:9px">Jeg har en kode</button>'
+      +  '<button class="btn btn-block" data-skytjek="1" style="margin-top:9px">'+icon('check',16)+'Test forbindelsen</button>'
       +  '<button class="btn btn-block" data-skyudlog="1" style="margin-top:9px;color:var(--ink-2)">Log ud</button>';
     return h + '</div>';
   }
@@ -2677,6 +2763,7 @@ function tegnDeling(){
       +  '</div>';
   }
 
+  h += '<button class="btn btn-block" data-skytjek="1" style="margin-bottom:9px">'+icon('check',16)+'Test forbindelsen</button>';
   h += '<button class="btn btn-block" data-forlad="1" style="color:var(--danger)">'+icon('x',16)+'Forlad husstanden</button>';
   return h + '</div>';
 }
@@ -3154,6 +3241,37 @@ function skySheet(titel, under, felter, knap, naar){
   return sh;
 }
 
+/** Kør selvtesten og vis svaret i almindelig tekst. */
+function skyTjek(){
+  const sh = visSheet({
+    titel:'Test forbindelsen',
+    under:'Kører nu — hvert punkt svarer på ét spørgsmål.',
+    html:'<div id="tjek-svar"><div class="empty">Tester…</div></div>'
+  });
+  Sky.tjek().then(rækker => {
+    const n = sh.node.querySelector('#tjek-svar');
+    if (!n) return;
+    const fejl = rækker.filter(r => !r.ok && !r.info);
+    const næste = rækker.filter(r => r.info);
+    n.innerHTML = rækker.map(r =>
+      '<div class="ing"><span class="dot'+(r.ok?' have':'')+'" style="'+(r.ok ? '' : r.info ? 'background:var(--surface-3)' : 'background:var(--danger)')+'"></span>'
+      + '<span class="in">'+esc(r.navn)+'<br><span style="font-size:12px;color:var(--ink-3)">'+esc(r.detalje || '')+'</span></span>'
+      + '<span class="iv">'+(r.ok ? '✓' : r.info ? '·' : '✕')+'</span></div>').join('')
+      + '<div class="stat-s" style="margin-top:14px">'
+      + (fejl.length === 0
+          ? (næste.length
+              ? 'Forbindelsen er i orden. Næste skridt: ' + esc(næste[0].navn.toLowerCase()) + '.'
+              : 'Alt er som det skal være — I deler nu.')
+          : /schema\.sql/.test(fejl.map(f => f.detalje).join(' '))
+            ? 'Skemaet mangler. Åbn Supabase → SQL Editor → indsæt supabase/schema.sql → Run.'
+            : 'Se det første punkt med ✕ — det er der, det stopper.')
+      + '</div>';
+  }).catch(e => {
+    const n = sh.node.querySelector('#tjek-svar');
+    if (n) n.innerHTML = '<div class="modal-error">Testen kunne ikke køre: '+esc(e.message)+'</div>';
+  });
+}
+
 function skyOpsaetning(){
   skySheet('Forbind til Supabase',
     'Opret et gratis projekt på supabase.com, kør skemaet i SQL Editor, og hent de to værdier under Project Settings → API.',
@@ -3319,7 +3437,7 @@ document.addEventListener('click', (e) => {
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
     + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],'
-    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
 
   if (!t){
     // Tryk hvor som helst på en varelinje eller en dag
@@ -3468,6 +3586,7 @@ document.addEventListener('click', (e) => {
         tegn(); toast('I er kvit');
       });
   }
+  if (d.skytjek) return skyTjek();
   if (d.skyopsaet) return skyOpsaetning();
   if (d.skylogin) return skyLogin();
   if (d.skyglem) return bekraeft('Skift projekt?', 'Appen glemmer Supabase-opsætningen på denne telefon. Dine data bliver liggende.', 'Glem', () => { Sky.glemOpsætning(); Sky.logUd(); tegn(); });
