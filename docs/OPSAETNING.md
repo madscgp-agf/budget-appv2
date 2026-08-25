@@ -7,8 +7,11 @@ Det tager omkring fem minutter, og I skal kun gøre det én gang.
 1. Gå til [supabase.com](https://supabase.com) → **Start your project** → log ind med GitHub.
 2. **New project**. Vælg et navn, en adgangskode til databasen (gem den et sikkert sted)
    og regionen **Frankfurt (eu-central-1)** — tættest på Danmark. Vent et minut.
-3. Åbn **SQL Editor** → **New query**. Indsæt hele indholdet af
-   [`supabase/schema.sql`](../supabase/schema.sql) og tryk **Run**.
+3. Kør skemaet. **Fra telefonen er det nemmest inde fra appen:**
+   **Indstillinger → Din partner → Kør skemaet i Supabase** → *Kopiér skemaet* →
+   *Åbn SQL Editor* → hold fingeren i feltet, vælg **Sæt ind**, tryk **Run**.
+   Fra en computer kan du i stedet indsætte
+   [`supabase/schema.sql`](../supabase/schema.sql) manuelt.
    Der skal stå *Success. No rows returned*.
 4. Åbn **Project Settings → API**. Her ligger de to værdier, appen skal bruge:
    - **Project URL** (`https://xxxxxxxx.supabase.co`)

@@ -479,6 +479,11 @@ button{font:inherit;color:inherit}
 </head>
 <body>
 <script>
+/* Skemaet lagt ind i appen, så det kan kopieres direkte fra telefonen. */
+const SKEMA_SQL = "-- ============================================================\n--  Toget — deling mellem to personer\n--  Kør i Supabase: SQL Editor -> New query -> indsæt -> Run.\n--  Kan køres igen uden at ødelægge data.\n--\n--  Husstanden gemmes som ét dokument. Appen har i forvejen én\n--  samlet tilstand, og to personer redigerer sjældent det samme\n--  sekund; klienten fletter pr. post og prøver igen ved sammenstød.\n-- ============================================================\n\ncreate extension if not exists pgcrypto;\n\ncreate table if not exists husstande (\n  id        uuid primary key default gen_random_uuid(),\n  navn      text not null default 'Vores husstand',\n  kode      text not null unique,                 -- invitationskode, fx \"GROEN-HAVRE-42\"\n  doc       jsonb not null default '{}'::jsonb,   -- madplan, indkøbsliste, udgifter, opsætning\n  version   bigint not null default 1,\n  opdateret timestamptz not null default now(),\n  oprettet  timestamptz not null default now()\n);\n\ncreate table if not exists medlemmer (\n  husstand_id uuid not null references husstande(id) on delete cascade,\n  bruger_id   uuid not null references auth.users(id) on delete cascade,\n  navn        text not null default 'Mig',\n  rolle       text not null default 'medlem' check (rolle in ('ejer','medlem')),\n  tilmeldt    timestamptz not null default now(),\n  primary key (husstand_id, bruger_id)\n);\ncreate index if not exists idx_medlemmer_bruger on medlemmer(bruger_id);\n\n-- To personer pr. husstand. Det er en parapp, ikke et regnskabssystem.\ncreate or replace function tjek_to_medlemmer() returns trigger\nlanguage plpgsql security definer as $$\nbegin\n  if (select count(*) from medlemmer where husstand_id = new.husstand_id) >= 2 then\n    raise exception 'Der kan kun være to personer i en husstand';\n  end if;\n  return new;\nend $$;\n\ndrop trigger if exists medlemmer_maks_to on medlemmer;\ncreate trigger medlemmer_maks_to before insert on medlemmer\n  for each row execute function tjek_to_medlemmer();\n\n-- ============================================================\n--  Row Level Security: man ser kun sin egen husstand\n-- ============================================================\nalter table husstande enable row level security;\nalter table medlemmer enable row level security;\n\n-- Uden security definer ville politikken på medlemmer slå sig selv op i en løkke.\ncreate or replace function mine_husstande() returns setof uuid\nlanguage sql security definer stable as $$\n  select husstand_id from medlemmer where bruger_id = auth.uid()\n$$;\n\ndrop policy if exists husstand_laes on husstande;\ncreate policy husstand_laes on husstande for select\n  using (id in (select mine_husstande()));\n\n-- Man må oprette en husstand; man bliver først medlem i næste kald.\ndrop policy if exists husstand_opret on husstande;\ncreate policy husstand_opret on husstande for insert\n  to authenticated with check (true);\n\ndrop policy if exists husstand_ret on husstande;\ncreate policy husstand_ret on husstande for update\n  using (id in (select mine_husstande()))\n  with check (id in (select mine_husstande()));\n\ndrop policy if exists medlem_laes on medlemmer;\ncreate policy medlem_laes on medlemmer for select\n  using (husstand_id in (select mine_husstande()) or bruger_id = auth.uid());\n\ndrop policy if exists medlem_tilmeld on medlemmer;\ncreate policy medlem_tilmeld on medlemmer for insert\n  with check (bruger_id = auth.uid());\n\ndrop policy if exists medlem_ret on medlemmer;\ncreate policy medlem_ret on medlemmer for update using (bruger_id = auth.uid());\n\ndrop policy if exists medlem_forlad on medlemmer;\ncreate policy medlem_forlad on medlemmer for delete using (bruger_id = auth.uid());\n\n-- ============================================================\n--  Slå en invitationskode op uden at kunne læse husstandens data\n-- ============================================================\ncreate or replace function find_husstand(p_kode text)\nreturns table (id uuid, navn text, antal int)\nlanguage sql security definer stable as $$\n  select h.id, h.navn, (select count(*)::int from medlemmer m where m.husstand_id = h.id)\n  from husstande h\n  where upper(h.kode) = upper(trim(p_kode))\n$$;\n\nrevoke all on function find_husstand(text) from public, anon;\ngrant execute on function find_husstand(text) to authenticated;\n\n-- Gem-tidspunkt sættes af databasen, ikke af telefonens ur.\ncreate or replace function saet_opdateret() returns trigger\nlanguage plpgsql as $$\nbegin\n  new.opdateret = now();\n  return new;\nend $$;\n\ndrop trigger if exists husstande_opdateret on husstande;\ncreate trigger husstande_opdateret before update on husstande\n  for each row execute function saet_opdateret();\n";
+
+</script>
+<script>
 /* ============================================================
    Sky — deling mellem to telefoner via Supabase.
    Rå fetch, ingen biblioteker: appen skal kunne ligge som én fil
@@ -2722,6 +2727,7 @@ function tegnDeling(){
       +  '<b>hver jeres</b> login, og så deler I en husstand.</div>'
       +  '<button class="btn btn-brand btn-block" data-skylogin="1">'+icon('users',16)+'Log ind eller opret bruger</button>'
       +  '<button class="btn btn-block" data-skytjek="1" style="margin-top:9px">'+icon('check',16)+'Test forbindelsen</button>'
+      +  '<button class="btn btn-block" data-skema="1" style="margin-top:9px">'+icon('link',16)+'Kør skemaet i Supabase</button>'
       +  '<button class="btn btn-block" data-skyglem="1" style="margin-top:9px;color:var(--ink-2)">Skift Supabase-projekt</button>';
     return h + '</div>';
   }
@@ -2764,6 +2770,7 @@ function tegnDeling(){
   }
 
   h += '<button class="btn btn-block" data-skytjek="1" style="margin-bottom:9px">'+icon('check',16)+'Test forbindelsen</button>';
+  h += '<button class="btn btn-block" data-skema="1" style="margin-bottom:9px">'+icon('link',16)+'Kør skemaet i Supabase</button>';
   h += '<button class="btn btn-block" data-forlad="1" style="color:var(--danger)">'+icon('x',16)+'Forlad husstanden</button>';
   return h + '</div>';
 }
@@ -3242,6 +3249,59 @@ function skySheet(titel, under, felter, knap, naar){
 }
 
 /** Kør selvtesten og vis svaret i almindelig tekst. */
+/** Kopiér tekst — med en reserveløsning til browsere uden clipboard-adgang. */
+async function kopier(tekst){
+  try {
+    if (navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(tekst);
+      return true;
+    }
+  } catch(e){ /* falder igennem */ }
+  try {
+    const t = document.createElement('textarea');
+    t.value = tekst;
+    t.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(t);
+    t.focus(); t.select();
+    const ok = document.execCommand('copy');
+    t.remove();
+    return ok;
+  } catch(e){ return false; }
+}
+
+const PROJEKT_REF = (function(){
+  try {
+    const cfg = JSON.parse(localStorage.getItem('toget.sky.cfg') || 'null');
+    const m = cfg && cfg.url && cfg.url.match(/https:\/\/([a-z0-9]+)\.supabase\.co/i);
+    return m ? m[1] : null;
+  } catch(e){ return null; }
+})();
+
+/** Alt hvad man skal bruge for at få skemaet ind — fra en telefon. */
+function skemaSheet(){
+  if (typeof SKEMA_SQL === 'undefined') return toast('Skemaet er ikke med i denne udgave');
+  const link = PROJEKT_REF ? 'https://supabase.com/dashboard/project/' + PROJEKT_REF + '/sql/new' : 'https://supabase.com/dashboard';
+  const html =
+      '<ol style="margin:0 0 14px;padding-left:20px;font-size:14.5px;line-height:1.6">'
+    +   '<li>Tryk <b>Kopiér skemaet</b> herunder.</li>'
+    +   '<li>Tryk <b>Åbn SQL Editor</b> — den åbner et tomt felt i dit projekt.</li>'
+    +   '<li>Hold fingeren i feltet og vælg <b>Sæt ind</b>, tryk så <b>Run</b>.</li>'
+    +   '<li>Kom tilbage hertil og tryk <b>Test forbindelsen</b>.</li>'
+    + '</ol>'
+    + '<div class="acts">'
+    +   '<button class="btn btn-brand" data-kopier="1" style="min-height:52px">' + icon('link',16) + 'Kopiér skemaet</button>'
+    +   '<a class="btn" href="' + link + '" target="_blank" rel="noopener" data-external style="min-height:52px">' + icon('house',16) + 'Åbn SQL Editor</a>'
+    +   '<button class="btn" data-luk="1" style="min-height:52px">Luk</button>'
+    + '</div>';
+
+  visSheet({titel:'Kør skemaet', under:'Det skal kun gøres én gang, af en af jer.', html, ved:(e) => {
+    if (!e.target.closest('[data-kopier]')) return;
+    kopier(SKEMA_SQL).then(ok => toast(ok
+      ? 'Skemaet er kopieret — sæt det ind i SQL Editor'
+      : 'Kunne ikke kopiere. Åbn supabase/schema.sql på GitHub i stedet.'));
+  }});
+}
+
 function skyTjek(){
   const sh = visSheet({
     titel:'Test forbindelsen',
@@ -3263,7 +3323,7 @@ function skyTjek(){
               ? 'Forbindelsen er i orden. Næste skridt: ' + esc(næste[0].navn.toLowerCase()) + '.'
               : 'Alt er som det skal være — I deler nu.')
           : /schema\.sql/.test(fejl.map(f => f.detalje).join(' '))
-            ? 'Skemaet mangler. Åbn Supabase → SQL Editor → indsæt supabase/schema.sql → Run.'
+            ? 'Skemaet mangler.</div><button class="btn btn-brand btn-block" data-skema="1" style="margin-top:10px">Kør skemaet nu</button><div class="stat-s" style="display:none">'
             : 'Se det første punkt med ✕ — det er der, det stopper.')
       + '</div>';
   }).catch(e => {
@@ -3437,7 +3497,7 @@ document.addEventListener('click', (e) => {
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
     + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],'
-    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skema],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
 
   if (!t){
     // Tryk hvor som helst på en varelinje eller en dag
@@ -3586,6 +3646,7 @@ document.addEventListener('click', (e) => {
         tegn(); toast('I er kvit');
       });
   }
+  if (d.skema) return skemaSheet();
   if (d.skytjek) return skyTjek();
   if (d.skyopsaet) return skyOpsaetning();
   if (d.skylogin) return skyLogin();
