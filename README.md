@@ -227,6 +227,14 @@ It covers:
 - **Andre tilbud** (far right) — only offers that are *not* already in your meal
   plan or on your list, so it is genuinely "what else is worth buying". Tap one
   to add it to the shopping list; it survives regenerating the week.
+- **Real quantities** — every item knows how much of a pack one dish uses, so
+  three dishes with bacon buy **2 × 280 g = 560 g**, not one packet. The count
+  shows on the line, drives the price and what gets booked, and can be
+  overridden per item (your number then survives a new week plan).
+- **Receipts, any category** — photograph a receipt, pick the category (a meal
+  out, a train ticket, groceries), and it is booked. Where the browser can read
+  text in images, the total and shop are suggested. The photo is stored on the
+  phone that took it, not in the shared household document.
 - **Set the goal yourself** — name and target are editable straight from the
   card on Hjem, and with no goals at all the card offers to create one.
 - **Month-end only** — leftover budget can be moved once a month has actually

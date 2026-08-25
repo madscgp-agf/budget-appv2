@@ -405,6 +405,11 @@ button{font:inherit;color:inherit}
 .item.har{background:var(--brand-tint)}
 .item.droppet{opacity:.45}
 .item .status-btn{flex:none;color:var(--ink-3)}
+.antal{
+  font-family:var(--font-d);font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;
+  background:var(--ink);color:var(--ground);border-radius:7px;padding:1px 7px;flex:none;
+}
+.item.bought .antal,.item.droppet .antal{background:var(--surface-3);color:var(--ink-2)}
 .linje-maerke{font-size:11.5px;font-weight:500;padding:2px 9px;border-radius:999px;white-space:nowrap}
 .linje-maerke.har{background:var(--brand);color:#fff}
 .linje-maerke.droppet{background:var(--surface-3);color:var(--ink-2)}
@@ -457,6 +462,14 @@ button{font:inherit;color:inherit}
 }
 .sheet input:focus{border-color:var(--brand)}
 .sheet label{font-size:13px;color:var(--ink-2);font-weight:500;display:block;margin-bottom:6px}
+.kat-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.kat-chip{
+  display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--surface);
+  color:var(--ink-2);border-radius:999px;padding:10px 15px;min-height:46px;font:inherit;font-size:14px;
+  font-weight:500;cursor:pointer;transition:border-color .15s,background .15s,color .15s,transform .08s;
+}
+.kat-chip:active{transform:scale(.96)}
+.kat-chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-ink)}
 
 /* seks faner: lidt strammere */
 .tab{font-size:9.8px;gap:3px}
@@ -788,121 +801,121 @@ const BUTIKKER = ['Føtex','Bilka','Kvickly','SuperBrugsen','Brugsen','Coop 365'
    tags styrer hvilke kostformer en ret passer til.
    tilbud er en liste, så butiksvalget faktisk betyder noget.        */
 const CATALOG = {
-  kylling:    {navn:'Kyllingebrystfilet', sektion:'Kød', normal:45, enhed:'900 g', tags:['koed'], tilbud:[{b:'Lidl',p:20},{b:'Rema 1000',p:25},{b:'Netto',p:27}]},
-  hakketkyl:  {navn:'Hakket kylling',     sektion:'Kød', normal:38, enhed:'400 g', tags:['koed'], tilbud:[{b:'Rema 1000',p:28},{b:'Coop 365',p:30}]},
-  oksekod:    {navn:'Hakket oksekød',     sektion:'Kød', normal:42, enhed:'400 g', tags:['koed'], tilbud:[{b:'Lidl',p:30},{b:'Netto',p:32},{b:'SuperBrugsen',p:34}]},
-  bacon:      {navn:'Bacon i strimler',   sektion:'Kød', normal:28, enhed:'2x140 g', tags:['koed','svin'], tilbud:[{b:'Lidl',p:20},{b:'ALDI',p:22}]},
-  laks:       {navn:'Laksefilet',         sektion:'Kød', normal:60, enhed:'250 g', tags:['fisk'], tilbud:[{b:'Føtex',p:45},{b:'Meny',p:49}]},
-  aeg:        {navn:'Æg',                 sektion:'Mejeri', normal:30, enhed:'10 stk.', tags:['aeg'], tilbud:[{b:'Netto',p:25},{b:'Føtex',p:26}]},
-  ost:        {navn:'Revet ost',          sektion:'Mejeri', normal:25, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Lidl',p:15},{b:'SuperBrugsen',p:19}]},
-  mozzarella: {navn:'Mozzarella',         sektion:'Mejeri', normal:22, enhed:'125 g', tags:['mejeri'], tilbud:[{b:'Føtex',p:18},{b:'Brugsen',p:19}]},
-  flode:      {navn:'Madlavningsfløde',   sektion:'Mejeri', normal:14, enhed:'250 ml', tags:['mejeri'], tilbud:[]},
-  maelk:      {navn:'Mælk',               sektion:'Mejeri', normal:11, enhed:'1 l', tags:['mejeri'], tilbud:[]},
-  smoer:      {navn:'Smør',               sektion:'Mejeri', normal:22, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Lidl',p:10},{b:'ALDI',p:13}]},
-  havredrik:  {navn:'Havredrik',          sektion:'Mejeri', normal:14, enhed:'1 l', tags:[], tilbud:[{b:'Coop 365',p:10}]},
-  pasta:      {navn:'Pasta',              sektion:'Kolonial', normal:12, enhed:'500 g', tags:[], tilbud:[{b:'Lidl',p:6},{b:'ALDI',p:7}]},
-  ris:        {navn:'Ris',                sektion:'Kolonial', normal:16, enhed:'1 kg', tags:[], tilbud:[{b:'Rema 1000',p:12}]},
-  tomater:    {navn:'Hakkede tomater',    sektion:'Kolonial', normal:10, enhed:'400 g', tags:[], tilbud:[{b:'Netto',p:7},{b:'Lidl',p:8}]},
-  tomatsauce: {navn:'Tomatsauce',         sektion:'Kolonial', normal:9,  enhed:'500 g', tags:[], tilbud:[]},
-  karry:      {navn:'Karry',              sektion:'Kolonial', normal:18, enhed:'50 g', tags:[], tilbud:[]},
-  mel:        {navn:'Pizzadej / mel',     sektion:'Kolonial', normal:12, enhed:'1 kg', tags:[], tilbud:[{b:'Lidl',p:10}]},
-  tortilla:   {navn:'Tortillas',          sektion:'Kolonial', normal:17, enhed:'8 stk.', tags:[], tilbud:[{b:'Føtex',p:14}]},
-  broed:      {navn:'Rugbrød',            sektion:'Kolonial', normal:18, enhed:'1 stk.', tags:[], tilbud:[]},
-  linser:     {navn:'Røde linser',        sektion:'Kolonial', normal:15, enhed:'500 g', tags:[], tilbud:[{b:'Coop 365',p:11}]},
-  kikaerter:  {navn:'Kikærter',           sektion:'Kolonial', normal:9,  enhed:'400 g', tags:[], tilbud:[{b:'ALDI',p:7}]},
-  kokosmaelk: {navn:'Kokosmælk',          sektion:'Kolonial', normal:12, enhed:'400 ml', tags:[], tilbud:[{b:'Rema 1000',p:9}]},
-  pesto:      {navn:'Pesto',              sektion:'Kolonial', normal:20, enhed:'190 g', tags:['mejeri'], tilbud:[{b:'Føtex',p:15}]},
-  falafel:    {navn:'Falafelmix',         sektion:'Kolonial', normal:18, enhed:'200 g', tags:[], tilbud:[{b:'Brugsen',p:14}]},
-  olie:       {navn:'Olivenolie',         sektion:'Kolonial', normal:30, enhed:'500 ml', tags:[], tilbud:[{b:'Meny',p:24}]},
-  kaffe:      {navn:'Kaffe',              sektion:'Kolonial', normal:55, enhed:'400 g', tags:[], tilbud:[{b:'Lidl',p:39},{b:'Bilka',p:42}]},
-  lok:        {navn:'Løg',                sektion:'Frugt & grønt', normal:10, enhed:'1 kg', tags:[], tilbud:[{b:'Lidl',p:8}]},
-  hvidlog:    {navn:'Hvidløg',            sektion:'Frugt & grønt', normal:8, enhed:'3 stk.', tags:[], tilbud:[]},
-  peberfrugt: {navn:'Peberfrugt',         sektion:'Frugt & grønt', normal:16, enhed:'3 stk.', tags:[], tilbud:[{b:'Lidl',p:12},{b:'Netto',p:13}]},
-  salat:      {navn:'Salat',              sektion:'Frugt & grønt', normal:14, enhed:'1 pose', tags:[], tilbud:[]},
-  agurk:      {navn:'Agurk',              sektion:'Frugt & grønt', normal:10, enhed:'1 stk.', tags:[], tilbud:[]},
-  tomat:      {navn:'Tomater',            sektion:'Frugt & grønt', normal:16, enhed:'500 g', tags:[], tilbud:[{b:'Brugsen',p:12}]},
-  kartofler:  {navn:'Kartofler',          sektion:'Frugt & grønt', normal:18, enhed:'2 kg', tags:[], tilbud:[{b:'Rema 1000',p:12}]},
-  gulerodder: {navn:'Gulerødder',         sektion:'Frugt & grønt', normal:12, enhed:'1 kg', tags:[], tilbud:[{b:'ALDI',p:8}]},
-  spinat:     {navn:'Spinat',             sektion:'Frugt & grønt', normal:15, enhed:'200 g', tags:[], tilbud:[{b:'Føtex',p:12}]},
-  broccoli:   {navn:'Broccoli',           sektion:'Frugt & grønt', normal:13, enhed:'1 stk.', tags:[], tilbud:[{b:'Coop 365',p:9}]},
-  champignon: {navn:'Champignon',         sektion:'Frugt & grønt', normal:14, enhed:'250 g', tags:[], tilbud:[{b:'SuperBrugsen',p:10}]},
-  squash:     {navn:'Squash',             sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', tags:[], tilbud:[]},
-  svinekod: {navn:'Svinekød i strimler', sektion:'Kød', normal:40, enhed:'500 g', tags:['koed','svin'], tilbud:[{b:'Netto',p:30}]},
-  flaeskesteg: {navn:'Flæskesteg', sektion:'Kød', normal:65, enhed:'1 kg', tags:['koed','svin'], tilbud:[{b:'Bilka',p:49}]},
-  poelser: {navn:'Grillpølser', sektion:'Kød', normal:30, enhed:'500 g', tags:['koed','svin'], tilbud:[{b:'ALDI',p:22}]},
-  skinke: {navn:'Skinke i skiver', sektion:'Kød', normal:25, enhed:'200 g', tags:['koed','svin'], tilbud:[]},
-  kalkun: {navn:'Kalkunbryst', sektion:'Kød', normal:48, enhed:'500 g', tags:['koed'], tilbud:[{b:'Føtex',p:38}]},
-  kyllingelaar: {navn:'Kyllingelår', sektion:'Kød', normal:35, enhed:'1 kg', tags:['koed'], tilbud:[{b:'Rema 1000',p:25},{b:'Lidl',p:27}]},
-  lam: {navn:'Lammekød i tern', sektion:'Kød', normal:75, enhed:'500 g', tags:['koed'], tilbud:[{b:'Meny',p:59}]},
-  fars: {navn:'Hakket kalv og flæsk', sektion:'Kød', normal:45, enhed:'500 g', tags:['koed','svin'], tilbud:[{b:'SuperBrugsen',p:35}]},
-  torsk: {navn:'Torskefilet', sektion:'Kød', normal:55, enhed:'400 g', tags:['fisk'], tilbud:[{b:'Føtex',p:42}]},
-  rejer: {navn:'Rejer', sektion:'Kød', normal:45, enhed:'200 g', tags:['fisk'], tilbud:[{b:'Bilka',p:35}]},
-  tun: {navn:'Tun i vand', sektion:'Kød', normal:14, enhed:'160 g', tags:['fisk'], tilbud:[{b:'Netto',p:10}]},
-  makrel: {navn:'Makrel i tomat', sektion:'Kød', normal:13, enhed:'125 g', tags:['fisk'], tilbud:[{b:'Lidl',p:9}]},
-  cremefraiche: {navn:'Creme fraiche', sektion:'Mejeri', normal:16, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Netto',p:12}]},
-  yoghurt: {navn:'Yoghurt naturel', sektion:'Mejeri', normal:15, enhed:'1 kg', tags:['mejeri'], tilbud:[{b:'Coop 365',p:11}]},
-  feta: {navn:'Feta', sektion:'Mejeri', normal:20, enhed:'200 g', tags:['mejeri'], tilbud:[{b:'Lidl',p:14}]},
-  parmesan: {navn:'Parmesan', sektion:'Mejeri', normal:35, enhed:'150 g', tags:['mejeri'], tilbud:[{b:'Føtex',p:27}]},
-  skyr: {navn:'Skyr', sektion:'Mejeri', normal:16, enhed:'450 g', tags:['mejeri'], tilbud:[{b:'Netto',p:12}]},
-  plantefloede: {navn:'Havrefløde', sektion:'Mejeri', normal:16, enhed:'250 ml', tags:[], tilbud:[{b:'Coop 365',p:12}]},
-  veganost: {navn:'Vegansk ost', sektion:'Mejeri', normal:28, enhed:'200 g', tags:[], tilbud:[{b:'Bilka',p:22}]},
-  bulgur: {navn:'Bulgur', sektion:'Kolonial', normal:14, enhed:'500 g', tags:[], tilbud:[{b:'ALDI',p:10}]},
-  couscous: {navn:'Couscous', sektion:'Kolonial', normal:13, enhed:'500 g', tags:[], tilbud:[{b:'Lidl',p:9}]},
-  quinoa: {navn:'Quinoa', sektion:'Kolonial', normal:28, enhed:'500 g', tags:[], tilbud:[{b:'Coop 365',p:21}]},
-  nudler: {navn:'Nudler', sektion:'Kolonial', normal:12, enhed:'250 g', tags:[], tilbud:[{b:'Rema 1000',p:8}]},
-  risnudler: {navn:'Risnudler', sektion:'Kolonial', normal:15, enhed:'250 g', tags:[], tilbud:[]},
-  havregryn: {navn:'Havregryn', sektion:'Kolonial', normal:12, enhed:'1 kg', tags:[], tilbud:[{b:'Netto',p:9}]},
-  polenta: {navn:'Polenta', sektion:'Kolonial', normal:16, enhed:'500 g', tags:[], tilbud:[]},
-  bonner: {navn:'Kidneybønner', sektion:'Kolonial', normal:9, enhed:'400 g', tags:[], tilbud:[{b:'ALDI',p:6}]},
-  hvidebonner: {navn:'Hvide bønner', sektion:'Kolonial', normal:9, enhed:'400 g', tags:[], tilbud:[{b:'Netto',p:7}]},
-  sortebonner: {navn:'Sorte bønner', sektion:'Kolonial', normal:10, enhed:'400 g', tags:[], tilbud:[{b:'Lidl',p:7}]},
-  majs: {navn:'Majs', sektion:'Kolonial', normal:9, enhed:'340 g', tags:[], tilbud:[{b:'Rema 1000',p:6}]},
-  groenlinser: {navn:'Grønne linser', sektion:'Kolonial', normal:16, enhed:'500 g', tags:[], tilbud:[{b:'Brugsen',p:12}]},
-  splitaerter: {navn:'Gule flækærter', sektion:'Kolonial', normal:14, enhed:'500 g', tags:[], tilbud:[]},
-  tofu: {navn:'Tofu', sektion:'Kolonial', normal:25, enhed:'400 g', tags:[], tilbud:[{b:'Føtex',p:19}]},
-  tempeh: {navn:'Tempeh', sektion:'Kolonial', normal:32, enhed:'200 g', tags:[], tilbud:[]},
-  sojafars: {navn:'Sojafars', sektion:'Kolonial', normal:22, enhed:'400 g', tags:[], tilbud:[{b:'Coop 365',p:17}]},
-  tomatpure: {navn:'Tomatpuré', sektion:'Kolonial', normal:7, enhed:'140 g', tags:[], tilbud:[{b:'Lidl',p:5}]},
-  bouillon: {navn:'Grøntsagsbouillon', sektion:'Kolonial', normal:12, enhed:'6 terninger', tags:[], tilbud:[]},
-  soja: {navn:'Sojasauce', sektion:'Kolonial', normal:18, enhed:'150 ml', tags:[], tilbud:[{b:'Bilka',p:14}]},
-  eddike: {navn:'Balsamico', sektion:'Kolonial', normal:22, enhed:'250 ml', tags:[], tilbud:[]},
-  sennep: {navn:'Sennep', sektion:'Kolonial', normal:14, enhed:'200 g', tags:[], tilbud:[]},
-  tahin: {navn:'Tahin', sektion:'Kolonial', normal:30, enhed:'300 g', tags:[], tilbud:[]},
-  peanutbutter: {navn:'Peanutbutter', sektion:'Kolonial', normal:24, enhed:'350 g', tags:[], tilbud:[{b:'Netto',p:18}]},
-  cashew: {navn:'Cashewnødder', sektion:'Kolonial', normal:35, enhed:'200 g', tags:[], tilbud:[{b:'ALDI',p:26}]},
-  valnodder: {navn:'Valnødder', sektion:'Kolonial', normal:30, enhed:'200 g', tags:[], tilbud:[]},
-  solsikke: {navn:'Solsikkekerner', sektion:'Kolonial', normal:16, enhed:'200 g', tags:[], tilbud:[]},
-  kokosmel: {navn:'Kokosmel', sektion:'Kolonial', normal:18, enhed:'250 g', tags:[], tilbud:[]},
-  chili: {navn:'Chiliflager', sektion:'Kolonial', normal:15, enhed:'40 g', tags:[], tilbud:[]},
-  spidskommen: {navn:'Spidskommen', sektion:'Kolonial', normal:15, enhed:'40 g', tags:[], tilbud:[]},
-  paprika: {navn:'Paprika', sektion:'Kolonial', normal:14, enhed:'50 g', tags:[], tilbud:[]},
-  oregano: {navn:'Oregano', sektion:'Kolonial', normal:12, enhed:'20 g', tags:[], tilbud:[]},
-  karrypasta: {navn:'Rød karrypasta', sektion:'Kolonial', normal:22, enhed:'115 g', tags:[], tilbud:[{b:'Føtex',p:17}]},
-  oliven: {navn:'Oliven', sektion:'Kolonial', normal:18, enhed:'200 g', tags:[], tilbud:[{b:'Lidl',p:13}]},
-  soltomat: {navn:'Soltørrede tomater', sektion:'Kolonial', normal:24, enhed:'200 g', tags:[], tilbud:[]},
-  kapers: {navn:'Kapers', sektion:'Kolonial', normal:16, enhed:'100 g', tags:[], tilbud:[]},
-  aubergine: {navn:'Aubergine', sektion:'Frugt & grønt', normal:14, enhed:'1 stk.', tags:[], tilbud:[{b:'Netto',p:10}]},
-  blomkaal: {navn:'Blomkål', sektion:'Frugt & grønt', normal:16, enhed:'1 stk.', tags:[], tilbud:[{b:'Rema 1000',p:12},{b:'ALDI',p:11}]},
-  hvidkaal: {navn:'Hvidkål', sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', tags:[], tilbud:[{b:'Lidl',p:8}]},
-  groenkaal: {navn:'Grønkål', sektion:'Frugt & grønt', normal:15, enhed:'200 g', tags:[], tilbud:[]},
-  rodbeder: {navn:'Rødbeder', sektion:'Frugt & grønt', normal:14, enhed:'1 kg', tags:[], tilbud:[{b:'Coop 365',p:10}]},
-  porre: {navn:'Porre', sektion:'Frugt & grønt', normal:12, enhed:'2 stk.', tags:[], tilbud:[{b:'Brugsen',p:9}]},
-  selleri: {navn:'Knoldselleri', sektion:'Frugt & grønt', normal:15, enhed:'1 stk.', tags:[], tilbud:[]},
-  pastinak: {navn:'Pastinak', sektion:'Frugt & grønt', normal:14, enhed:'500 g', tags:[], tilbud:[]},
-  sodkartoffel: {navn:'Sødkartofler', sektion:'Frugt & grønt', normal:22, enhed:'1 kg', tags:[], tilbud:[{b:'Føtex',p:16}]},
-  aerter: {navn:'Ærter, frosne', sektion:'Frugt & grønt', normal:12, enhed:'450 g', tags:[], tilbud:[{b:'Netto',p:9}]},
-  majroe: {navn:'Majroer', sektion:'Frugt & grønt', normal:12, enhed:'500 g', tags:[], tilbud:[]},
-  rucola: {navn:'Rucola', sektion:'Frugt & grønt', normal:16, enhed:'100 g', tags:[], tilbud:[{b:'Meny',p:12}]},
-  avocado: {navn:'Avocado', sektion:'Frugt & grønt', normal:14, enhed:'2 stk.', tags:[], tilbud:[{b:'Lidl',p:10}]},
-  citron: {navn:'Citron', sektion:'Frugt & grønt', normal:8, enhed:'2 stk.', tags:[], tilbud:[]},
-  aeble: {navn:'Æbler', sektion:'Frugt & grønt', normal:18, enhed:'1 kg', tags:[], tilbud:[{b:'Rema 1000',p:13}]},
-  ingefaer: {navn:'Ingefær', sektion:'Frugt & grønt', normal:10, enhed:'100 g', tags:[], tilbud:[]},
-  foraarslog: {navn:'Forårsløg', sektion:'Frugt & grønt', normal:10, enhed:'1 bundt', tags:[], tilbud:[]},
-  persille: {navn:'Persille', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', tags:[], tilbud:[]},
-  basilikum: {navn:'Basilikum', sektion:'Frugt & grønt', normal:14, enhed:'1 potte', tags:[], tilbud:[{b:'Føtex',p:10}]},
-  koriander: {navn:'Koriander', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', tags:[], tilbud:[]},
-  mynte: {navn:'Mynte', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', tags:[], tilbud:[]},
-  svampe: {navn:'Portobello', sektion:'Frugt & grønt', normal:20, enhed:'250 g', tags:[], tilbud:[]}
+  kylling:    {navn:'Kyllingebrystfilet', sektion:'Kød', normal:45, enhed:'900 g', andel:1, tags:['koed'], tilbud:[{b:'Lidl',p:20},{b:'Rema 1000',p:25},{b:'Netto',p:27}]},
+  hakketkyl:  {navn:'Hakket kylling',     sektion:'Kød', normal:38, enhed:'400 g', andel:1, tags:['koed'], tilbud:[{b:'Rema 1000',p:28},{b:'Coop 365',p:30}]},
+  oksekod:    {navn:'Hakket oksekød',     sektion:'Kød', normal:42, enhed:'400 g', andel:1, tags:['koed'], tilbud:[{b:'Lidl',p:30},{b:'Netto',p:32},{b:'SuperBrugsen',p:34}]},
+  bacon:      {navn:'Bacon i strimler',   sektion:'Kød', normal:28, enhed:'2x140 g', andel:0.5, tags:['koed','svin'], tilbud:[{b:'Lidl',p:20},{b:'ALDI',p:22}]},
+  laks:       {navn:'Laksefilet',         sektion:'Kød', normal:60, enhed:'250 g', andel:1, tags:['fisk'], tilbud:[{b:'Føtex',p:45},{b:'Meny',p:49}]},
+  aeg:        {navn:'Æg',                 sektion:'Mejeri', normal:30, enhed:'10 stk.', andel:0.4, tags:['aeg'], tilbud:[{b:'Netto',p:25},{b:'Føtex',p:26}]},
+  ost:        {navn:'Revet ost',          sektion:'Mejeri', normal:25, enhed:'200 g', andel:0.5, tags:['mejeri'], tilbud:[{b:'Lidl',p:15},{b:'SuperBrugsen',p:19}]},
+  mozzarella: {navn:'Mozzarella',         sektion:'Mejeri', normal:22, enhed:'125 g', andel:1, tags:['mejeri'], tilbud:[{b:'Føtex',p:18},{b:'Brugsen',p:19}]},
+  flode:      {navn:'Madlavningsfløde',   sektion:'Mejeri', normal:14, enhed:'250 ml', andel:1, tags:['mejeri'], tilbud:[]},
+  maelk:      {navn:'Mælk',               sektion:'Mejeri', normal:11, enhed:'1 l', andel:0.25, tags:['mejeri'], tilbud:[]},
+  smoer:      {navn:'Smør',               sektion:'Mejeri', normal:22, enhed:'200 g', andel:0.25, tags:['mejeri'], tilbud:[{b:'Lidl',p:10},{b:'ALDI',p:13}]},
+  havredrik:  {navn:'Havredrik',          sektion:'Mejeri', normal:14, enhed:'1 l', andel:0.25, tags:[], tilbud:[{b:'Coop 365',p:10}]},
+  pasta:      {navn:'Pasta',              sektion:'Kolonial', normal:12, enhed:'500 g', andel:0.5, tags:[], tilbud:[{b:'Lidl',p:6},{b:'ALDI',p:7}]},
+  ris:        {navn:'Ris',                sektion:'Kolonial', normal:16, enhed:'1 kg', andel:0.3, tags:[], tilbud:[{b:'Rema 1000',p:12}]},
+  tomater:    {navn:'Hakkede tomater',    sektion:'Kolonial', normal:10, enhed:'400 g', andel:1, tags:[], tilbud:[{b:'Netto',p:7},{b:'Lidl',p:8}]},
+  tomatsauce: {navn:'Tomatsauce',         sektion:'Kolonial', normal:9,  enhed:'500 g', andel:0.5, tags:[], tilbud:[]},
+  karry:      {navn:'Karry',              sektion:'Kolonial', normal:18, enhed:'50 g', andel:0.1, tags:[], tilbud:[]},
+  mel:        {navn:'Pizzadej / mel',     sektion:'Kolonial', normal:12, enhed:'1 kg', andel:0.3, tags:[], tilbud:[{b:'Lidl',p:10}]},
+  tortilla:   {navn:'Tortillas',          sektion:'Kolonial', normal:17, enhed:'8 stk.', andel:0.5, tags:[], tilbud:[{b:'Føtex',p:14}]},
+  broed:      {navn:'Rugbrød',            sektion:'Kolonial', normal:18, enhed:'1 stk.', andel:0.5, tags:[], tilbud:[]},
+  linser:     {navn:'Røde linser',        sektion:'Kolonial', normal:15, enhed:'500 g', andel:0.4, tags:[], tilbud:[{b:'Coop 365',p:11}]},
+  kikaerter:  {navn:'Kikærter',           sektion:'Kolonial', normal:9,  enhed:'400 g', andel:1, tags:[], tilbud:[{b:'ALDI',p:7}]},
+  kokosmaelk: {navn:'Kokosmælk',          sektion:'Kolonial', normal:12, enhed:'400 ml', andel:1, tags:[], tilbud:[{b:'Rema 1000',p:9}]},
+  pesto:      {navn:'Pesto',              sektion:'Kolonial', normal:20, enhed:'190 g', andel:0.5, tags:['mejeri'], tilbud:[{b:'Føtex',p:15}]},
+  falafel:    {navn:'Falafelmix',         sektion:'Kolonial', normal:18, enhed:'200 g', andel:1, tags:[], tilbud:[{b:'Brugsen',p:14}]},
+  olie:       {navn:'Olivenolie',         sektion:'Kolonial', normal:30, enhed:'500 ml', andel:0.15, tags:[], tilbud:[{b:'Meny',p:24}]},
+  kaffe:      {navn:'Kaffe',              sektion:'Kolonial', normal:55, enhed:'400 g', andel:0.25, tags:[], tilbud:[{b:'Lidl',p:39},{b:'Bilka',p:42}]},
+  lok:        {navn:'Løg',                sektion:'Frugt & grønt', normal:10, enhed:'1 kg', andel:0.25, tags:[], tilbud:[{b:'Lidl',p:8}]},
+  hvidlog:    {navn:'Hvidløg',            sektion:'Frugt & grønt', normal:8, enhed:'3 stk.', andel:0.3, tags:[], tilbud:[]},
+  peberfrugt: {navn:'Peberfrugt',         sektion:'Frugt & grønt', normal:16, enhed:'3 stk.', andel:0.7, tags:[], tilbud:[{b:'Lidl',p:12},{b:'Netto',p:13}]},
+  salat:      {navn:'Salat',              sektion:'Frugt & grønt', normal:14, enhed:'1 pose', andel:0.7, tags:[], tilbud:[]},
+  agurk:      {navn:'Agurk',              sektion:'Frugt & grønt', normal:10, enhed:'1 stk.', andel:0.5, tags:[], tilbud:[]},
+  tomat:      {navn:'Tomater',            sektion:'Frugt & grønt', normal:16, enhed:'500 g', andel:0.6, tags:[], tilbud:[{b:'Brugsen',p:12}]},
+  kartofler:  {navn:'Kartofler',          sektion:'Frugt & grønt', normal:18, enhed:'2 kg', andel:0.5, tags:[], tilbud:[{b:'Rema 1000',p:12}]},
+  gulerodder: {navn:'Gulerødder',         sektion:'Frugt & grønt', normal:12, enhed:'1 kg', andel:0.4, tags:[], tilbud:[{b:'ALDI',p:8}]},
+  spinat:     {navn:'Spinat',             sektion:'Frugt & grønt', normal:15, enhed:'200 g', andel:1, tags:[], tilbud:[{b:'Føtex',p:12}]},
+  broccoli:   {navn:'Broccoli',           sektion:'Frugt & grønt', normal:13, enhed:'1 stk.', andel:1, tags:[], tilbud:[{b:'Coop 365',p:9}]},
+  champignon: {navn:'Champignon',         sektion:'Frugt & grønt', normal:14, enhed:'250 g', andel:1, tags:[], tilbud:[{b:'SuperBrugsen',p:10}]},
+  squash:     {navn:'Squash',             sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', andel:1, tags:[], tilbud:[]},
+  svinekod: {navn:'Svinekød i strimler', sektion:'Kød', normal:40, enhed:'500 g', andel:1, tags:['koed','svin'], tilbud:[{b:'Netto',p:30}]},
+  flaeskesteg: {navn:'Flæskesteg', sektion:'Kød', normal:65, enhed:'1 kg', andel:0.5, tags:['koed','svin'], tilbud:[{b:'Bilka',p:49}]},
+  poelser: {navn:'Grillpølser', sektion:'Kød', normal:30, enhed:'500 g', andel:0.5, tags:['koed','svin'], tilbud:[{b:'ALDI',p:22}]},
+  skinke: {navn:'Skinke i skiver', sektion:'Kød', normal:25, enhed:'200 g', andel:0.5, tags:['koed','svin'], tilbud:[]},
+  kalkun: {navn:'Kalkunbryst', sektion:'Kød', normal:48, enhed:'500 g', andel:1, tags:['koed'], tilbud:[{b:'Føtex',p:38}]},
+  kyllingelaar: {navn:'Kyllingelår', sektion:'Kød', normal:35, enhed:'1 kg', andel:1, tags:['koed'], tilbud:[{b:'Rema 1000',p:25},{b:'Lidl',p:27}]},
+  lam: {navn:'Lammekød i tern', sektion:'Kød', normal:75, enhed:'500 g', andel:1, tags:['koed'], tilbud:[{b:'Meny',p:59}]},
+  fars: {navn:'Hakket kalv og flæsk', sektion:'Kød', normal:45, enhed:'500 g', andel:1, tags:['koed','svin'], tilbud:[{b:'SuperBrugsen',p:35}]},
+  torsk: {navn:'Torskefilet', sektion:'Kød', normal:55, enhed:'400 g', andel:1, tags:['fisk'], tilbud:[{b:'Føtex',p:42}]},
+  rejer: {navn:'Rejer', sektion:'Kød', normal:45, enhed:'200 g', andel:1, tags:['fisk'], tilbud:[{b:'Bilka',p:35}]},
+  tun: {navn:'Tun i vand', sektion:'Kød', normal:14, enhed:'160 g', andel:1, tags:['fisk'], tilbud:[{b:'Netto',p:10}]},
+  makrel: {navn:'Makrel i tomat', sektion:'Kød', normal:13, enhed:'125 g', andel:1, tags:['fisk'], tilbud:[{b:'Lidl',p:9}]},
+  cremefraiche: {navn:'Creme fraiche', sektion:'Mejeri', normal:16, enhed:'200 g', andel:0.5, tags:['mejeri'], tilbud:[{b:'Netto',p:12}]},
+  yoghurt: {navn:'Yoghurt naturel', sektion:'Mejeri', normal:15, enhed:'1 kg', andel:0.3, tags:['mejeri'], tilbud:[{b:'Coop 365',p:11}]},
+  feta: {navn:'Feta', sektion:'Mejeri', normal:20, enhed:'200 g', andel:0.5, tags:['mejeri'], tilbud:[{b:'Lidl',p:14}]},
+  parmesan: {navn:'Parmesan', sektion:'Mejeri', normal:35, enhed:'150 g', andel:0.25, tags:['mejeri'], tilbud:[{b:'Føtex',p:27}]},
+  skyr: {navn:'Skyr', sektion:'Mejeri', normal:16, enhed:'450 g', andel:0.5, tags:['mejeri'], tilbud:[{b:'Netto',p:12}]},
+  plantefloede: {navn:'Havrefløde', sektion:'Mejeri', normal:16, enhed:'250 ml', andel:1, tags:[], tilbud:[{b:'Coop 365',p:12}]},
+  veganost: {navn:'Vegansk ost', sektion:'Mejeri', normal:28, enhed:'200 g', andel:0.5, tags:[], tilbud:[{b:'Bilka',p:22}]},
+  bulgur: {navn:'Bulgur', sektion:'Kolonial', normal:14, enhed:'500 g', andel:0.4, tags:[], tilbud:[{b:'ALDI',p:10}]},
+  couscous: {navn:'Couscous', sektion:'Kolonial', normal:13, enhed:'500 g', andel:0.4, tags:[], tilbud:[{b:'Lidl',p:9}]},
+  quinoa: {navn:'Quinoa', sektion:'Kolonial', normal:28, enhed:'500 g', andel:0.4, tags:[], tilbud:[{b:'Coop 365',p:21}]},
+  nudler: {navn:'Nudler', sektion:'Kolonial', normal:12, enhed:'250 g', andel:1, tags:[], tilbud:[{b:'Rema 1000',p:8}]},
+  risnudler: {navn:'Risnudler', sektion:'Kolonial', normal:15, enhed:'250 g', andel:1, tags:[], tilbud:[]},
+  havregryn: {navn:'Havregryn', sektion:'Kolonial', normal:12, enhed:'1 kg', andel:0.2, tags:[], tilbud:[{b:'Netto',p:9}]},
+  polenta: {navn:'Polenta', sektion:'Kolonial', normal:16, enhed:'500 g', andel:0.4, tags:[], tilbud:[]},
+  bonner: {navn:'Kidneybønner', sektion:'Kolonial', normal:9, enhed:'400 g', andel:1, tags:[], tilbud:[{b:'ALDI',p:6}]},
+  hvidebonner: {navn:'Hvide bønner', sektion:'Kolonial', normal:9, enhed:'400 g', andel:1, tags:[], tilbud:[{b:'Netto',p:7}]},
+  sortebonner: {navn:'Sorte bønner', sektion:'Kolonial', normal:10, enhed:'400 g', andel:1, tags:[], tilbud:[{b:'Lidl',p:7}]},
+  majs: {navn:'Majs', sektion:'Kolonial', normal:9, enhed:'340 g', andel:1, tags:[], tilbud:[{b:'Rema 1000',p:6}]},
+  groenlinser: {navn:'Grønne linser', sektion:'Kolonial', normal:16, enhed:'500 g', andel:0.4, tags:[], tilbud:[{b:'Brugsen',p:12}]},
+  splitaerter: {navn:'Gule flækærter', sektion:'Kolonial', normal:14, enhed:'500 g', andel:0.4, tags:[], tilbud:[]},
+  tofu: {navn:'Tofu', sektion:'Kolonial', normal:25, enhed:'400 g', andel:1, tags:[], tilbud:[{b:'Føtex',p:19}]},
+  tempeh: {navn:'Tempeh', sektion:'Kolonial', normal:32, enhed:'200 g', andel:1, tags:[], tilbud:[]},
+  sojafars: {navn:'Sojafars', sektion:'Kolonial', normal:22, enhed:'400 g', andel:1, tags:[], tilbud:[{b:'Coop 365',p:17}]},
+  tomatpure: {navn:'Tomatpuré', sektion:'Kolonial', normal:7, enhed:'140 g', andel:0.5, tags:[], tilbud:[{b:'Lidl',p:5}]},
+  bouillon: {navn:'Grøntsagsbouillon', sektion:'Kolonial', normal:12, enhed:'6 terninger', andel:0.15, tags:[], tilbud:[]},
+  soja: {navn:'Sojasauce', sektion:'Kolonial', normal:18, enhed:'150 ml', andel:0.15, tags:[], tilbud:[{b:'Bilka',p:14}]},
+  eddike: {navn:'Balsamico', sektion:'Kolonial', normal:22, enhed:'250 ml', andel:0.1, tags:[], tilbud:[]},
+  sennep: {navn:'Sennep', sektion:'Kolonial', normal:14, enhed:'200 g', andel:0.15, tags:[], tilbud:[]},
+  tahin: {navn:'Tahin', sektion:'Kolonial', normal:30, enhed:'300 g', andel:0.2, tags:[], tilbud:[]},
+  peanutbutter: {navn:'Peanutbutter', sektion:'Kolonial', normal:24, enhed:'350 g', andel:0.2, tags:[], tilbud:[{b:'Netto',p:18}]},
+  cashew: {navn:'Cashewnødder', sektion:'Kolonial', normal:35, enhed:'200 g', andel:0.4, tags:[], tilbud:[{b:'ALDI',p:26}]},
+  valnodder: {navn:'Valnødder', sektion:'Kolonial', normal:30, enhed:'200 g', andel:0.4, tags:[], tilbud:[]},
+  solsikke: {navn:'Solsikkekerner', sektion:'Kolonial', normal:16, enhed:'200 g', andel:0.3, tags:[], tilbud:[]},
+  kokosmel: {navn:'Kokosmel', sektion:'Kolonial', normal:18, enhed:'250 g', andel:0.2, tags:[], tilbud:[]},
+  chili: {navn:'Chiliflager', sektion:'Kolonial', normal:15, enhed:'40 g', andel:0.05, tags:[], tilbud:[]},
+  spidskommen: {navn:'Spidskommen', sektion:'Kolonial', normal:15, enhed:'40 g', andel:0.05, tags:[], tilbud:[]},
+  paprika: {navn:'Paprika', sektion:'Kolonial', normal:14, enhed:'50 g', andel:0.05, tags:[], tilbud:[]},
+  oregano: {navn:'Oregano', sektion:'Kolonial', normal:12, enhed:'20 g', andel:0.05, tags:[], tilbud:[]},
+  karrypasta: {navn:'Rød karrypasta', sektion:'Kolonial', normal:22, enhed:'115 g', andel:0.25, tags:[], tilbud:[{b:'Føtex',p:17}]},
+  oliven: {navn:'Oliven', sektion:'Kolonial', normal:18, enhed:'200 g', andel:0.5, tags:[], tilbud:[{b:'Lidl',p:13}]},
+  soltomat: {navn:'Soltørrede tomater', sektion:'Kolonial', normal:24, enhed:'200 g', andel:0.4, tags:[], tilbud:[]},
+  kapers: {navn:'Kapers', sektion:'Kolonial', normal:16, enhed:'100 g', andel:0.2, tags:[], tilbud:[]},
+  aubergine: {navn:'Aubergine', sektion:'Frugt & grønt', normal:14, enhed:'1 stk.', andel:1, tags:[], tilbud:[{b:'Netto',p:10}]},
+  blomkaal: {navn:'Blomkål', sektion:'Frugt & grønt', normal:16, enhed:'1 stk.', andel:1, tags:[], tilbud:[{b:'Rema 1000',p:12},{b:'ALDI',p:11}]},
+  hvidkaal: {navn:'Hvidkål', sektion:'Frugt & grønt', normal:12, enhed:'1 stk.', andel:0.5, tags:[], tilbud:[{b:'Lidl',p:8}]},
+  groenkaal: {navn:'Grønkål', sektion:'Frugt & grønt', normal:15, enhed:'200 g', andel:1, tags:[], tilbud:[]},
+  rodbeder: {navn:'Rødbeder', sektion:'Frugt & grønt', normal:14, enhed:'1 kg', andel:0.4, tags:[], tilbud:[{b:'Coop 365',p:10}]},
+  porre: {navn:'Porre', sektion:'Frugt & grønt', normal:12, enhed:'2 stk.', andel:0.5, tags:[], tilbud:[{b:'Brugsen',p:9}]},
+  selleri: {navn:'Knoldselleri', sektion:'Frugt & grønt', normal:15, enhed:'1 stk.', andel:0.5, tags:[], tilbud:[]},
+  pastinak: {navn:'Pastinak', sektion:'Frugt & grønt', normal:14, enhed:'500 g', andel:0.5, tags:[], tilbud:[]},
+  sodkartoffel: {navn:'Sødkartofler', sektion:'Frugt & grønt', normal:22, enhed:'1 kg', andel:0.5, tags:[], tilbud:[{b:'Føtex',p:16}]},
+  aerter: {navn:'Ærter, frosne', sektion:'Frugt & grønt', normal:12, enhed:'450 g', andel:0.5, tags:[], tilbud:[{b:'Netto',p:9}]},
+  majroe: {navn:'Majroer', sektion:'Frugt & grønt', normal:12, enhed:'500 g', andel:0.5, tags:[], tilbud:[]},
+  rucola: {navn:'Rucola', sektion:'Frugt & grønt', normal:16, enhed:'100 g', andel:1, tags:[], tilbud:[{b:'Meny',p:12}]},
+  avocado: {navn:'Avocado', sektion:'Frugt & grønt', normal:14, enhed:'2 stk.', andel:0.5, tags:[], tilbud:[{b:'Lidl',p:10}]},
+  citron: {navn:'Citron', sektion:'Frugt & grønt', normal:8, enhed:'2 stk.', andel:0.5, tags:[], tilbud:[]},
+  aeble: {navn:'Æbler', sektion:'Frugt & grønt', normal:18, enhed:'1 kg', andel:0.3, tags:[], tilbud:[{b:'Rema 1000',p:13}]},
+  ingefaer: {navn:'Ingefær', sektion:'Frugt & grønt', normal:10, enhed:'100 g', andel:0.2, tags:[], tilbud:[]},
+  foraarslog: {navn:'Forårsløg', sektion:'Frugt & grønt', normal:10, enhed:'1 bundt', andel:0.5, tags:[], tilbud:[]},
+  persille: {navn:'Persille', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', andel:0.5, tags:[], tilbud:[]},
+  basilikum: {navn:'Basilikum', sektion:'Frugt & grønt', normal:14, enhed:'1 potte', andel:0.5, tags:[], tilbud:[{b:'Føtex',p:10}]},
+  koriander: {navn:'Koriander', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', andel:0.5, tags:[], tilbud:[]},
+  mynte: {navn:'Mynte', sektion:'Frugt & grønt', normal:12, enhed:'1 potte', andel:0.4, tags:[], tilbud:[]},
+  svampe: {navn:'Portobello', sektion:'Frugt & grønt', normal:20, enhed:'250 g', andel:1, tags:[], tilbud:[]}
 };
 const SEKTIONER = ['Kød','Mejeri','Kolonial','Frugt & grønt'];
 
@@ -1341,9 +1354,29 @@ function bedstePris(k){
   if (!bedste) return {pris:v.normal, butik:null, tilbud:false, egen:false};
   return {pris:bedste.p, butik:bedste.b, tilbud:true, egen:false};
 }
-const pris = (k) => bedstePris(k).pris;
+const pris = (k) => bedstePris(k).pris;                    // pris for én pakke
 const erTilbud = (k) => bedstePris(k).tilbud;
-const retPris = (id) => retById(id).varer.reduce((s,k) => s + pris(k), 0);
+const andelPrRet = (k) => CATALOG[k].andel || 1;
+
+/** Hvor mange pakker skal der købes, når retterne bruger deres andel? */
+function pakker(k, antalRetter){
+  return Math.max(1, Math.ceil(andelPrRet(k) * (antalRetter || 1) - 0.0001));
+}
+/** En ret koster kun sin andel af pakkerne — ikke hele posen ris. */
+const retPris = (id) => Math.round(retById(id).varer.reduce((s,k) => s + pris(k) * andelPrRet(k), 0));
+
+/** "2 × 140 g" — og en samlet mængde når det giver mening. */
+function maengdeTekst(k, antal){
+  const e = CATALOG[k].enhed;
+  // "400 g" -> 400, og "2x140 g" -> 280
+  const m = e.match(/^\s*(?:([\d.,]+)\s*[x×]\s*)?([\d.,]+)\s*(g|kg|ml|l|stk\.)\s*$/i);
+  if (!m) return antal <= 1 ? e : antal + ' × ' + e;
+  const pakke = (m[1] ? Number(m[1].replace(',', '.')) : 1) * Number(m[2].replace(',', '.'));
+  const enhed = m[3].toLowerCase();
+  const rund = (t) => Number.isInteger(t) ? t : Math.round(t * 100) / 100;
+  if (antal <= 1) return rund(pakke) + ' ' + enhed + (m[1] ? ' (' + e + ')' : '');
+  return antal + ' × ' + rund(pakke) + ' ' + enhed + ' = ' + rund(pakke * antal) + ' ' + enhed;
+}
 const retTilbud = (id) => retById(id).varer.filter(erTilbud).length;
 
 /* ---------- madplan ---------- */
@@ -1392,13 +1425,14 @@ function listeFraPlan(plan){
   plan.forEach(dag => {
     if (dag.status === 'lavet' || dag.status === 'ude' || !dag.ret) return;
     retById(dag.ret).varer.forEach(k => {
-      const e = brug.get(k) || {retter:[]};
+      const e = brug.get(k) || {retter:[], gange:0};
+      e.gange += 1;                                  // samme ret to gange tæller to gange
       if (e.retter.indexOf(dag.ret) === -1) e.retter.push(dag.ret);
       brug.set(k, e);
     });
   });
   const ud = [];
-  brug.forEach((e, k) => ud.push({vare:k, retter:e.retter, status:'skal'}));
+  brug.forEach((e, k) => ud.push({vare:k, retter:e.retter, gange:e.gange, antal:pakker(k, e.gange), status:'skal'}));
   return sorterListe(ud);
 }
 function sorterListe(l){
@@ -1412,7 +1446,13 @@ function synkroniserListe(){
   const frisk = listeFraPlan(S.plan);
   S.liste = frisk.map(i => {
     const f = gamle.get(i.vare);
-    return Object.assign(i, {status: f ? f.status : 'skal', manuel: f ? !!f.manuel : false});
+    return Object.assign(i, {
+      status: f ? f.status : 'skal',
+      manuel: f ? !!f.manuel : false,
+      // Har du selv rettet antallet, bliver det stående.
+      antal: f && f.egetAntal ? f.antal : i.antal,
+      egetAntal: f ? !!f.egetAntal : false
+    });
   });
   gamle.forEach((f, v) => {
     // Varer du selv har lagt på, og valg du har taget, må ikke forsvinde.
@@ -1574,6 +1614,7 @@ function migrer(d){
     d.aktivOpsparing = d.opsparinger[0].id;
   }
   (d.liste || []).forEach(i => {
+    if (!i.antal) i.antal = pakker(i.vare, (i.retter || []).length || 1);
     if (i.status) return;
     i.status = i.koebt ? 'koebt' : 'skal';
     delete i.koebt;
@@ -1588,6 +1629,85 @@ function migrer(d){
   const butikker = {};
   BUTIKKER.forEach(b => { butikker[b] = d.butikker && d.butikker[b] != null ? !!d.butikker[b] : ['Føtex','Lidl','Rema 1000','Netto'].indexOf(b) !== -1; });
   d.butikker = butikker;
+}
+
+/* ============================================================
+   Kvitteringer — billedet bliver på den telefon der tog det,
+   så husstandens fælles dokument ikke fyldes med fotos.
+   ============================================================ */
+const Billeder = (function(){
+  const DB = 'toget-kvitteringer';
+  let db = null;
+  function aaben(){
+    return new Promise((ok, fejl) => {
+      if (db) return ok(db);
+      if (!('indexedDB' in window)) return fejl(new Error('ingen lagring'));
+      const r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('billeder');
+      r.onsuccess = () => { db = r.result; ok(db); };
+      r.onerror = () => fejl(r.error || new Error('kunne ikke åbne'));
+    });
+  }
+  const kør = (tilstand, fn) => aaben().then(d => new Promise((ok, fejl) => {
+    const t = d.transaction('billeder', tilstand);
+    const anmodning = fn(t.objectStore('billeder'));
+    anmodning.onsuccess = () => ok(anmodning.result);
+    anmodning.onerror = () => fejl(anmodning.error);
+  }));
+  return {
+    gem: (id, data) => kør('readwrite', s => s.put(data, id)),
+    hent: (id) => kør('readonly', s => s.get(id)),
+    slet: (id) => kør('readwrite', s => s.delete(id))
+  };
+})();
+
+/** Skaler ned før lagring — en kvittering skal kunne læses, ikke printes. */
+function skalerBillede(fil, maks){
+  return new Promise((ok, fejl) => {
+    const læser = new FileReader();
+    læser.onerror = () => fejl(new Error('kunne ikke læse billedet'));
+    læser.onload = () => {
+      const img = new Image();
+      img.onerror = () => fejl(new Error('billedet kunne ikke åbnes'));
+      img.onload = () => {
+        const m = maks || 1100;
+        const skala = Math.min(1, m / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * skala);
+        c.height = Math.round(img.height * skala);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        ok({data: c.toDataURL('image/jpeg', 0.62), bredde: c.width, hoejde: c.height, element: img});
+      };
+      img.src = læser.result;
+    };
+    læser.readAsDataURL(fil);
+  });
+}
+
+/**
+ * Nogle browsere kan finde tekst i et billede. Kan de det, gætter vi på
+ * totalen og butikken; kan de ikke, skriver man selv beløbet.
+ */
+async function laesKvittering(img){
+  if (!('TextDetector' in window)) return null;
+  try {
+    const linjer = await new window.TextDetector().detect(img);
+    const tekster = linjer.map(l => l.rawValue).filter(Boolean);
+    if (!tekster.length) return null;
+    const alt = tekster.join('\n');
+    let total = null;
+    const totalLinje = tekster.find(t => /(total|i alt|at betale|beløb)/i.test(t));
+    const tal = (t) => {
+      const m = String(t).match(/(\d{1,5})[.,](\d{2})/g) || String(t).match(/\b(\d{1,5})\b/g);
+      if (!m) return null;
+      return Math.max.apply(null, m.map(x => Number(String(x).replace('.', '').replace(',', '.'))));
+    };
+    if (totalLinje) total = tal(totalLinje);
+    if (!total) total = Math.max.apply(null, tekster.map(t => tal(t) || 0).filter(Boolean).concat([0])) || null;
+    const kendteButikker = BUTIKKER.concat(['Netto','Rema','Coop','Fakta','7-Eleven']);
+    const butik = kendteButikker.find(b => new RegExp(b.replace(/\s/g, '\\s*'), 'i').test(alt)) || null;
+    return {total, butik, linjer: tekster.length};
+  } catch(e){ return null; }
 }
 
 /* ============================================================
@@ -1718,14 +1838,16 @@ const kanFlytteSidsteMaaned = () => (S.start || '').slice(0, 7) <= forrigeMaaned
 const tilRaadighed = () => S.indkomst - fasteIalt() - variabeltBrugt() - overfoertIMaaned();
 const sparetIUgen = () => S.udgifter
   .filter(u => u.vare && CATALOG[u.vare] && u.dato >= S.ugestart)
-  .reduce((s,u) => s + Math.max(0, CATALOG[u.vare].normal - u.belob), 0);
+  .reduce((s,u) => s + Math.max(0, CATALOG[u.vare].normal * (u.antal || 1) - u.belob), 0);
 const skalKoebes = () => S.liste.filter(i => i.status === 'skal');
-const listeSum = () => skalKoebes().reduce((s,i) => s + pris(i.vare), 0);
+const linjePris = (i) => pris(i.vare) * (i.antal || 1);
+const listeSum = () => skalKoebes().reduce((s,i) => s + linjePris(i), 0);
 function butikSum(butik){
   return skalKoebes().reduce((s,i) => {
-    if (S.priser && S.priser[i.vare] != null) return s + S.priser[i.vare];
+    const n = i.antal || 1;
+    if (S.priser && S.priser[i.vare] != null) return s + S.priser[i.vare] * n;
     const t = (CATALOG[i.vare].tilbud || []).find(x => x.b === butik);
-    return s + (t ? t.p : CATALOG[i.vare].normal);
+    return s + (t ? t.p : CATALOG[i.vare].normal) * n;
   }, 0);
 }
 const valgteButikker = () => BUTIKKER.filter(b => S.butikker[b]);
@@ -1772,19 +1894,22 @@ function logFør(tekst, belob, slags){
   S.log.unshift({id:uid(), tid:Date.now(), tekst, belob:belob||0, slags:slags||'koeb'});
   if (S.log.length > 40) S.log.length = 40;
 }
-function bogfoer(vare, belob){
+function bogfoer(vare, belob, antal){
+  const n = antal || 1;
   S.udgifter.unshift({
-    id:uid(), tid:Date.now(), dato:ymd(new Date()), vare,
-    tekst: CATALOG[vare].navn, belob, kategori: dagligvareKat().id,
+    id:uid(), tid:Date.now(), dato:ymd(new Date()), vare, antal:n,
+    tekst: CATALOG[vare].navn + (n > 1 ? ' (' + n + ' stk.)' : ''),
+    belob, kategori: dagligvareKat().id,
     butik: bedstePris(vare).butik, kilde:'auto',
     betaler: migsId(), deling: erPar() ? S.delDefault : 'mig'
   });
-  S.sparetIalt += Math.max(0, CATALOG[vare].normal - belob);
+  S.sparetIalt += Math.max(0, CATALOG[vare].normal * n - belob);
 }
 function fjernBogfoering(vare){
   const i = S.udgifter.findIndex(u => u.vare === vare && u.kilde === 'auto');
   if (i < 0) return;
-  S.sparetIalt = Math.max(0, S.sparetIalt - Math.max(0, CATALOG[vare].normal - S.udgifter[i].belob));
+  const u = S.udgifter[i];
+  S.sparetIalt = Math.max(0, S.sparetIalt - Math.max(0, CATALOG[vare].normal * (u.antal || 1) - u.belob));
   S.udgifter.splice(i, 1);
 }
 
@@ -1795,18 +1920,20 @@ function saetStatus(vare, status, stille){
   const foer = linje.status;
   if (foer === 'koebt'){                       // ryd op efter et tidligere køb
     fjernBogfoering(vare);
-    S.spisekammer[vare] = Math.max(0, (S.spisekammer[vare] || 0) - 1);
+    S.spisekammer[vare] = Math.max(0, (S.spisekammer[vare] || 0) - (linje.antal || 1));
   }
   linje.status = status;
+  const antal = linje.antal || 1;
   if (status === 'koebt'){
-    S.spisekammer[vare] = (S.spisekammer[vare] || 0) + 1;
+    S.spisekammer[vare] = (S.spisekammer[vare] || 0) + antal;
     if (S.auto.koeb){
-      const p = pris(vare);
-      bogfoer(vare, p);
-      if (!stille) logFør(CATALOG[vare].navn + ' købt' + (bedstePris(vare).butik ? ' i ' + bedstePris(vare).butik : ''), p, 'koeb');
+      const p = pris(vare) * antal;
+      bogfoer(vare, p, antal);
+      if (!stille) logFør((antal > 1 ? antal + ' × ' : '') + CATALOG[vare].navn + ' købt'
+        + (bedstePris(vare).butik ? ' i ' + bedstePris(vare).butik : ''), p, 'koeb');
     }
   } else if (status === 'har'){
-    S.spisekammer[vare] = Math.max(1, S.spisekammer[vare] || 0);
+    S.spisekammer[vare] = Math.max(antal, S.spisekammer[vare] || 0);
     if (!stille) logFør(CATALOG[vare].navn + ' — har den i forvejen, intet trukket', 0, 'fri');
   } else if (status === 'droppet'){
     if (!stille) logFør(CATALOG[vare].navn + ' — købes ikke', 0, 'fri');
@@ -1821,11 +1948,18 @@ function lavRet(dato){
   const manglede = [];
   ret.varer.forEach(k => {
     const linje = S.liste.find(i => i.vare === k);
-    if ((S.spisekammer[k] || 0) > 0){ S.spisekammer[k] -= 1; return; }
+    const brug = andelPrRet(k);
+    if ((S.spisekammer[k] || 0) >= brug - 0.0001){
+      // Resten af pakken bliver stående — man bruger sjældent en hel pose ris.
+      S.spisekammer[k] = Math.round((S.spisekammer[k] - brug) * 1000) / 1000;
+      return;
+    }
     if (linje && linje.status === 'droppet') return;   // valgt fra: skal aldrig trækkes
     if (!S.auto.madlav) return;
-    const p = pris(k);
-    bogfoer(k, p);
+    const antal = linje ? (linje.antal || 1) : pakker(k, 1);
+    const p = pris(k) * antal;
+    bogfoer(k, p, antal);
+    S.spisekammer[k] = Math.max(0, Math.round(((S.spisekammer[k] || 0) + antal - brug) * 1000) / 1000);
     manglede.push(k);
     if (linje) linje.status = 'koebt';
   });
@@ -1838,7 +1972,9 @@ function fortrydRet(dato){
   const dag = S.plan.find(d => d.dato === dato);
   if (!dag || dag.status !== 'lavet') return;
   dag.status = 'planlagt';
-  retById(dag.ret).varer.forEach(k => { S.spisekammer[k] = (S.spisekammer[k] || 0) + 1; });
+  retById(dag.ret).varer.forEach(k => {
+    S.spisekammer[k] = Math.round(((S.spisekammer[k] || 0) + andelPrRet(k)) * 1000) / 1000;
+  });
   logFør(retById(dag.ret).navn + ' sat tilbage på madplanen', 0, 'fortryd');
 }
 function saetRet(dato, retId){
@@ -1890,18 +2026,33 @@ function toast(tekst, fortrydFn){
 function visSheet({titel, under, html, ved, luk}){
   const scrim = document.createElement('div');
   scrim.className = 'scrim';
+  const harLuk = /data-luk/.test(html);
   scrim.innerHTML = '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(titel)+'">'
-    + '<div class="grip"></div><h3>'+esc(titel)+'</h3>'
+    + '<div class="grip"></div>'
+    + '<div style="display:flex;align-items:flex-start;gap:12px">'
+    +   '<h3 style="flex:1;min-width:0">'+esc(titel)+'</h3>'
+    +   '<button class="icon-btn" data-luk="1" aria-label="Luk" style="margin:-8px -8px 0 0">'+icon('x',20)+'</button>'
+    + '</div>'
     + (under ? '<p>'+esc(under)+'</p>' : '')
-    + html + '</div>';
-  const fjern = () => { scrim.remove(); if (luk) luk(); };
+    + html
+    + (harLuk ? '' : '<button class="btn btn-block" data-luk="1" style="min-height:50px">Luk</button>')
+    + '</div>';
+  const fjern = () => {
+    scrim.remove();
+    document.removeEventListener('keydown', scrim.__paaTast || (() => {}));
+    if (luk) luk();
+  };
   scrim.addEventListener('click', (e) => {
     if (e.target === scrim || e.target.closest('[data-luk]')) return fjern();
     if (ved) ved(e, fjern);
   });
+  const paaTast = (ev) => { if (ev.key === 'Escape') fjern(); };
+  document.addEventListener('keydown', paaTast);
+  const fjernAlt = () => { document.removeEventListener('keydown', paaTast); fjern(); };
+  scrim.__luk = fjernAlt;
   document.body.appendChild(scrim);
   setTimeout(() => { const f = scrim.querySelector('input,button:not([data-luk])'); if (f) f.focus(); }, 70);
-  return {luk: fjern, node: scrim};
+  return {luk: fjernAlt, node: scrim};
 }
 const knapRaekke = (ok, farlig) =>
   '<div class="acts"><button class="btn btn-brand" data-ok="1" style="min-height:52px'+(farlig?';background:var(--danger);border-color:var(--danger)':'')+'">'+esc(ok)+'</button>'
@@ -2088,6 +2239,12 @@ function tegnBudget(){
   if (!S.faste.length) h += '<div class="empty">Ingen faste udgifter tilføjet.</div>';
   h += '</div>';
 
+  h += '<div style="display:flex;gap:9px">'
+    +   '<label class="btn btn-brand" style="flex:1;cursor:pointer">'+icon('cam',17)+'Kvittering'
+    +     '<input type="file" accept="image/*" capture="environment" id="kvit-fil" style="display:none"></label>'
+    +   '<button class="btn" style="flex:1" data-nyudgift="1">'+icon('plus',17)+'Udgift</button>'
+    + '</div>';
+
   h += '<div class="card"><div class="card-head"><h3>Seneste udgifter</h3>'
     +  '<span class="tag">'+icon('bolt',13)+krPlain(S.udgifter.filter(u=>u.kilde==='auto').length)+' automatisk</span></div>';
   if (!S.udgifter.length){
@@ -2102,7 +2259,7 @@ function tegnBudget(){
         : ' · ' + esc(personNavn(u.deling)) + ' betaler';
       h += '<div class="exp" data-udgift="'+u.id+'" style="cursor:pointer">'
         +  '<div class="ei'+(u.kilde==='auto'?' auto':'')+'">'+icon(u.kilde==='auto'?'bolt':'plus',15)+'</div>'
-        +  '<div class="et"><b>'+esc(u.tekst)+'</b><span>'
+        +  '<div class="et"><b>'+(u.kvittering ? icon('cam',12)+' ' : '')+esc(u.tekst)+'</b><span>'
         +    (erPar() ? esc(personNavn(u.betaler)) + delTekst + ' · ' : (u.butik?esc(u.butik)+' · ':''))
         +    (kat?esc(kat.navn)+' · ':'')+tidSiden(u.tid)+'</span></div>'
         +  '<div class="ev">'+kr(u.belob)+'</div></div>';
@@ -2348,17 +2505,22 @@ function tegnIndkoeb(){
       const v = CATALOG[i.vare], bp = bedstePris(i.vare);
       const retNavne = i.retter.map(id => retById(id).navn).join(', ');
       const cls = i.status === 'koebt' ? ' bought' : i.status === 'har' ? ' har' : i.status === 'droppet' ? ' droppet' : '';
+      const antal = i.antal || 1;
       h += '<div class="item'+cls+'" data-linje="'+i.vare+'">'
         +   '<label class="cb"><input type="checkbox" data-vare="'+i.vare+'"'+(i.status==='koebt'?' checked':'')+'>'
         +     '<i>'+icon('check',14)+'</i><span class="sr">'+esc(v.navn)+'</span></label>'
-        +   '<div class="item-t"><div class="n"><b>'+esc(v.navn)+'</b>'
+        +   '<div class="item-t"><div class="n">'
+        +     (antal > 1 ? '<span class="antal">'+antal+'×</span>' : '')
+        +     '<b>'+esc(v.navn)+'</b>'
         +     (i.status === 'har' ? '<span class="linje-maerke har">har den</span>' : '')
         +     (i.status === 'droppet' ? '<span class="linje-maerke droppet">købes ikke</span>' : '')
         +     (i.status === 'skal' && bp.tilbud && !bp.egen ? '<span class="tag">'+icon('tag',12)+'tilbud'+(bp.butik?' · '+esc(bp.butik):'')+'</span>' : '')
         +     (bp.egen ? '<span class="tag grey">'+icon('pencil',11)+'din pris</span>' : '')
         +     (i.manuel ? '<span class="tag grey">ekstra</span>' : '')+'</div>'
-        +     '<div class="m">'+esc(v.enhed)+(retNavne?' · '+esc(retNavne):'')+'</div></div>'
-        +   '<div class="item-p">'+(i.status === 'droppet' ? '—' : kr(pris(i.vare)))+'</div>'
+        +     '<div class="m">'+esc(maengdeTekst(i.vare, antal))
+        +       (antal > 1 ? ' · ' + kr(pris(i.vare)) + ' stk.' : '')
+        +       (retNavne?' · '+esc(retNavne):'')+'</div></div>'
+        +   '<div class="item-p">'+(i.status === 'droppet' ? '—' : kr(linjePris(i)))+'</div>'
         +   '<button class="icon-btn status-btn" data-valg="'+i.vare+'" aria-label="Valgmuligheder for '+esc(v.navn)+'">'+icon('chev',17)+'</button>'
         + '</div>';
     });
@@ -2636,10 +2798,12 @@ function visOpskrift(retId, muligheder){
   const r = retById(retId), o = muligheder || {};
   const ingr = r.varer.map(k => {
     const linje = S.liste.find(i => i.vare === k);
-    const har = (S.spisekammer[k] || 0) > 0 || (linje && (linje.status === 'koebt' || linje.status === 'har'));
+    const har = (S.spisekammer[k] || 0) >= andelPrRet(k) - 0.0001 || (linje && (linje.status === 'koebt' || linje.status === 'har'));
+    const a = andelPrRet(k);
+    const brug = a >= 1 ? (a === 1 ? '1 pk.' : a + ' pk.') : Math.round(a * 100) + ' % af ' + CATALOG[k].enhed;
     return '<div class="ing"><span class="dot'+(har?' have':'')+'"></span>'
-      + '<span class="in">'+esc(CATALOG[k].navn)+'</span>'
-      + '<span class="iv">'+kr(pris(k))+'</span></div>';
+      + '<span class="in">'+esc(CATALOG[k].navn)+'<br><span style="font-size:12px;color:var(--ink-3)">'+esc(brug)+'</span></span>'
+      + '<span class="iv">'+kr(Math.round(pris(k) * a))+'</span></div>';
   }).join('');
   const trin = (r.trin || []).map((t, i) =>
     '<li><span>'+esc(t)+'</span></li>').join('');
@@ -2682,6 +2846,9 @@ function linjeValg(vare){
         + '<span class="sv-ic">'+icon(o.ic,18)+'</span>'
         + '<span class="sv-t"><b>'+o.navn+'</b><span>'+esc(o.txt)+'</span></span>'
         + (linje.status===o.k ? '<span class="sv-p">'+icon('check',17)+'</span>' : '') + '</button>').join('')
+    + '<button class="sheet-valg" data-retantal="1"><span class="sv-ic">'+icon('basket',18)+'</span>'
+    +   '<span class="sv-t"><b>Ret antal</b><span>'+esc(maengdeTekst(vare, linje.antal || 1))+'</span></span>'
+    +   '<span class="sv-p">'+(linje.antal || 1)+'×</span></button>'
     + '<button class="sheet-valg" data-retpris="1"><span class="sv-ic">'+icon('pencil',18)+'</span>'
     +   '<span class="sv-t"><b>Ret prisen</b><span>'+(bp.egen ? 'Din pris: '+kr(bp.pris)+' — tryk for at ændre' : 'Koster den noget andet i butikken?')+'</span></span>'
     +   '<span class="sv-p">'+kr(bp.pris)+'</span></button>'
@@ -2689,6 +2856,7 @@ function linjeValg(vare){
         + '<span class="sv-t"><b>Fjern fra listen</b><span>Du har selv lagt den på</span></span></button>' : '')
     + '</div>';
   visSheet({titel:v.navn, under:v.enhed + (bp.butik ? ' · billigst i ' + bp.butik : ''), html, ved:(e, fjern) => {
+    if (e.target.closest('[data-retantal]')){ fjern(); return retAntal_sheet(vare); }
     if (e.target.closest('[data-retpris]')){ fjern(); return retPris_sheet(vare); }
     if (e.target.closest('[data-fjernlinje]')){
       fjern();
@@ -2752,6 +2920,98 @@ function flytForbrug(maaned){
     }});
 }
 
+/**
+ * Én skuffe til både "tilføj udgift" og "kvittering".
+ * Kategorien vælges her, så en middag ude også kan bogføres.
+ */
+function udgiftSheet(muligheder2){
+  muligheder2 = muligheder2 || {};
+  const billede = muligheder2.billede, gaet = muligheder2.gaet;
+  if (!S.kategorier.length) return toast('Opret en kategori først');
+  let katId = (S.kategorier.find(k => !k.dagligvare) || S.kategorier[0]).id;
+  if (gaet && gaet.butik) katId = (dagligvareKat() || {}).id || katId;
+  const betaler = migsId();
+  let deling = erPar() ? S.delDefault : 'mig';
+
+  const kategoriValg = '<div class="kat-chips">'
+    + S.kategorier.map(k => '<button type="button" class="kat-chip" data-kat="'+k.id+'" aria-pressed="'+(k.id===katId)+'">'
+        + icon(k.ic,16) + '<span>'+esc(k.navn)+'</span></button>').join('')
+    + '</div>';
+
+  const delingValg = !erPar() ? '' :
+      '<label>Deling</label><div class="seg" style="margin-bottom:14px">'
+    + [['lige','50/50'],['mig','Kun mig']].map(par =>
+        '<button type="button" data-del="'+par[0]+'" aria-pressed="'+(deling===par[0])+'">'+par[1]+'</button>').join('')
+    + '</div>';
+
+  const html = (billede ? '<img src="'+billede.data+'" alt="Kvittering" style="width:100%;max-height:22vh;object-fit:contain;border-radius:14px;background:var(--surface-2);margin-bottom:14px">' : '')
+    + (gaet && gaet.total ? '<div class="stat-s" style="margin:-6px 0 12px;color:var(--brand-ink)">'
+        + icon('bolt',13) + ' Læst fra kvitteringen: ' + kr(gaet.total) + (gaet.butik ? ' i ' + esc(gaet.butik) : '') + '</div>' : '')
+    + felt('Hvad var det?', 'f-tekst', (gaet && gaet.butik) || (billede ? 'Kvittering' : ''))
+    + felt('Beløb (kr.)', 'f-belob', (gaet && gaet.total) || '', 'number')
+    + '<label>Kategori</label>' + kategoriValg
+    + delingValg
+    + felt('Dato', 'f-dato', ymd(new Date()), 'date')
+    + knapRaekke('Bogfør');
+
+  const sh = visSheet({
+    titel: billede ? 'Kvittering' : 'Ny udgift',
+    under: billede
+      ? (gaet && gaet.total ? 'Tjek at beløbet passer, og vælg kategori.' : 'Skriv beløbet, og vælg hvilken kategori det hører til.')
+      : 'Fx en middag ude, en togbillet eller en biograftur.',
+    html: html,
+    ved: async (e, fjern) => {
+      const k = e.target.closest('[data-kat]');
+      if (k){
+        katId = k.dataset.kat;
+        sh.node.querySelectorAll('[data-kat]').forEach(b => b.setAttribute('aria-pressed', b.dataset.kat === katId));
+        return;
+      }
+      const d = e.target.closest('[data-del]');
+      if (d){
+        deling = d.dataset.del;
+        sh.node.querySelectorAll('[data-del]').forEach(b => b.setAttribute('aria-pressed', b.dataset.del === deling));
+        return;
+      }
+      if (!e.target.closest('[data-ok]')) return;
+
+      const tekst = sh.node.querySelector('#f-tekst').value.trim() || 'Udgift';
+      const belob = Math.round((Number(sh.node.querySelector('#f-belob').value) || 0) * 100) / 100;
+      const dato = sh.node.querySelector('#f-dato').value || ymd(new Date());
+      if (belob <= 0) return toast('Skriv et beløb');
+
+      const id = uid();
+      let kvitId = null;
+      if (billede){
+        kvitId = 'kvit-' + id;
+        try { await Billeder.gem(kvitId, billede.data); }
+        catch(err){ kvitId = null; toast('Billedet kunne ikke gemmes, men udgiften er bogført'); }
+      }
+      S.udgifter.unshift({
+        id: id, tid: Date.now(), dato: dato, vare: null, tekst: tekst, belob: belob,
+        kategori: katId, butik: (gaet && gaet.butik) || null,
+        kilde: billede ? 'kvittering' : 'manuel',
+        kvittering: kvitId, betaler: betaler, deling: deling
+      });
+      const kat = S.kategorier.find(x => x.id === katId);
+      logFør(tekst + ' · ' + (kat ? kat.navn : '') + (billede ? ' (kvittering)' : ''), belob, 'koeb');
+      fjern(); tegn();
+      toast(kr(belob) + ' bogført under ' + (kat ? kat.navn : 'udgifter'));
+    }});
+}
+
+async function kvitteringValgt(fil){
+  if (!fil) return;
+  toast('Behandler billedet…');
+  try {
+    const billede = await skalerBillede(fil, 1100);
+    const gaet = await laesKvittering(billede.element);
+    udgiftSheet({billede: billede, gaet: gaet});
+  } catch(e){
+    toast(e.message || 'Billedet kunne ikke bruges');
+  }
+}
+
 /** Hvem betalte, og hvordan deles den? */
 function udgiftValg(id){
   const u = S.udgifter.find(x => x.id === id);
@@ -2763,7 +3023,8 @@ function udgiftValg(id){
     S.personer.filter(p => p.id !== u.betaler).map(p => ({k:'deling:'+p.id, ic:'wallet', navn:esc(p.navn)+' betaler det hele', txt:'Selvom '+esc(personNavn(u.betaler))+' lagde ud', valgt: u.deling === p.id}))
   ) : [];
 
-  const html = '<div class="sheet-liste">'
+  const html = (u.kvittering ? '<div id="kvit-vis" style="margin-bottom:14px"></div>' : '')
+    + '<div class="sheet-liste">'
     + muligheder.map(o => '<button class="sheet-valg" data-udgiftvalg="'+o.k+'" aria-pressed="'+o.valgt+'">'
         + '<span class="sv-ic">'+icon(o.ic,18)+'</span>'
         + '<span class="sv-t"><b>'+o.navn+'</b><span>'+o.txt+'</span></span>'
@@ -2772,13 +3033,14 @@ function udgiftValg(id){
     +   '<span class="sv-t"><b>Slet udgiften</b><span>Fjernes fra budgettet igen</span></span></button>'
     + '</div>';
 
-  visSheet({titel:u.tekst, under:kr(u.belob) + (u.butik ? ' · ' + u.butik : ''), html, ved:(e, fjern) => {
+  const sh2 = visSheet({titel:u.tekst, under:kr(u.belob) + (u.butik ? ' · ' + u.butik : ''), html, ved:(e, fjern) => {
     if (e.target.closest('[data-sletudgift]')){
       fjern();
       if (u.vare){
         const linje = S.liste.find(i => i.vare === u.vare);
         if (linje && linje.status === 'koebt') return saetStatus(u.vare, 'skal'), tegn(), toast('Udgiften og afkrydsningen er fjernet');
       }
+      if (u.kvittering) Billeder.slet(u.kvittering).catch(() => {});
       S.udgifter = S.udgifter.filter(x => x.id !== id);
       tegn(); return toast('Udgiften er slettet');
     }
@@ -2789,6 +3051,51 @@ function udgiftValg(id){
     fjern(); tegn(); gem();
     toast('Gemt');
   }});
+
+  if (u.kvittering){
+    Billeder.hent(u.kvittering).then(data => {
+      const n = sh2.node.querySelector('#kvit-vis');
+      if (!n) return;
+      n.innerHTML = data
+        ? '<img src="'+data+'" alt="Kvittering" style="width:100%;max-height:40vh;object-fit:contain;border-radius:14px;background:var(--surface-2)">'
+        : '<div class="stat-s">Billedet ligger på den telefon, det blev taget med.</div>';
+    }).catch(() => {});
+  }
+}
+
+/** Ret hvor mange pakker der skal købes. */
+function retAntal_sheet(vare){
+  const linje = S.liste.find(i => i.vare === vare);
+  const v = CATALOG[vare];
+  const foreslaaet = pakker(vare, (linje.gange || (linje.retter || []).length) || 1);
+  const html = felt('Antal pakker', 'f-antal', linje.antal || 1, 'number')
+    + '<div class="stat-s" style="margin:-4px 0 14px">Én pakke er '+esc(v.enhed)+' og koster '+kr(pris(vare))
+    + '. Madplanen foreslår '+foreslaaet+'.</div>'
+    + '<div class="acts"><button class="btn btn-brand" data-ok="1" style="min-height:52px">Gem</button>'
+    + (linje.egetAntal ? '<button class="btn" data-nulstilantal="1" style="min-height:52px">Følg madplanen igen</button>' : '')
+    + '<button class="btn" data-luk="1" style="min-height:52px">Annullér</button></div>';
+
+  visSheet({titel:v.navn, under:'Hvor meget skal I have med hjem?', html, ved:(e, fjern) => {
+    if (e.target.closest('[data-nulstilantal]')){
+      fjern(); linje.antal = foreslaaet; linje.egetAntal = false;
+      opdaterKoebtBeloeb(vare); tegn(); return toast('Følger madplanen igen');
+    }
+    if (!e.target.closest('[data-ok]')) return;
+    const n = Math.max(1, Math.round(Number(e.target.closest('.sheet').querySelector('#f-antal').value) || 1));
+    fjern();
+    linje.antal = n; linje.egetAntal = n !== foreslaaet;
+    opdaterKoebtBeloeb(vare);
+    tegn();
+    toast(v.navn + ': ' + maengdeTekst(vare, n));
+  }});
+}
+/** Er varen allerede krydset af, skal udgiften følge det nye antal. */
+function opdaterKoebtBeloeb(vare){
+  const linje = S.liste.find(i => i.vare === vare);
+  if (linje && linje.status === 'koebt'){
+    saetStatus(vare, 'skal', true);
+    saetStatus(vare, 'koebt', true);
+  }
 }
 
 /** Ret prisen på en råvare — fx hvis mælk koster 12 og ikke 11. */
@@ -3012,7 +3319,7 @@ document.addEventListener('click', (e) => {
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
     + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],'
-    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-skyopsaet],[data-skylogin],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
 
   if (!t){
     // Tryk hvor som helst på en varelinje eller en dag
@@ -3146,6 +3453,7 @@ document.addEventListener('click', (e) => {
       }});
   }
   if (d.flytforbrug) return flytForbrug(d.flytforbrug);
+  if (d.nyudgift) return udgiftSheet({});
   if (d.udgift) return udgiftValg(d.udgift);
   if (d.afregn){
     const min = saldo(migsId()), anden = denAnden();
@@ -3281,6 +3589,14 @@ document.addEventListener('change', (e) => {
     return;
   }
   if (el.dataset.auto){ S.auto[el.dataset.auto] = el.checked; gem(); }
+});
+
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'kvit-fil'){
+    const fil = e.target.files && e.target.files[0];
+    e.target.value = '';
+    kvitteringValgt(fil);
+  }
 });
 
 document.addEventListener('input', (e) => {
