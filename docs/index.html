@@ -465,6 +465,250 @@ button{font:inherit;color:inherit}
 
 </head>
 <body>
+<script>
+/* ============================================================
+   Sky — deling mellem to telefoner via Supabase.
+   Rå fetch, ingen biblioteker: appen skal kunne ligge som én fil
+   og stadig virke uden net.
+   ============================================================ */
+const Sky = (function(){
+  const NØGLE_CFG = 'toget.sky.cfg';
+  const NØGLE_SES = 'toget.sky.session';
+  const NØGLE_HUS = 'toget.sky.husstand';
+
+  let cfg = null, session = null, husstandId = null;
+  let lytter = null, timer = null, sidsteVersion = 0;
+
+  const læs = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e){ return null; } };
+  const skriv = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+
+  cfg = læs(NØGLE_CFG);
+  session = læs(NØGLE_SES);
+  husstandId = læs(NØGLE_HUS);
+
+  const opsat = () => !!(cfg && cfg.url && cfg.key);
+  const loggetInd = () => !!(session && session.access_token);
+
+  function fejlTekst(data, res){
+    const m = (data && (data.error_description || data.msg || data.message || data.error)) || '';
+    if (/Invalid login credentials/i.test(m)) return 'Forkert mail eller adgangskode';
+    if (/Email not confirmed/i.test(m)) return 'Bekræft din mail først — tjek indbakken';
+    if (/User already registered/i.test(m)) return 'Der findes allerede en bruger med den mail — log ind i stedet';
+    if (/Password should be/i.test(m)) return 'Adgangskoden skal være mindst 6 tegn';
+    if (/kun være to personer/i.test(m)) return 'Der er allerede to personer i den husstand';
+    if (/duplicate key/i.test(m)) return 'Du er allerede med i den husstand';
+    if (m) return m;
+    return 'Noget gik galt (' + (res ? res.status : '?') + ')';
+  }
+
+  async function kald(sti, {metode = 'GET', krop, auth = true, headers = {}} = {}){
+    if (!opsat()) throw new Error('Skyen er ikke sat op endnu');
+    const h = Object.assign({
+      'apikey': cfg.key,
+      'content-type': 'application/json'
+    }, headers);
+    if (auth && session && session.access_token) h['authorization'] = 'Bearer ' + session.access_token;
+
+    const res = await fetch(cfg.url.replace(/\/$/, '') + sti, {
+      method: metode,
+      headers: h,
+      body: krop === undefined ? undefined : JSON.stringify(krop)
+    });
+    const tekst = await res.text();
+    let data = null;
+    try { data = tekst ? JSON.parse(tekst) : null; } catch(e){ data = tekst; }
+    if (!res.ok){
+      // Udløbet token: forny én gang og prøv igen.
+      if (res.status === 401 && auth && session && session.refresh_token && !sti.includes('/auth/v1/token')){
+        const fornyet = await forny();
+        if (fornyet) return kald(sti, {metode, krop, auth, headers});
+      }
+      const e = new Error(fejlTekst(data, res));
+      e.status = res.status;
+      throw e;
+    }
+    return data;
+  }
+
+  async function forny(){
+    try {
+      const data = await kald('/auth/v1/token?grant_type=refresh_token',
+        {metode:'POST', krop:{refresh_token: session.refresh_token}, auth:false});
+      gemSession(data);
+      return true;
+    } catch(e){
+      gemSession(null);
+      return false;
+    }
+  }
+
+  function gemSession(data){
+    session = data && data.access_token ? data : null;
+    skriv(NØGLE_SES, session);
+  }
+
+  /* ---------------- opsætning og login ---------------- */
+  function konfigurer(url, key){
+    if (!/^https:\/\/.+\.supabase\.co\/?$/.test(url.trim()))
+      throw new Error('URL\'en skal se ud som https://xxxx.supabase.co');
+    if (!key.trim() || key.trim().length < 30) throw new Error('Nøglen ser ikke rigtig ud');
+    cfg = {url: url.trim().replace(/\/$/, ''), key: key.trim()};
+    skriv(NØGLE_CFG, cfg);
+  }
+
+  async function opret(email, kode){
+    const data = await kald('/auth/v1/signup', {metode:'POST', krop:{email, password: kode}, auth:false});
+    if (data && data.access_token) gemSession(data);
+    // Uden access_token kræver projektet mailbekræftelse.
+    return {bekræftKrævet: !(data && data.access_token)};
+  }
+
+  async function login(email, kode){
+    const data = await kald('/auth/v1/token?grant_type=password',
+      {metode:'POST', krop:{email, password: kode}, auth:false});
+    gemSession(data);
+    return data;
+  }
+
+  function logUd(){
+    gemSession(null);
+    husstandId = null; skriv(NØGLE_HUS, null);
+    stopLytning();
+  }
+
+  const brugerId = () => (session && session.user && session.user.id) || null;
+  const brugerMail = () => (session && session.user && session.user.email) || null;
+
+  /* ---------------- husstand ---------------- */
+  const ORD1 = ['GROEN','BLAA','ROED','GUL','HVID','SORT','VARM','KOLD','STOR','LILLE'];
+  const ORD2 = ['HAVRE','KANEL','PORRE','SALVIE','TIMIAN','HYLDE','MYNTE','LAKRIDS','ANIS','PEBER'];
+  function nyKode(){
+    const t = (n) => n[Math.floor(Math.random() * n.length)];
+    return t(ORD1) + '-' + t(ORD2) + '-' + (10 + Math.floor(Math.random() * 90));
+  }
+
+  async function opretHusstand(navn, mitNavn, doc){
+    let sidsteFejl = null;
+    for (let forsøg = 0; forsøg < 5; forsøg++){
+      const kode = nyKode();
+      try {
+        const rows = await kald('/rest/v1/husstande', {
+          metode:'POST',
+          krop:{navn: navn || 'Vores husstand', kode, doc: doc || {}, version: 1},
+          headers:{'prefer':'return=representation'}
+        });
+        const h = rows[0];
+        await kald('/rest/v1/medlemmer', {
+          metode:'POST',
+          krop:{husstand_id: h.id, bruger_id: brugerId(), navn: mitNavn || 'Mig', rolle:'ejer'},
+          headers:{'prefer':'return=representation'}
+        });
+        husstandId = h.id; skriv(NØGLE_HUS, husstandId);
+        sidsteVersion = h.version;
+        return h;
+      } catch(e){
+        sidsteFejl = e;
+        if (!/duplicate key|kode/i.test(e.message)) throw e;   // kun kodesammenstød prøves igen
+      }
+    }
+    throw sidsteFejl || new Error('Kunne ikke oprette husstanden');
+  }
+
+  async function tilslut(kode, mitNavn){
+    const fundet = await kald('/rest/v1/rpc/find_husstand', {metode:'POST', krop:{p_kode: kode}});
+    const h = Array.isArray(fundet) ? fundet[0] : fundet;
+    if (!h) throw new Error('Den kode findes ikke');
+    if (h.antal >= 2) throw new Error('Der er allerede to personer i den husstand');
+    await kald('/rest/v1/medlemmer', {
+      metode:'POST',
+      krop:{husstand_id: h.id, bruger_id: brugerId(), navn: mitNavn || 'Mig', rolle:'medlem'},
+      headers:{'prefer':'return=representation'}
+    });
+    husstandId = h.id; skriv(NØGLE_HUS, husstandId);
+    return h;
+  }
+
+  async function minHusstand(){
+    const rows = await kald('/rest/v1/medlemmer?select=husstand_id,navn,rolle&bruger_id=eq.' + brugerId());
+    if (!rows || !rows.length) return null;
+    husstandId = rows[0].husstand_id; skriv(NØGLE_HUS, husstandId);
+    return husstandId;
+  }
+
+  async function medlemmer(){
+    if (!husstandId) return [];
+    return await kald('/rest/v1/medlemmer?select=bruger_id,navn,rolle&husstand_id=eq.' + husstandId) || [];
+  }
+
+  async function saetMitNavn(navn){
+    await kald('/rest/v1/medlemmer?husstand_id=eq.' + husstandId + '&bruger_id=eq.' + brugerId(),
+      {metode:'PATCH', krop:{navn}});
+  }
+
+  async function forlad(){
+    await kald('/rest/v1/medlemmer?husstand_id=eq.' + husstandId + '&bruger_id=eq.' + brugerId(), {metode:'DELETE'});
+    husstandId = null; skriv(NØGLE_HUS, null);
+    stopLytning();
+  }
+
+  /* ---------------- dokumentet ---------------- */
+  async function hent(){
+    if (!husstandId) return null;
+    const rows = await kald('/rest/v1/husstande?select=id,navn,kode,doc,version,opdateret&id=eq.' + husstandId);
+    if (!rows || !rows.length) return null;
+    sidsteVersion = rows[0].version;
+    return rows[0];
+  }
+
+  /**
+   * Gemmer kun hvis ingen andre har gemt i mellemtiden.
+   * Er der sket noget, får kalderen den nye udgave og kan flette.
+   */
+  async function gem(doc, forventetVersion){
+    const v = forventetVersion == null ? sidsteVersion : forventetVersion;
+    const rows = await kald(
+      '/rest/v1/husstande?id=eq.' + husstandId + '&version=eq.' + v,
+      {metode:'PATCH', krop:{doc, version: v + 1}, headers:{'prefer':'return=representation'}});
+    if (!rows || !rows.length){
+      const frisk = await hent();
+      return {konflikt:true, frisk};
+    }
+    sidsteVersion = rows[0].version;
+    return {konflikt:false, version: sidsteVersion};
+  }
+
+  /* ---------------- hold øje med den anden telefon ---------------- */
+  function startLytning(kald_tilbage, sekunder){
+    stopLytning();
+    lytter = kald_tilbage;
+    const tjek = async () => {
+      if (document.hidden || !husstandId || !loggetInd()) return;
+      try {
+        const rows = await kald('/rest/v1/husstande?select=version&id=eq.' + husstandId);
+        const v = rows && rows[0] ? rows[0].version : 0;
+        if (v > sidsteVersion){
+          const frisk = await hent();
+          if (frisk && lytter) lytter(frisk);
+        }
+      } catch(e){ /* uden net prøver vi igen næste gang */ }
+    };
+    timer = setInterval(tjek, (sekunder || 8) * 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) tjek(); });
+    tjek();
+  }
+  function stopLytning(){ if (timer) clearInterval(timer); timer = null; lytter = null; }
+
+  return {
+    opsat, loggetInd, konfigurer, glemOpsætning: () => { skriv(NØGLE_CFG, null); cfg = null; },
+    opret, login, logUd, brugerId, brugerMail,
+    opretHusstand, tilslut, minHusstand, medlemmer, saetMitNavn, forlad,
+    harHusstand: () => !!husstandId, husstandsId: () => husstandId,
+    hent, gem, startLytning, stopLytning,
+    get version(){ return sidsteVersion; }
+  };
+})();
+
+</script>
 <div class="app">
   <header class="hdr" id="hdr"></header>
   <main class="view" id="view"></main>
@@ -1195,6 +1439,7 @@ function friskState(){
     aktivOpsparing: null,
     sparetIalt: 0,
     plan: [], liste: [], spisekammer: {}, udgifter: [], log: [], priser: {}, overfoersler: [],
+    personer: [{id:'mig', navn:'Mig'}], afregninger: [], delDefault: 'lige',
     auto: {koeb:true, madlav:true, ugeskift:true},
     butikker: {}
   };
@@ -1206,7 +1451,85 @@ function friskState(){
   return s;
 }
 
-function gem(){ try { localStorage.setItem(NOEGLE, JSON.stringify(S)); } catch(e){} }
+/* ============================================================
+   Fletning mellem to telefoner
+   ============================================================ */
+/** Lister hvor hver post har sin egen nøgle — de flettes post for post. */
+const LISTER = {
+  udgifter:'id', log:'id', overfoersler:'id', opsparinger:'id',
+  faste:'id', kategorier:'id', plan:'dato', liste:'vare'
+};
+const OBJEKTER = ['priser','spisekammer','butikker','auto'];
+
+/**
+ * Tre-vejs fletning: base er det vi hentede, mine er vores egne rettelser,
+ * fjern er det den anden telefon har gemt i mellemtiden.
+ * Har vi selv rørt noget, vinder vores; ellers vinder deres.
+ */
+function flet(base, mine, fjern){
+  base = base || {}; mine = mine || {}; fjern = fjern || {};
+  const ud = {};
+  const noegler = new Set([].concat(Object.keys(base), Object.keys(mine), Object.keys(fjern)));
+
+  noegler.forEach(n => {
+    const b = base[n], m = mine[n], f = fjern[n];
+
+    if (LISTER[n] && (Array.isArray(m) || Array.isArray(f))){
+      ud[n] = fletListe(LISTER[n], b || [], m || [], f || []);
+      return;
+    }
+    if (OBJEKTER.indexOf(n) !== -1 && (m || f)){
+      ud[n] = fletObjekt(b || {}, m || {}, f || {});
+      return;
+    }
+    const ændretHosOs = JSON.stringify(m) !== JSON.stringify(b);
+    ud[n] = ændretHosOs ? m : (n in fjern ? f : m);
+  });
+  return ud;
+}
+
+function fletListe(noegle, base, mine, fjern){
+  const kort = (l) => new Map((l || []).map(x => [x[noegle], x]));
+  const B = kort(base), M = kort(mine), F = kort(fjern);
+  const ud = [];
+  const alle = new Set([].concat([...M.keys()], [...F.keys()]));
+
+  alle.forEach(k => {
+    const b = B.get(k), m = M.get(k), f = F.get(k);
+    if (m && !f) { if (!b) ud.push(m); return; }          // vi tilføjede den — behold. Slettede de den — respektér det.
+    if (!m && f) { if (!b) ud.push(f); return; }          // de tilføjede den — tag den med. Slettede vi den — lad den blive væk.
+    if (!m || !f) return;
+    const viRettede = JSON.stringify(m) !== JSON.stringify(b);
+    ud.push(viRettede ? m : f);
+  });
+
+  // Behold rækkefølgen fra vores egen liste, og sæt nye poster bagest.
+  const orden = new Map((mine || []).map((x, i) => [x[noegle], i]));
+  return ud.sort((a, b2) => {
+    const ia = orden.has(a[noegle]) ? orden.get(a[noegle]) : 1e6;
+    const ib = orden.has(b2[noegle]) ? orden.get(b2[noegle]) : 1e6;
+    return ia - ib;
+  });
+}
+
+function fletObjekt(base, mine, fjern){
+  const ud = {};
+  const alle = new Set([].concat(Object.keys(mine || {}), Object.keys(fjern || {})));
+  alle.forEach(k => {
+    const b = base[k], m = mine[k], f = fjern[k];
+    const viRettede = JSON.stringify(m) !== JSON.stringify(b);
+    if (m === undefined && f !== undefined && b === undefined){ ud[k] = f; return; }
+    if (m !== undefined && f === undefined && b === undefined){ ud[k] = m; return; }
+    if (m === undefined || f === undefined) return;      // en af os slettede den
+    ud[k] = viRettede ? m : f;
+  });
+  return ud;
+}
+
+function gem(){
+  try { localStorage.setItem(NOEGLE, JSON.stringify(S)); } catch(e){}
+  if (typeof Sky !== 'undefined' && Sky.harHusstand() && Sky.loggetInd()) planlaegSkyGem();
+}
 function hent(){
   try {
     const raw = localStorage.getItem(NOEGLE) || localStorage.getItem('toget.v1');
@@ -1237,6 +1560,14 @@ function migrer(d){
   d.sparetIalt = d.sparetIalt || 0;
   d.priser = d.priser || {};
   d.overfoersler = d.overfoersler || [];
+  d.personer = d.personer && d.personer.length ? d.personer : [{id:'mig', navn:'Mig'}];
+  d.afregninger = d.afregninger || [];
+  d.delDefault = d.delDefault || 'lige';
+  // Udgifter fra før deling blev til: de var dine egne, og skal ikke pludselig deles.
+  (d.udgifter || []).forEach(u => {
+    if (!u.betaler) u.betaler = d.personer[0].id;
+    if (!u.deling) u.deling = 'mig';
+  });
   if (!d.opsparinger){
     const g = d.opsparing || {navn:'Opsparing', maal:12000, sparet:0};
     d.opsparinger = [{id:uid(), navn:g.navn, maal:g.maal, sparet:g.sparet}];
@@ -1257,6 +1588,105 @@ function migrer(d){
   const butikker = {};
   BUTIKKER.forEach(b => { butikker[b] = d.butikker && d.butikker[b] != null ? !!d.butikker[b] : ['Føtex','Lidl','Rema 1000','Netto'].indexOf(b) !== -1; });
   d.butikker = butikker;
+}
+
+/* ============================================================
+   Synkronisering
+   ============================================================ */
+let skyBase = null;        // dokumentet som det så ud, da vi sidst var enige med skyen
+let skyTimer = null;
+let skyStatus = 'lokal';   // lokal | gemmer | synk | fejl
+let skyGemmer = false;
+
+/** Kun det der er fælles — telefonens egne ting bliver hjemme. */
+function docFraState(){
+  const d = JSON.parse(JSON.stringify(S));
+  delete d.version;
+  return d;
+}
+
+function saetSkyStatus(st){
+  if (skyStatus === st) return;
+  skyStatus = st;
+  const n = document.getElementById('sky-status');
+  if (n) n.outerHTML = skyMaerkat();
+}
+
+function planlaegSkyGem(){
+  clearTimeout(skyTimer);
+  skyTimer = setTimeout(gemISky, 900);       // saml hurtige tryk til ét kald
+}
+
+async function gemISky(){
+  if (skyGemmer || typeof Sky === 'undefined' || !Sky.harHusstand() || !Sky.loggetInd()) return;
+  skyGemmer = true;
+  saetSkyStatus('gemmer');
+  try {
+    let svar = await Sky.gem(docFraState());
+    if (svar.konflikt && svar.frisk){
+      // Den anden telefon nåede at gemme først — flet og prøv igen.
+      const flettet = flet(skyBase, docFraState(), svar.frisk.doc);
+      Object.assign(S, flettet);
+      svar = await Sky.gem(docFraState(), svar.frisk.version);
+      if (svar.konflikt) throw new Error('kunne ikke gemme');
+      tegn();
+    }
+    skyBase = docFraState();
+    saetSkyStatus('synk');
+  } catch(e){
+    saetSkyStatus('fejl');
+  } finally {
+    skyGemmer = false;
+  }
+}
+
+/** Den anden telefon har gemt: flet deres ændringer ind i vores. */
+function modtagFraSky(frisk){
+  if (!frisk || !frisk.doc) return;
+  const mine = docFraState();
+  const flettet = flet(skyBase, mine, frisk.doc);
+  const ændret = JSON.stringify(flettet) !== JSON.stringify(mine);
+  Object.assign(S, flettet);
+  skyBase = JSON.parse(JSON.stringify(frisk.doc));
+  if (ændret){
+    tegn();
+    // Havde vi selv noget nyt, skal det også op.
+    if (JSON.stringify(flettet) !== JSON.stringify(frisk.doc)) planlaegSkyGem();
+  }
+  saetSkyStatus('synk');
+}
+
+async function startSky(){
+  if (typeof Sky === 'undefined' || !Sky.opsat() || !Sky.loggetInd()) return;
+  try {
+    if (!Sky.harHusstand()) await Sky.minHusstand();
+    if (!Sky.harHusstand()) return;
+    const frisk = await Sky.hent();
+    if (frisk && frisk.doc && Object.keys(frisk.doc).length){
+      // Første gang på denne telefon: tag husstandens data, men behold vores
+      // egne rettelser hvis vi har arbejdet offline.
+      const flettet = skyBase ? flet(skyBase, docFraState(), frisk.doc) : frisk.doc;
+      Object.assign(S, flettet);
+      skyBase = JSON.parse(JSON.stringify(frisk.doc));
+      migrer(S);
+    } else {
+      skyBase = null;
+      await gemISky();       // tom husstand: læg vores data op
+    }
+    saetSkyStatus('synk');
+    Sky.startLytning(modtagFraSky, 8);
+    tegn();
+  } catch(e){
+    saetSkyStatus('fejl');
+  }
+}
+
+function skyMaerkat(){
+  if (typeof Sky === 'undefined') return '<span id="sky-status"></span>';
+  if (!Sky.harHusstand() || !Sky.loggetInd()) return '<span id="sky-status"></span>';
+  const t = skyStatus === 'gemmer' ? 'gemmer…' : skyStatus === 'fejl' ? 'ingen forbindelse' : 'synkroniseret';
+  const cls = skyStatus === 'fejl' ? 'grey' : '';
+  return '<span id="sky-status" class="tag '+cls+'">'+icon(skyStatus === 'fejl' ? 'clock' : 'check',12)+t+'</span>';
 }
 
 /* ============================================================
@@ -1303,6 +1733,39 @@ const planSum = () => S.plan.filter(d => d.ret && d.status !== 'ude').reduce((s,
 const aktivMaal = () => S.opsparinger.find(o => o.id === S.aktivOpsparing) || S.opsparinger[0];
 
 /* ============================================================
+   Jer to
+   ============================================================ */
+/** Hvem er jeg på denne telefon? Med deling er det Supabase-brugeren. */
+function migsId(){
+  if (typeof Sky !== 'undefined' && Sky.loggetInd() && Sky.brugerId()){
+    const id = Sky.brugerId();
+    if (S.personer.some(p => p.id === id)) return id;
+  }
+  return S.personer[0] ? S.personer[0].id : 'mig';
+}
+const erPar = () => S.personer.length >= 2;
+const personNavn = (id) => { const p = S.personer.find(x => x.id === id); return p ? p.navn : 'Ukendt'; };
+const denAnden = () => S.personer.find(p => p.id !== migsId()) || null;
+
+/** Min andel af en udgift, ud fra hvordan den er sat til at blive delt. */
+function andel(u, personId){
+  const antal = S.personer.length || 1;
+  if (!erPar() || u.deling === 'mig') return u.betaler === personId ? u.belob : 0;
+  if (u.deling === 'lige') return u.belob / antal;
+  if (u.deling === 'beloeb') return u.betaler === personId ? (u.minAndel || 0) : u.belob - (u.minAndel || 0);
+  return u.deling === personId ? u.belob : 0;      // deling peger på den der skal betale alt
+}
+
+/** Positivt tal = de andre skylder dig. */
+function saldo(personId){
+  const fra_udgifter = S.udgifter.reduce((sum, u) =>
+    sum + ((u.betaler === personId ? u.belob : 0) - andel(u, personId)), 0);
+  const fra_afregninger = S.afregninger.reduce((sum, a) =>
+    sum + (a.til === personId ? -a.belob : 0) + (a.fra === personId ? a.belob : 0), 0);
+  return fra_udgifter + fra_afregninger;
+}
+
+/* ============================================================
    Automatik
    ============================================================ */
 function logFør(tekst, belob, slags){
@@ -1313,7 +1776,8 @@ function bogfoer(vare, belob){
   S.udgifter.unshift({
     id:uid(), tid:Date.now(), dato:ymd(new Date()), vare,
     tekst: CATALOG[vare].navn, belob, kategori: dagligvareKat().id,
-    butik: bedstePris(vare).butik, kilde:'auto'
+    butik: bedstePris(vare).butik, kilde:'auto',
+    betaler: migsId(), deling: erPar() ? S.delDefault : 'mig'
   });
   S.sparetIalt += Math.max(0, CATALOG[vare].normal - belob);
 }
@@ -1567,6 +2031,26 @@ function tegnBudget(){
   });
   h += '</div>';
 
+  if (erPar()){
+    const min = saldo(migsId());
+    const anden = denAnden();
+    const rund = Math.abs(min) < 1;
+    h += '<div class="card">'
+      +   '<div class="card-head"><h3>Jer to</h3>'
+      +     '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Deling</button></div>'
+      +   '<div style="display:flex;align-items:center;gap:14px">'
+      +     '<div style="flex:1;min-width:0">'
+      +       '<div class="num" style="font-size:24px;font-weight:600" class="'+(min>=0?'pos':'neg')+'">'
+      +         (rund ? 'I er kvit' : kr(Math.abs(min))) + '</div>'
+      +       '<div class="stat-s">' + (rund ? 'Ingen skylder noget lige nu'
+              : min > 0 ? esc(anden ? anden.navn : 'Din partner') + ' skylder dig'
+                        : 'Du skylder ' + esc(anden ? anden.navn : 'din partner')) + '</div>'
+      +     '</div>'
+      +     (rund ? '' : '<button class="btn" data-afregn="1">'+icon('check',16)+'Afregn</button>')
+      +   '</div>'
+      + '</div>';
+  }
+
   const restNu = restIForbrug();
   const sidste = forrigeMaaned();
   const restSidste = kanFlytteSidsteMaaned() ? restIForbrug(sidste) : 0;
@@ -1611,8 +2095,16 @@ function tegnBudget(){
   } else {
     S.udgifter.slice(0, 12).forEach(u => {
       const kat = S.kategorier.find(k => k.id === u.kategori);
-      h += '<div class="exp"><div class="ei'+(u.kilde==='auto'?' auto':'')+'">'+icon(u.kilde==='auto'?'bolt':'plus',15)+'</div>'
-        +  '<div class="et"><b>'+esc(u.tekst)+'</b><span>'+(u.butik?esc(u.butik)+' · ':'')+(kat?esc(kat.navn)+' · ':'')+tidSiden(u.tid)+'</span></div>'
+      const delTekst = !erPar() ? ''
+        : u.deling === 'lige' ? ' · 50/50'
+        : u.deling === 'mig' ? ' · ' + esc(personNavn(u.betaler)) + ' alene'
+        : u.deling === 'beloeb' ? ' · delt'
+        : ' · ' + esc(personNavn(u.deling)) + ' betaler';
+      h += '<div class="exp" data-udgift="'+u.id+'" style="cursor:pointer">'
+        +  '<div class="ei'+(u.kilde==='auto'?' auto':'')+'">'+icon(u.kilde==='auto'?'bolt':'plus',15)+'</div>'
+        +  '<div class="et"><b>'+esc(u.tekst)+'</b><span>'
+        +    (erPar() ? esc(personNavn(u.betaler)) + delTekst + ' · ' : (u.butik?esc(u.butik)+' · ':''))
+        +    (kat?esc(kat.navn)+' · ':'')+tidSiden(u.tid)+'</span></div>'
         +  '<div class="ev">'+kr(u.belob)+'</div></div>';
     });
     if (S.udgifter.length > 12) h += '<div class="empty" style="padding:12px 0 0">+ '+(S.udgifter.length-12)+' mere</div>';
@@ -1932,6 +2424,8 @@ function tegnIndstillinger(){
   if (!S.opsparinger.length) h += '<div class="empty">Ingen mål endnu. Du kan også bare følge "Sparet i alt" på forsiden.</div>';
   h += '</div>';
 
+  h += tegnDeling();
+
   h += '<div class="card"><div class="card-head"><h3>Kostform</h3></div>'
     +  '<div class="seg">'
     +  Object.keys(KOST).map(k => '<button data-saetkost="'+k+'" aria-pressed="'+(S.kost===k)+'">'+esc(KOST[k].kort)+'</button>').join('')
@@ -1956,6 +2450,73 @@ function tegnIndstillinger(){
 
   h += '<button class="btn btn-block" data-nulstil="1" style="color:var(--danger)">'+icon('trash',16)+'Nulstil alt</button>';
   return h;
+}
+
+/** Deling med din partner — og hvad der skal til for at få den op at køre. */
+function tegnDeling(){
+  const harSky = typeof Sky !== 'undefined';
+  let h = '<div class="card"><div class="card-head"><h3>Din partner</h3>' + skyMaerkat() + '</div>';
+
+  if (!harSky){
+    h += '<div class="stat-s" style="line-height:1.55">Deling virker i den installerede udgave af appen '
+      +  '(hjemmeskærmen), hvor den må tale med databasen. Her i forhåndsvisningen er data kun på denne telefon.</div>';
+    return h + '</div>';
+  }
+
+  if (!Sky.opsat()){
+    h += '<div class="stat-s" style="line-height:1.55;margin-bottom:14px">For at I kan dele madplan, indkøbsliste og '
+      +  'budget skal appen have et sted at mødes. Opret et gratis Supabase-projekt, og indsæt de to værdier fra '
+      +  '<b>Project Settings → API</b>.</div>'
+      +  '<button class="btn btn-brand btn-block" data-skyopsaet="1">'+icon('link',16)+'Forbind til Supabase</button>';
+    return h + '</div>';
+  }
+
+  if (!Sky.loggetInd()){
+    h += '<div class="stat-s" style="margin-bottom:14px">Log ind med samme mail på begge telefoner? Nej — I skal have '
+      +  '<b>hver jeres</b> login, og så deler I en husstand.</div>'
+      +  '<button class="btn btn-brand btn-block" data-skylogin="1">'+icon('users',16)+'Log ind eller opret bruger</button>'
+      +  '<button class="btn btn-block" data-skyglem="1" style="margin-top:9px;color:var(--ink-2)">Skift Supabase-projekt</button>';
+    return h + '</div>';
+  }
+
+  if (!Sky.harHusstand()){
+    h += '<div class="stat-s" style="margin-bottom:14px">Logget ind som '+esc(Sky.brugerMail() || '')+'. '
+      +  'Opret en husstand og giv koden til din partner — eller indtast den kode, du har fået.</div>'
+      +  '<button class="btn btn-brand btn-block" data-nyhusstand="1">'+icon('house',16)+'Opret husstand</button>'
+      +  '<button class="btn btn-block" data-tilslut="1" style="margin-top:9px">Jeg har en kode</button>'
+      +  '<button class="btn btn-block" data-skyudlog="1" style="margin-top:9px;color:var(--ink-2)">Log ud</button>';
+    return h + '</div>';
+  }
+
+  h += '<div class="set-blok" style="margin-bottom:14px">';
+  S.personer.forEach(p => {
+    const migSelv = p.id === migsId();
+    h += '<div class="goal-row'+(migSelv?' aktiv':'')+'">'
+      +  '<span style="color:var(--ink-2)">'+icon('users',19)+'</span>'
+      +  '<div class="gt"><b>'+esc(p.navn)+(migSelv?' (dig)':'')+'</b>'
+      +    '<span>'+(erPar() ? (saldo(p.id) >= 0 ? 'har lagt ud' : 'skylder') + ' ' + kr(Math.abs(saldo(p.id))) : 'alene indtil videre')+'</span></div>'
+      +  (migSelv ? '<button class="icon-btn" data-mitnavn="1" aria-label="Ret navn">'+icon('pencil',16)+'</button>' : '')
+      +  '</div>';
+  });
+  h += '</div>';
+
+  if (!erPar()){
+    h += '<div class="card-flat" style="margin-bottom:14px">'
+      +  '<div class="stat-l">Invitationskode</div>'
+      +  '<div class="qr-code-text" style="margin-top:8px" id="hus-kode">henter…</div>'
+      +  '<div class="stat-s" style="margin-top:8px">Din partner installerer appen, opretter en bruger og indtaster koden.</div>'
+      +  '</div>';
+  } else {
+    h += '<div class="tog-row" style="border:0;padding-top:0"><div class="tt"><b>Sådan deles dagligvarer</b>'
+      +  '<span>Gælder nye udgifter — de gamle bliver som de er</span></div></div>'
+      +  '<div class="seg" style="margin-bottom:14px">'
+      +  [['lige','50/50'],['mig','Den der betaler']].map(([k,n]) =>
+           '<button data-deldefault="'+k+'" aria-pressed="'+(S.delDefault===k)+'">'+n+'</button>').join('')
+      +  '</div>';
+  }
+
+  h += '<button class="btn btn-block" data-forlad="1" style="color:var(--danger)">'+icon('x',16)+'Forlad husstanden</button>';
+  return h + '</div>';
 }
 
 /* ============================================================
@@ -2191,6 +2752,45 @@ function flytForbrug(maaned){
     }});
 }
 
+/** Hvem betalte, og hvordan deles den? */
+function udgiftValg(id){
+  const u = S.udgifter.find(x => x.id === id);
+  if (!u) return;
+  const muligheder = erPar() ? [].concat(
+    S.personer.map(p => ({k:'betaler:'+p.id, ic:'wallet', navn:esc(p.navn)+' betalte', txt:'Beløbet er lagt ud af '+esc(p.navn), valgt: u.betaler === p.id})),
+    [{k:'deling:lige', ic:'users', navn:'Deles 50/50', txt:'I deler den lige over', valgt: u.deling === 'lige'},
+     {k:'deling:mig',  ic:'wallet', navn:'Kun '+esc(personNavn(u.betaler)), txt:'Den anden skal ikke være med til at betale', valgt: u.deling === 'mig'}],
+    S.personer.filter(p => p.id !== u.betaler).map(p => ({k:'deling:'+p.id, ic:'wallet', navn:esc(p.navn)+' betaler det hele', txt:'Selvom '+esc(personNavn(u.betaler))+' lagde ud', valgt: u.deling === p.id}))
+  ) : [];
+
+  const html = '<div class="sheet-liste">'
+    + muligheder.map(o => '<button class="sheet-valg" data-udgiftvalg="'+o.k+'" aria-pressed="'+o.valgt+'">'
+        + '<span class="sv-ic">'+icon(o.ic,18)+'</span>'
+        + '<span class="sv-t"><b>'+o.navn+'</b><span>'+o.txt+'</span></span>'
+        + (o.valgt ? '<span class="sv-p">'+icon('check',17)+'</span>' : '') + '</button>').join('')
+    + '<button class="sheet-valg" data-sletudgift="1"><span class="sv-ic">'+icon('trash',18)+'</span>'
+    +   '<span class="sv-t"><b>Slet udgiften</b><span>Fjernes fra budgettet igen</span></span></button>'
+    + '</div>';
+
+  visSheet({titel:u.tekst, under:kr(u.belob) + (u.butik ? ' · ' + u.butik : ''), html, ved:(e, fjern) => {
+    if (e.target.closest('[data-sletudgift]')){
+      fjern();
+      if (u.vare){
+        const linje = S.liste.find(i => i.vare === u.vare);
+        if (linje && linje.status === 'koebt') return saetStatus(u.vare, 'skal'), tegn(), toast('Udgiften og afkrydsningen er fjernet');
+      }
+      S.udgifter = S.udgifter.filter(x => x.id !== id);
+      tegn(); return toast('Udgiften er slettet');
+    }
+    const b = e.target.closest('[data-udgiftvalg]');
+    if (!b) return;
+    const [felt, vaerdi] = b.dataset.udgiftvalg.split(':');
+    if (felt === 'betaler') u.betaler = vaerdi; else u.deling = vaerdi;
+    fjern(); tegn(); gem();
+    toast('Gemt');
+  }});
+}
+
 /** Ret prisen på en råvare — fx hvis mælk koster 12 og ikke 11. */
 function retPris_sheet(vare){
   const v = CATALOG[vare], bp = bedstePris(vare);
@@ -2223,6 +2823,125 @@ function retPris_sheet(vare){
     tegn();
     toast(v.navn + ' sat til ' + kr(S.priser[vare]));
   }});
+}
+
+/* ============================================================
+   Deling: skuffer
+   ============================================================ */
+function skySheet(titel, under, felter, knap, naar){
+  const html = felter + knapRaekke(knap);
+  const sh = visSheet({titel, under, html, ved: async (e, fjern) => {
+    if (!e.target.closest('[data-ok]')) return;
+    const knapEl = e.target.closest('[data-ok]');
+    const vaerdier = {};
+    sh.node.querySelectorAll('input').forEach(i => { vaerdier[i.id.replace('f-','')] = i.value.trim(); });
+    knapEl.disabled = true; knapEl.textContent = 'Et øjeblik…';
+    try {
+      await naar(vaerdier);
+      fjern();
+    } catch(err){
+      knapEl.disabled = false; knapEl.textContent = knap;
+      toast(err.message || 'Det gik ikke', 'fejl');
+    }
+  }});
+  return sh;
+}
+
+function skyOpsaetning(){
+  skySheet('Forbind til Supabase',
+    'Opret et gratis projekt på supabase.com, kør skemaet i SQL Editor, og hent de to værdier under Project Settings → API.',
+    felt('Project URL', 'f-url', '', 'text') + felt('anon public key', 'f-key', '', 'text'),
+    'Forbind', async (v) => {
+      Sky.konfigurer(v.url, v.key);
+      tegn();
+      toast('Forbundet — nu mangler kun et login');
+    });
+}
+
+function skyLogin(){
+  let opretNy = false;
+  const sh = visSheet({
+    titel:'Din bruger', under:'I skal have hver jeres login. Bagefter deler I én husstand.',
+    html: felt('Mail', 'f-mail', '', 'email') + felt('Adgangskode', 'f-kode', '', 'password')
+      + '<div class="acts"><button class="btn btn-brand" data-log="1" style="min-height:52px">Log ind</button>'
+      + '<button class="btn" data-opret="1" style="min-height:52px">Opret ny bruger</button>'
+      + '<button class="btn" data-luk="1" style="min-height:52px">Annullér</button></div>',
+    ved: async (e, fjern) => {
+      const b = e.target.closest('[data-log],[data-opret]');
+      if (!b) return;
+      opretNy = !!b.dataset.opret;
+      const mail = sh.node.querySelector('#f-mail').value.trim();
+      const kode = sh.node.querySelector('#f-kode').value;
+      if (!mail || !kode) return toast('Udfyld mail og adgangskode');
+      const tekst = b.textContent;
+      b.disabled = true; b.textContent = 'Et øjeblik…';
+      try {
+        if (opretNy){
+          const r = await Sky.opret(mail, kode);
+          fjern();
+          if (r.bekræftKrævet){ tegn(); return toast('Tjek din mail og bekræft, så log ind'); }
+        } else {
+          await Sky.login(mail, kode);
+          fjern();
+        }
+        await startSky();
+        tegn();
+        toast('Logget ind som ' + mail);
+      } catch(err){
+        b.disabled = false; b.textContent = tekst;
+        toast(err.message || 'Det gik ikke');
+      }
+    }});
+}
+
+function nyHusstand(){
+  skySheet('Opret husstand', 'Du får en kode, du giver til din partner.',
+    felt('Husstandens navn', 'f-navn', 'Vores husstand') + felt('Dit fornavn', 'f-mig', S.personer[0] ? S.personer[0].navn : 'Mig'),
+    'Opret', async (v) => {
+      const h = await Sky.opretHusstand(v.navn, v.mig, docFraState());
+      S.personer = [{id: Sky.brugerId(), navn: v.mig || 'Mig'}];
+      // Det vi allerede havde, tilhører nu os.
+      S.udgifter.forEach(u => { if (u.betaler === 'mig') u.betaler = Sky.brugerId(); });
+      skyBase = null;
+      await gemISky();
+      await opdaterMedlemmer();
+      Sky.startLytning(modtagFraSky, 8);
+      tegn();
+      toast('Husstanden er oprettet — koden står i indstillinger');
+    });
+}
+
+function tilslutHusstand(){
+  skySheet('Tilslut dig en husstand', 'Indtast koden fra din partner.',
+    felt('Kode', 'f-kode', '') + felt('Dit fornavn', 'f-mig', 'Mig'),
+    'Tilslut', async (v) => {
+      await Sky.tilslut(v.kode, v.mig);
+      skyBase = null;
+      await startSky();
+      await opdaterMedlemmer();
+      tegn();
+      toast('Du er med i husstanden');
+    });
+}
+
+/** Hent navnene fra databasen, så begge telefoner viser de samme personer. */
+async function opdaterMedlemmer(){
+  if (typeof Sky === 'undefined' || !Sky.harHusstand()) return;
+  try {
+    const m = await Sky.medlemmer();
+    if (!m.length) return;
+    S.personer = m.map(x => ({id: x.bruger_id, navn: x.navn}));
+    planlaegSkyGem();
+  } catch(e){ /* uden net beholder vi dem vi kender */ }
+}
+
+async function visKode(){
+  const n = document.getElementById('hus-kode');
+  if (!n || typeof Sky === 'undefined' || !Sky.harHusstand()) return;
+  try {
+    const h = await Sky.hent();
+    n.textContent = h && h.kode ? h.kode : 'ukendt';
+  } catch(e){ n.textContent = 'kunne ikke hentes'; }
 }
 
 /* ============================================================
@@ -2269,6 +2988,8 @@ function tegn(){
     + '<span class="tn">'+icon(f.ic,21)+(f.key==='indkob'&&mangler?'<span class="dot">'+mangler+'</span>':'')+'</span>'
     + '<span>'+f.navn+'</span></button>').join('');
 
+  if (visning === 'indstillinger' && document.getElementById('hus-kode')) visKode();
+
   const soeg = document.getElementById('retsoeg');
   if (soeg && visning === 'retter' && retSoeg) { soeg.focus(); soeg.setSelectionRange(retSoeg.length, retSoeg.length); }
   gem();
@@ -2291,7 +3012,7 @@ document.addEventListener('click', (e) => {
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
     + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],'
-    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug]');
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-skyopsaet],[data-skylogin],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault]');
 
   if (!t){
     // Tryk hvor som helst på en varelinje eller en dag
@@ -2425,6 +3146,42 @@ document.addEventListener('click', (e) => {
       }});
   }
   if (d.flytforbrug) return flytForbrug(d.flytforbrug);
+  if (d.udgift) return udgiftValg(d.udgift);
+  if (d.afregn){
+    const min = saldo(migsId()), anden = denAnden();
+    if (!anden || Math.abs(min) < 1) return;
+    const skyldner = min > 0 ? anden : S.personer.find(p => p.id === migsId());
+    const modtager = min > 0 ? S.personer.find(p => p.id === migsId()) : anden;
+    return bekraeft('Afregn ' + kr(Math.abs(min)) + '?',
+      esc(skyldner.navn) + ' betaler ' + kr(Math.abs(min)) + ' til ' + esc(modtager.navn) + ', og så er I kvit.',
+      'Afregnet', () => {
+        S.afregninger.push({id:uid(), fra:skyldner.id, til:modtager.id, belob:Math.abs(min), dato:ymd(new Date())});
+        logFør(esc(skyldner.navn)+' afregnede '+kr(Math.abs(min))+' til '+esc(modtager.navn), 0, 'opsparing');
+        tegn(); toast('I er kvit');
+      });
+  }
+  if (d.skyopsaet) return skyOpsaetning();
+  if (d.skylogin) return skyLogin();
+  if (d.skyglem) return bekraeft('Skift projekt?', 'Appen glemmer Supabase-opsætningen på denne telefon. Dine data bliver liggende.', 'Glem', () => { Sky.glemOpsætning(); Sky.logUd(); tegn(); });
+  if (d.skyudlog) return bekraeft('Log ud?', 'Dine data bliver liggende på denne telefon.', 'Log ud', () => { Sky.logUd(); saetSkyStatus('lokal'); tegn(); });
+  if (d.nyhusstand) return nyHusstand();
+  if (d.tilslut) return tilslutHusstand();
+  if (d.forlad) return bekraeft('Forlad husstanden?', 'Du deler ikke længere med din partner. Data bliver liggende hos jer begge.', 'Forlad', async () => {
+    try { await Sky.forlad(); } catch(e){}
+    S.personer = [{id: migsId(), navn: S.personer.find(p => p.id === migsId()) ? personNavn(migsId()) : 'Mig'}];
+    saetSkyStatus('lokal'); tegn(); toast('Du har forladt husstanden');
+  }, true);
+  if (d.mitnavn){
+    const nu = personNavn(migsId());
+    return skySheet('Dit navn', 'Sådan står du hos din partner.', felt('Fornavn', 'f-navn', nu), 'Gem', async (v) => {
+      if (!v.navn) return;
+      const p = S.personer.find(x => x.id === migsId());
+      if (p) p.navn = v.navn;
+      if (typeof Sky !== 'undefined' && Sky.harHusstand()) await Sky.saetMitNavn(v.navn);
+      tegn(); toast('Gemt');
+    });
+  }
+  if (d.deldefault){ S.delDefault = d.deldefault; tegn(); return; }
   if (d.flytsparet){
     const o = S.opsparinger.find(x => x.id === d.flytsparet);
     const beloeb = Math.round(S.sparetIalt);
@@ -2556,13 +3313,15 @@ document.addEventListener('input', (e) => {
 S = hent() || friskState();
 if (!S.plan.length){ S.plan = nyMadplan(); synkroniserListe(); }
 tegn();
+
+if (typeof Sky !== 'undefined' && Sky.opsat() && Sky.loggetInd()){
+  startSky().then(opdaterMedlemmer);
+}
 </script>
 
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
-  });
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
 }
 </script>
 </body>
