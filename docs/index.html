@@ -1235,6 +1235,7 @@ function migrer(d){
   // Gamle udgifter pegede på en kategorinøgle, ikke et id.
   const dagligvare = (d.kategorier.find(k => k.dagligvare) || d.kategorier[0] || {}).id;
   (d.udgifter || []).forEach(u => {
+    if (!u.dato) u.dato = ymd(new Date(u.tid || Date.now()));
     if (u.kategori === 'dagligvarer' || !d.kategorier.some(k => k.id === u.kategori)) u.kategori = dagligvare;
   });
   const butikker = {};
@@ -1247,16 +1248,27 @@ function migrer(d){
    ============================================================ */
 const fasteIalt = () => S.faste.reduce((s,f) => s + f.belob, 0);
 const dagligvareKat = () => S.kategorier.find(k => k.dagligvare) || S.kategorier[0];
-const brugtIKategori = (id) => S.udgifter.filter(u => u.kategori === id).reduce((s,u) => s + u.belob, 0);
-const variabeltBrugt = () => S.udgifter.reduce((s,u) => s + u.belob, 0);
 const maanedNu = () => ymd(new Date()).slice(0, 7);
-/** Penge flyttet fra forbrug til opsparing i denne måned. */
+const forrigeMaaned = () => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return ymd(d).slice(0, 7); };
+const maanedNavn = (m) => MONTHS[Number(m.split('-')[1]) - 1];
+const iMaaned = (u, m) => (u.dato || '').slice(0, 7) === m;
+const brugtIKategori = (id, m) => S.udgifter
+  .filter(u => u.kategori === id && iMaaned(u, m || maanedNu()))
+  .reduce((s,u) => s + u.belob, 0);
+const variabeltBrugt = (m) => S.udgifter.filter(u => iMaaned(u, m || maanedNu())).reduce((s,u) => s + u.belob, 0);
+/** Penge der faktisk forlod kontoen i denne måned. */
 const overfoertIMaaned = () => S.overfoersler
   .filter(o => (o.dato || '').slice(0, 7) === maanedNu())
   .reduce((s,o) => s + o.belob, 0);
-/** Det du endnu ikke har brugt af dine forbrugslofter — og heller ikke har flyttet væk. */
-const restPrKategori = () => S.kategorier.map(k => ({kat:k, rest: Math.max(0, k.graense - brugtIKategori(k.id))}));
-const restIForbrug = () => Math.max(0, restPrKategori().reduce((s,r) => s + r.rest, 0) - overfoertIMaaned());
+/** Hvor meget af en given måneds overskud der allerede er flyttet. */
+const overfoertForMaaned = (m) => S.overfoersler
+  .filter(o => o.forMaaned === m)
+  .reduce((s,o) => s + o.belob, 0);
+const restPrKategori = (m) => S.kategorier.map(k => ({kat:k, rest: Math.max(0, k.graense - brugtIKategori(k.id, m))}));
+const restIForbrug = (m) => Math.max(0,
+  restPrKategori(m).reduce((s,r) => s + r.rest, 0) - overfoertForMaaned(m || maanedNu()));
+/** Sidste måned kan først gøres op når den er slut — og kun hvis appen var i brug. */
+const kanFlytteSidsteMaaned = () => (S.start || '').slice(0, 7) <= forrigeMaaned();
 const tilRaadighed = () => S.indkomst - fasteIalt() - variabeltBrugt() - overfoertIMaaned();
 const sparetIUgen = () => S.udgifter
   .filter(u => u.vare && CATALOG[u.vare] && u.dato >= S.ugestart)
@@ -1461,16 +1473,29 @@ function tegnHjem(){
 
   if (maal){
     h += '<div class="card">'
-      +   '<div class="card-head"><h3>'+esc(maal.navn)+'</h3>'
-      +     '<button class="link" data-skiftmaal="1" style="background:none;border:0;color:var(--brand);font-weight:600;font-size:13px;cursor:pointer">Skift mål</button></div>'
+      +   '<div class="card-head">'
+      +     '<button data-retmaal="'+maal.id+'" style="background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;min-width:0;color:inherit">'
+      +       '<h3 style="font-family:var(--font-d)">'+esc(maal.navn)+'</h3>'
+      +       '<span style="color:var(--ink-3);display:flex">'+icon('pencil',15)+'</span></button>'
+      +     (S.opsparinger.length > 1
+          ? '<button data-skiftmaal="1" style="background:none;border:0;color:var(--brand);font-weight:600;font-size:13px;cursor:pointer">Skift mål</button>'
+          : '<button data-nymaal="1" style="background:none;border:0;color:var(--brand);font-weight:600;font-size:13px;cursor:pointer">Nyt mål</button>')
+      +   '</div>'
       +   '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px">'
       +     '<div class="num" style="font-size:25px;font-weight:600">'+kr(maal.sparet)+'</div>'
-      +     '<div style="font-size:13px;color:var(--ink-3)">af '+kr(maal.maal)+' · '+opsPct+'%</div></div>'
+      +     '<button data-retmaal="'+maal.id+'" style="background:none;border:0;padding:0;cursor:pointer;font-size:13px;color:var(--ink-3);font-family:inherit">'
+      +       'af <u style="text-decoration-style:dotted;text-underline-offset:3px">'+kr(maal.maal)+'</u> · '+opsPct+'%</button></div>'
       +   '<div class="bar violet"><i style="width:'+Math.min(100,opsPct)+'%"></i></div>'
       +   '<div style="display:flex;gap:8px;margin-top:13px">'
       +     '<button class="btn btn-block" data-laegtil="'+maal.id+'">'+icon('plus',16)+'Læg penge til side</button>'
       +     (S.sparetIalt >= 1 ? '<button class="btn" data-flytsparet="'+maal.id+'" title="Flyt det sparede hertil">'+icon('pig',16)+'</button>' : '')
       +   '</div>'
+      + '</div>';
+  } else {
+    h += '<div class="card">'
+      +   '<div class="card-head"><h3>Spar op til noget</h3></div>'
+      +   '<div class="empty" style="padding:6px 0 16px">Skriv selv hvad I sparer op til, og hvor meget der skal til.</div>'
+      +   '<button class="btn btn-brand btn-block" data-nymaal="1">'+icon('plus',16)+'Opret et mål</button>'
       + '</div>';
   }
 
@@ -1529,19 +1554,30 @@ function tegnBudget(){
   });
   h += '</div>';
 
-  const rest = restIForbrug();
-  const flyttet = overfoertIMaaned();
+  const restNu = restIForbrug();
+  const sidste = forrigeMaaned();
+  const restSidste = kanFlytteSidsteMaaned() ? restIForbrug(sidste) : 0;
+  const naesteOpgoerelse = (function(){
+    const d = new Date(); d.setMonth(d.getMonth() + 1, 1);
+    return '1. ' + MONTHS[d.getMonth()];
+  })();
+
   h += '<div class="card-tint">'
-    +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px">'
-    +     '<div style="min-width:0"><div class="stat-l" style="color:var(--brand-ink)">Tilovers på dit forbrug</div>'
-    +       '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Dine lofter minus det du har brugt'
-    +         (flyttet ? ' · '+kr(flyttet)+' allerede flyttet' : '')+'</div></div>'
-    +     '<div class="num" style="font-size:26px;font-weight:600;color:var(--brand-ink);white-space:nowrap">'+kr(rest)+'</div>'
+    +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px">'
+    +     '<div style="min-width:0"><div class="stat-l" style="color:var(--brand-ink)">Tilovers i '+maanedNavn(maanedNu())+'</div>'
+    +       '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Dine lofter minus det du har brugt indtil nu</div></div>'
+    +     '<div class="num" style="font-size:26px;font-weight:600;color:var(--brand-ink);white-space:nowrap">'+kr(restNu)+'</div>'
     +   '</div>'
-    +   (S.opsparinger.length
-        ? '<button class="btn btn-block" data-flytforbrug="1"'+(rest <= 0 ? ' disabled' : '')+'>'
-          + icon('pig',16) + (rest > 0 ? 'Flyt til opsparing' : 'Intet at flytte endnu') + '</button>'
-        : '<div class="stat-s" style="color:var(--brand-ink)">Opret et opsparingsmål i indstillinger, så kan du flytte pengene derover.</div>')
+    +   (restSidste > 0 && S.opsparinger.length
+        ? '<button class="btn btn-block" data-flytforbrug="'+sidste+'" style="margin-top:12px">'
+          + icon('pig',16) + 'Flyt ' + maanedNavn(sidste) + ' · ' + kr(restSidste) + ' til opsparing</button>'
+        : '<div class="stat-s" style="color:var(--brand-ink);opacity:.85;margin-top:10px;display:flex;gap:8px;align-items:flex-start">'
+          + icon('clock',14)
+          + '<span>' + (!S.opsparinger.length
+              ? 'Opret et opsparingsmål, så kan du flytte overskuddet derover.'
+              : !kanFlytteSidsteMaaned()
+                ? 'Måneden skal først være gået. Du kan gøre '+maanedNavn(maanedNu())+' op den '+naesteOpgoerelse+'.'
+                : maanedNavn(sidste) + ' er gjort op — der er ikke mere at flytte.') + '</span></div>')
     + '</div>';
 
   h += '<div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">'
@@ -1930,6 +1966,7 @@ function redigerPost({titel, navn, belob, ic, gem: gemFn, felter}){
   const html = felt('Navn', 'f-navn', navn)
     + felt(felter === 'maal' ? 'Målbeløb (kr.)' : 'Beløb pr. måned (kr.)', 'f-belob', belob, 'number')
     + (felter === 'maal' ? felt('Sparet indtil nu (kr.)', 'f-sparet', arguments[0].sparet || 0, 'number') : ikonVaelger(valgtIkon))
+    + (felter === 'maal' ? '<div class="stat-s" style="margin:-4px 0 14px">Skriv hvad I sparer op til, og hvor meget målet er.</div>' : '')
     + knapRaekke('Gem');
   const sh = visSheet({titel, html, ved:(e, fjern) => {
     const ik = e.target.closest('[data-vaelgikon]');
@@ -2103,13 +2140,14 @@ function linjeValg(vare){
 }
 
 /** Flyt det ubrugte forbrugsbudget over i en opsparing. */
-function flytForbrug(){
-  const rest = restIForbrug();
-  if (rest <= 0) return toast('Der er ikke noget tilovers endnu');
+function flytForbrug(maaned){
+  if (!kanFlytteSidsteMaaned()) return toast('Vent til måneden er gået');
+  const rest = restIForbrug(maaned);
+  if (rest <= 0) return toast('Der er ikke noget tilovers at flytte');
   if (!S.opsparinger.length) return toast('Opret et opsparingsmål først');
   let maalId = S.aktivOpsparing || S.opsparinger[0].id;
 
-  const linjer = restPrKategori().filter(r => r.rest > 0)
+  const linjer = restPrKategori(maaned).filter(r => r.rest > 0)
     .map(r => '<div class="ing"><span class="in">'+esc(r.kat.navn)+'</span><span class="iv">'+kr(r.rest)+'</span></div>').join('');
 
   const html = '<div style="margin-bottom:14px">' + linjer + '</div>'
@@ -2120,7 +2158,8 @@ function flytForbrug(){
         + '<span class="sv-t"><b>'+esc(o.navn)+'</b><span>'+kr(o.sparet)+' af '+kr(o.maal)+'</span></span></button>').join('')
     + '</div>' + knapRaekke('Flyt pengene');
 
-  const sh = visSheet({titel:'Flyt det du ikke brugte', under:'Du har '+kr(rest)+' tilbage på dine forbrugslofter denne måned.', html,
+  const sh = visSheet({titel:'Gør '+maanedNavn(maaned)+' op',
+    under:'Du brugte '+kr(rest)+' mindre end dine lofter i '+maanedNavn(maaned)+'. Flyt dem over i opsparingen.', html,
     ved:(e, fjern) => {
       const m = e.target.closest('[data-maal]');
       if (m){
@@ -2135,8 +2174,8 @@ function flytForbrug(){
       if (v > rest) return toast('Du kan højst flytte ' + kr(rest));
       const o = S.opsparinger.find(x => x.id === maalId);
       o.sparet += v;
-      S.overfoersler.push({id:uid(), dato:ymd(new Date()), belob:v, maal:o.id});
-      logFør(kr(v)+' flyttet fra forbrug til '+o.navn, 0, 'opsparing');
+      S.overfoersler.push({id:uid(), dato:ymd(new Date()), forMaaned:maaned, belob:v, maal:o.id});
+      logFør(kr(v)+' fra '+maanedNavn(maaned)+' flyttet til '+o.navn, 0, 'opsparing');
       tegn();
       toast(kr(v)+' flyttet til '+o.navn);
     }});
@@ -2375,7 +2414,7 @@ document.addEventListener('click', (e) => {
         tegn(); toast(kr(v)+' lagt til '+o.navn);
       }});
   }
-  if (d.flytforbrug) return flytForbrug();
+  if (d.flytforbrug) return flytForbrug(d.flytforbrug);
   if (d.flytsparet){
     const o = S.opsparinger.find(x => x.id === d.flytsparet);
     const beloeb = Math.round(S.sparetIalt);

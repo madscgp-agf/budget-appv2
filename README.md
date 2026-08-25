@@ -227,6 +227,11 @@ It covers:
 - **Andre tilbud** (far right) — only offers that are *not* already in your meal
   plan or on your list, so it is genuinely "what else is worth buying". Tap one
   to add it to the shopping list; it survives regenerating the week.
+- **Set the goal yourself** — name and target are editable straight from the
+  card on Hjem, and with no goals at all the card offers to create one.
+- **Month-end only** — leftover budget can be moved once a month has actually
+  finished ("Flyt juli · 9.400 kr. til opsparing"), never mid-month while you
+  are still spending. Each month can only be settled once.
 - **Move what you did not spend** — the Budget screen totals what is left under
   your category limits and moves it into a savings goal, deducting it from what
   is available so the money is not counted twice.
