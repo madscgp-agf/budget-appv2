@@ -196,3 +196,35 @@ GET    /api/reports/summary          everything the dashboard needs
 - The SQLite file in `DATABASE_FILE` is the whole database; back it up.
 - Run behind a TLS-terminating proxy. Camera access for QR scanning requires
   HTTPS in every browser except on `localhost`.
+
+---
+
+## Toget — installerbar telefon-app (`docs/`)
+
+`docs/` holds the Danish household app from the screenshots as a single
+self-contained page: meal plan, offers, shopping list and a budget that books
+itself. It is a PWA — installable on a phone home screen, and it keeps working
+in the shop with no signal.
+
+The automation is the point:
+
+- Tick an item in **Indkøb** → the amount is booked as `Dagligvarer` and
+  "Til rådighed" drops immediately. Undo is one tap.
+- Mark a dish **lavet** in **Madplan** → its ingredients come out of the pantry,
+  and anything that was never bought is booked anyway, so the budget still adds up.
+- **Generér** → a new week is planned around what is on offer, within the weekly
+  food budget, and the shopping list rebuilds itself.
+- **Hjem → "Det er sket automatisk"** logs every booking the app made for you.
+
+State lives in the phone's own storage, so there is no account and no server —
+which also means it does not yet sync between two phones. That arrives with the
+Next.js + Supabase app.
+
+### Publishing it
+
+GitHub Pages, served from this branch's `/docs` folder:
+**Settings → Pages → Source: "Deploy from a branch" → this branch → `/docs` → Save.**
+It then goes live at `https://madscgp-agf.github.io/budget-appv2/`.
+
+On the phone: open that URL, then **Del → Føj til hjemmeskærm** (iPhone) or
+**⋮ → Installer app** (Android). It opens full screen with no browser chrome.

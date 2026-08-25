@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F1F2EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1211" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Madplan, tilbud og budget der bogfører sig selv.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toget">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Toget Husholdning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+:root{
+  --ground:#F1F2EE;
+  --surface:#FFFFFF;
+  --surface-2:#E9EAE5;
+  --surface-3:#DFE1DA;
+  --line:#DCDED6;
+  --ink:#15181A;
+  --ink-2:#5C6266;
+  --ink-3:#878D91;
+  --brand:#0E9B6C;
+  --brand-deep:#0A7A55;
+  --brand-tint:#D6EFE3;
+  --brand-ink:#0A6B4B;
+  --violet:#5B4FD6;
+  --violet-tint:#E2E0FA;
+  --danger:#C8372B;
+  --danger-tint:#F7E0DD;
+  --warn:#B4631A;
+  --warn-tint:#F8E8D6;
+  --r-lg:22px;
+  --r-md:16px;
+  --r-sm:11px;
+  --shadow:0 1px 2px rgba(20,28,24,.05), 0 10px 26px -14px rgba(20,28,24,.22);
+  --font-d:"Outfit","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-b:"DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1211;
+    --surface:#171C1A;
+    --surface-2:#1F2523;
+    --surface-3:#28302D;
+    --line:#2C3431;
+    --ink:#E9EDEA;
+    --ink-2:#9AA3A0;
+    --ink-3:#767F7C;
+    --brand:#37C795;
+    --brand-deep:#5BD9AC;
+    --brand-tint:#12312A;
+    --brand-ink:#6FE0B8;
+    --violet:#8B82F0;
+    --violet-tint:#221F45;
+    --danger:#F0857A;
+    --danger-tint:#37201D;
+    --warn:#E0A264;
+    --warn-tint:#33261A;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 28px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1211;
+  --surface:#171C1A;
+  --surface-2:#1F2523;
+  --surface-3:#28302D;
+  --line:#2C3431;
+  --ink:#E9EDEA;
+  --ink-2:#9AA3A0;
+  --ink-3:#767F7C;
+  --brand:#37C795;
+  --brand-deep:#5BD9AC;
+  --brand-tint:#12312A;
+  --brand-ink:#6FE0B8;
+  --violet:#8B82F0;
+  --violet-tint:#221F45;
+  --danger:#F0857A;
+  --danger-tint:#37201D;
+  --warn:#E0A264;
+  --warn-tint:#33261A;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 28px -16px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  min-height:100%;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--font-b);
+  -webkit-font-smoothing:antialiased;
+  font-size:15px;
+  line-height:1.45;
+  /* Behave like an app on a touch screen, not like a document. */
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+}
+/* Chrome is not selectable; the numbers and names still are. */
+.hdr,.tabbar,.tab,.chip,.btn,.tag,.sec-label,.day-date,.cb,.sw{user-select:none;-webkit-user-select:none}
+h1,h2,h3,h4{margin:0;font-family:var(--font-d);font-weight:600;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit}
+.num{font-family:var(--font-d);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+.app{
+  max-width:460px;margin:0 auto;background:var(--ground);position:relative;
+  min-height:100vh;min-height:100dvh;
+  padding-bottom:calc(92px + env(safe-area-inset-bottom));
+}
+@media(min-width:520px){ .app{box-shadow:0 0 0 1px var(--line)} }
+
+/* ---------- header ---------- */
+.hdr{
+  position:sticky;top:0;z-index:30;
+  padding:calc(20px + env(safe-area-inset-top)) 20px 12px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  background:var(--ground);
+}
+.hdr::after{
+  content:"";position:absolute;left:0;right:0;bottom:-18px;height:18px;pointer-events:none;
+  background:linear-gradient(var(--ground),transparent);
+}
+.hdr h1{font-size:27px}
+.hdr .sub{color:var(--ink-3);font-size:13.5px;margin-top:3px}
+.badge-live{
+  background:var(--brand-tint);color:var(--brand-ink);
+  font-size:12px;font-weight:500;padding:6px 12px;border-radius:999px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.badge-live i{width:6px;height:6px;border-radius:50%;background:var(--brand);display:block;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hdr-note{color:var(--ink-3);font-size:13px;text-align:right}
+
+/* ---------- layout ---------- */
+.view{padding:0 20px 10px;display:flex;flex-direction:column;gap:14px;animation:viewIn .2s cubic-bezier(.22,1,.36,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px)}}
+.row{display:flex;gap:12px}
+.row>*{flex:1;min-width:0}
+.sec-label{font-size:13px;color:var(--ink-3);padding:10px 4px 0;font-weight:500}
+
+.card{background:var(--surface);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow)}
+.card-flat{background:var(--surface-2);border-radius:var(--r-lg);padding:16px}
+.card-tint{background:var(--brand-tint);border-radius:var(--r-lg);padding:16px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.card-head h3{font-size:15.5px}
+
+.stat-l{font-size:13px;color:var(--ink-2)}
+.stat-v{font-size:26px;font-weight:600;margin-top:5px}
+.stat-s{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.pos{color:var(--brand-deep)}
+.neg{color:var(--danger)}
+
+/* ---------- home ---------- */
+.hero{background:var(--surface);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:20px}
+.ring{position:relative;width:132px;height:132px;flex:none;display:grid;place-items:center}
+.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring .rv{position:relative;text-align:center}
+.ring .rv b{display:block;font-family:var(--font-d);font-size:21px;font-weight:600;letter-spacing:-.03em}
+.ring .rv span{font-size:11.5px;color:var(--ink-3)}
+.hero-lines{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.hero-lines .hl{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px}
+.hero-lines .hl span{color:var(--ink-2)}
+.hero-lines .hl b{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-weight:500}
+.hero-title{font-size:13px;color:var(--ink-3);margin-bottom:2px}
+
+.bar{height:8px;border-radius:999px;background:var(--surface-3);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:999px;background:var(--brand);transition:width .45s cubic-bezier(.22,1,.36,1)}
+.bar.violet>i{background:var(--violet)}
+.bar.over>i{background:var(--danger)}
+.bar.warn>i{background:var(--warn)}
+
+/* automation feed */
+.feed{display:flex;flex-direction:column;gap:0}
+.feed-item{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.feed-item:last-child{border-bottom:0;padding-bottom:0}
+.feed-item:first-child{padding-top:0}
+.feed-ic{width:28px;height:28px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--brand-tint);color:var(--brand-ink)}
+.feed-ic.v{background:var(--violet-tint);color:var(--violet)}
+.feed-ic.d{background:var(--danger-tint);color:var(--danger)}
+.feed-tx{flex:1;min-width:0}
+.feed-tx b{font-weight:500;font-size:14px;display:block}
+.feed-tx span{font-size:12.5px;color:var(--ink-3)}
+.feed-amt{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:14px;font-weight:500;white-space:nowrap}
+
+/* toggles */
+.tog-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.tog-row:last-child{border-bottom:0;padding-bottom:0}
+.tog-row .tt{flex:1;min-width:0}
+.tog-row .tt b{display:block;font-size:14px;font-weight:500}
+.tog-row .tt span{font-size:12.5px;color:var(--ink-3)}
+.sw{position:relative;width:44px;height:26px;flex:none}
+.sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.sw i{position:absolute;inset:0;background:var(--surface-3);border-radius:999px;transition:background .18s}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.28)}
+.sw input:checked + i{background:var(--brand)}
+.sw input:checked + i::after{transform:translateX(18px)}
+.sw input:focus-visible + i{outline:2px solid var(--brand);outline-offset:2px}
+
+/* ---------- budget ---------- */
+.cat{display:flex;flex-direction:column;gap:7px;padding:11px 0}
+.cat-top{display:flex;align-items:center;gap:10px}
+.cat-top .ci{width:24px;height:24px;flex:none;display:grid;place-items:center;color:var(--ink-2)}
+.cat-top .cn{flex:1;font-size:14.5px;font-weight:500}
+.cat-top .cv{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:13.5px;color:var(--ink-2)}
+.line-item{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:var(--r-md);padding:13px 15px}
+.line-item .li-ic{width:22px;height:22px;flex:none;display:grid;place-items:center;color:var(--ink-2)}
+.line-item .li-n{flex:1;font-size:14.5px}
+.line-item .li-v{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-weight:500;font-size:14.5px}
+
+.exp{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.exp:last-child{border-bottom:0}
+.exp .ei{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--surface-2);color:var(--ink-2)}
+.exp .ei.auto{background:var(--brand-tint);color:var(--brand-ink)}
+.exp .et{flex:1;min-width:0}
+.exp .et b{display:block;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp .et span{font-size:12.5px;color:var(--ink-3)}
+.exp .ev{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:14.5px;font-weight:500}
+
+/* ---------- chips / buttons ---------- */
+.chips{display:flex;gap:9px;flex-wrap:wrap}
+.chip{
+  border:1.5px solid var(--brand);background:transparent;color:var(--brand-ink);
+  border-radius:999px;padding:11px 19px;min-height:46px;font-size:14.5px;font-weight:500;cursor:pointer;
+  transition:background .15s,color .15s,transform .08s;
+}
+.chip:active{transform:scale(.96)}
+.chip[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.chip:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:var(--r-sm);padding:12px 16px;min-height:48px;font-size:14.5px;font-weight:500;cursor:pointer;
+  transition:background .15s,border-color .15s,transform .08s;
+}
+.btn:active{transform:scale(.97)}
+.btn:hover{background:var(--surface-2)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.btn-brand{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-brand:hover{background:var(--brand-deep);border-color:var(--brand-deep)}
+.btn-lg{padding:13px 20px;font-size:15px;border-radius:13px}
+.btn-block{width:100%}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{border:0;background:transparent;color:var(--ink-3);padding:11px;border-radius:11px;cursor:pointer;display:grid;place-items:center;min-width:44px;min-height:44px}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.icon-btn:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+
+.tag{display:inline-flex;align-items:center;gap:5px;background:var(--brand-tint);color:var(--brand-ink);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500;white-space:nowrap}
+.tag.grey{background:var(--surface-2);color:var(--ink-2)}
+.tag.done{background:var(--brand);color:#fff}
+
+/* ---------- meal plan ---------- */
+.day{background:var(--surface-2);border-radius:var(--r-lg);overflow:hidden;transition:background .2s}
+.day.done{background:var(--brand-tint)}
+.day-top{display:flex;align-items:center;gap:13px;padding:15px 16px;min-height:66px;cursor:pointer;transition:transform .08s}
+.day-top:active{transform:scale(.99)}
+.day-date{width:34px;flex:none;text-align:center}
+.day-date span{display:block;font-size:11px;color:var(--ink-3);text-transform:capitalize}
+.day-date b{display:block;font-family:var(--font-d);font-size:17px;font-weight:600;line-height:1.15}
+.day-name{flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.day-name>b{font-size:15.5px;font-weight:500;font-family:var(--font-b)}
+.day.done .day-name>b{text-decoration:line-through;text-decoration-thickness:1.5px;opacity:.65}
+.day-cost{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:14.5px;font-weight:500;white-space:nowrap}
+.day-body{padding:0 16px 16px;display:none;flex-direction:column;gap:12px}
+.day.open .day-body{display:flex}
+.ing{display:flex;align-items:center;gap:9px;font-size:13.5px;padding:5px 0;border-bottom:1px solid var(--line)}
+.ing:last-child{border-bottom:0}
+.ing .in{flex:1}
+.ing .iv{font-family:var(--font-d);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.ing .dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--surface-3)}
+.ing .dot.have{background:var(--brand)}
+
+/* ---------- shopping list ---------- */
+.item{
+  display:flex;align-items:center;gap:13px;background:var(--surface-2);border-radius:var(--r-md);
+  padding:15px;min-height:66px;cursor:pointer;
+  transition:opacity .2s,background .2s,transform .08s;
+}
+.item:active{transform:scale(.985);background:var(--surface-3)}
+.item.bought{opacity:.5}
+.cb{width:27px;height:27px;flex:none;position:relative}
+.cb input{position:absolute;inset:-11px;opacity:0;width:calc(100% + 22px);height:calc(100% + 22px);margin:0;cursor:pointer;z-index:2}
+.cb i{position:absolute;inset:0;border:2px solid var(--ink-3);border-radius:7px;transition:background .15s,border-color .15s;display:grid;place-items:center}
+.cb i svg{opacity:0;transform:scale(.6);transition:opacity .15s,transform .15s;color:#fff}
+.cb input:checked + i{background:var(--brand);border-color:var(--brand)}
+.cb input:checked + i svg{opacity:1;transform:scale(1)}
+.cb input:focus-visible + i{outline:2px solid var(--brand);outline-offset:2px}
+.item-t{flex:1;min-width:0}
+.item-t .n{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item-t .n b{font-size:15px;font-weight:500}
+.item.bought .item-t .n b{text-decoration:line-through}
+.item-t .m{font-size:12.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.item-p{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:14.5px;font-weight:500;white-space:nowrap}
+
+/* ---------- offers ---------- */
+.offer{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:var(--r-md);padding:14px 15px}
+.offer .ot{flex:1;min-width:0}
+.offer .ot b{font-size:15px;font-weight:500;display:block}
+.offer .ot span{font-size:12.5px;color:var(--ink-3)}
+.offer .op{text-align:right}
+.offer .op b{font-family:var(--font-d);font-variant-numeric:tabular-nums;font-size:17px;font-weight:600;display:block}
+.offer .op .was{font-size:12px;color:var(--ink-3);text-decoration:line-through}
+
+/* ---------- tabbar ---------- */
+.tabbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  max-width:460px;margin:0 auto;
+  background:var(--surface);border-top:1px solid var(--line);
+  display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+}
+.tab{
+  flex:1;border:0;background:none;cursor:pointer;color:var(--ink-3);
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;min-height:54px;
+  font-size:10.5px;font-weight:500;font-family:var(--font-b);
+  border-radius:12px;transition:color .15s,transform .08s;
+}
+.tab:active{transform:scale(.93)}
+.tab[aria-current="page"]{color:var(--brand-deep)}
+.tab:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.tab .tn{position:relative}
+.tab .dot{position:absolute;top:-2px;right:-6px;min-width:15px;height:15px;border-radius:999px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:700;display:grid;place-items:center;padding:0 4px;font-family:var(--font-d)}
+
+/* ---------- misc ---------- */
+.empty{text-align:center;padding:26px 14px;color:var(--ink-3);font-size:13.5px}
+.foot-note{display:flex;gap:9px;align-items:flex-start;color:var(--ink-3);font-size:12.5px;padding:2px 4px}
+.foot-note svg{flex:none;margin-top:1px}
+.toast-wrap{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:0;right:0;z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 20px}
+.toast{
+  background:var(--ink);color:var(--ground);border-radius:12px;padding:11px 16px;font-size:13.5px;font-weight:500;
+  box-shadow:0 10px 30px -8px rgba(0,0,0,.45);max-width:420px;
+  display:flex;align-items:center;gap:10px;pointer-events:auto;
+  animation:rise .2s cubic-bezier(.22,1,.36,1);
+}
+.toast button{border:0;background:none;color:var(--brand);font-weight:600;font-size:13.5px;cursor:pointer;padding:0 0 0 4px;white-space:nowrap}
+@keyframes rise{from{transform:translateY(10px);opacity:0}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.scrim{position:fixed;inset:0;z-index:70;background:rgba(10,14,12,.5);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .16s ease}
+@keyframes fadeIn{from{opacity:0}}
+.sheet{
+  width:100%;max-width:460px;background:var(--surface);
+  border-radius:26px 26px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:14px;animation:sheetUp .26s cubic-bezier(.22,1,.36,1);
+}
+@keyframes sheetUp{from{transform:translateY(100%)}}
+.sheet .grip{width:38px;height:4px;border-radius:999px;background:var(--surface-3);margin:-8px auto 2px}
+.sheet h3{font-size:18px}
+.sheet p{color:var(--ink-2);font-size:14.5px}
+.sheet .acts{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="hdr" id="hdr"></header>
+  <main class="view" id="view"></main>
+  <nav class="tabbar" id="tabbar" aria-label="Hovedmenu"></nav>
+</div>
+<div class="toast-wrap" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   Toget — husholdningsbudget der bogfører sig selv.
+   Alt hænger sammen: tilbud → madplan → indkøbsliste → budget.
+   ============================================================ */
+
+const ICONS = {
+  home:'<path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.4 9.4V20h13.2V9.4"/>',
+  wallet:'<rect x="3" y="6" width="18" height="13" rx="2.4"/><path d="M3 10h18"/><circle cx="17" cy="14.5" r="1.1" fill="currentColor" stroke="none"/>',
+  tag:'<path d="M11.6 3.5H20v8.4l-8.7 8.7a1.6 1.6 0 0 1-2.3 0l-6.1-6.1a1.6 1.6 0 0 1 0-2.3z"/><circle cx="16.4" cy="7.6" r="1.3"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2.4"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  cart:'<circle cx="9.5" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.6l2.6 11.3h11l2.3-8.2H6.4"/>',
+  check:'<path d="M4.5 12.6 9.4 17.4 19.6 6.9"/>',
+  bolt:'<path d="M13.2 2.5 4.8 13.4h5.6l-.6 8.1 8.4-10.9h-5.6z"/>',
+  refresh:'<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.8 4.2v4.6h-4.6"/>',
+  chev:'<path d="M6 9.2 12 15l6-5.8"/>',
+  x:'<path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/>',
+  shuffle:'<path d="M3.5 6.5h3.2l9.8 11h3.9M3.5 17.5h3.2l3.1-3.5M14.4 8.2l2-1.7h3.9"/><path d="M17.6 3.6 20.6 6.5l-3 2.9M17.6 14.6l3 2.9-3 2.9"/>',
+  gear:'<circle cx="12" cy="12" r="3.1"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.9 1.9M7.4 16.6l-1.9 1.9M18.5 18.5l-1.9-1.9M7.4 7.4 5.5 5.5"/>',
+  plus:'<path d="M12 5.2v13.6M5.2 12h13.6"/>',
+  cam:'<path d="M3 8.6A2.1 2.1 0 0 1 5.1 6.5h2.3l1.3-2h6.6l1.3 2h2.3A2.1 2.1 0 0 1 21 8.6v9.3A2.1 2.1 0 0 1 18.9 20H5.1A2.1 2.1 0 0 1 3 17.9z"/><circle cx="12" cy="12.6" r="3.4"/>',
+  house:'<path d="M3.6 10.8 12 4.2l8.4 6.6"/><path d="M5.8 9.6V19.8h12.4V9.6"/>',
+  spark:'<path d="M6.5 3.5v5M4 6h5"/><path d="M15 10.5 17.2 16l5.3 2.2-5.3 2.2L15 25"/><path d="M14.8 9.4 17 15l5.5 2.2L17 19.4l-2.2 5.5-2.2-5.5L7.1 17.2 12.6 15z"/>',
+  leaf:'<path d="M4.5 19.5C3 14 6.5 5.5 19.5 4.5c1 12-7 16.5-12.5 15"/><path d="M4.5 19.5 13 11"/>',
+  car:'<path d="M4.5 16.5h15M5.5 16.5v2.2M18.5 16.5v2.2"/><path d="M4.2 16.5 5.6 10a2 2 0 0 1 2-1.6h8.8a2 2 0 0 1 2 1.6l1.4 6.5"/><circle cx="7.6" cy="13.4" r=".9" fill="currentColor" stroke="none"/><circle cx="16.4" cy="13.4" r=".9" fill="currentColor" stroke="none"/>',
+  fork:'<path d="M6 3v6.5a2 2 0 0 0 4 0V3M8 11.5V21"/><path d="M16.5 3c-1.6 1.2-2.2 3-2.2 5.2 0 1.6.8 2.6 2.2 2.8V21"/>',
+  ticket:'<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M9 7v10M15 7v10" stroke-dasharray="2 2.4"/>',
+  basket:'<path d="M3 9.5h18l-1.7 9.1a2 2 0 0 1-2 1.6H6.7a2 2 0 0 1-2-1.6z"/><path d="M8.4 9.5 12 3.5l3.6 6"/>',
+  bulb:'<path d="M9 17.5h6M10 20.5h4"/><path d="M12 3.5a5.6 5.6 0 0 1 3.4 10.1c-.6.5-.9 1.1-.9 1.8H9.5c0-.7-.3-1.3-.9-1.8A5.6 5.6 0 0 1 12 3.5z"/>',
+  clock:'<circle cx="12" cy="12" r="8.6"/><path d="M12 7.2V12l3.2 2"/>',
+  undo:'<path d="M4 9.5h9.5a5.5 5.5 0 0 1 0 11H8"/><path d="M7.6 5.4 3.4 9.5l4.2 4.2"/>',
+  bag:'<path d="M5 8h14l-1 12.5H6z"/><path d="M9 8V6.4a3 3 0 0 1 6 0V8"/>'
+};
+function icon(name, size){
+  size = size || 20;
+  return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[name]||'')+'</svg>';
+}
+
+/* ---------- penge & datoer ---------- */
+const nf = new Intl.NumberFormat('da-DK', {maximumFractionDigits:0});
+const kr = (n) => nf.format(Math.round(n)) + ' kr.';
+const krPlain = (n) => nf.format(Math.round(n));
+const DAYS = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+const MONTHS = ['januar','februar','marts','april','maj','juni','juli','august','september','oktober','november','december'];
+
+function mondayOf(d){
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const wd = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - wd);
+  return x;
+}
+function isoWeek(d){
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = (t.getUTCDay() + 6) % 7;
+  t.setUTCDate(t.getUTCDate() - day + 3);
+  const first = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+  const fday = (first.getUTCDay() + 6) % 7;
+  first.setUTCDate(first.getUTCDate() - fday + 3);
+  return 1 + Math.round((t - first) / 604800000);
+}
+const ymd = (d) => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const shortDay = (d) => d.getDate() + '. ' + MONTHS[d.getMonth()].slice(0,3);
+
+/* ---------- varekatalog: normalpris + aktuelt tilbud ---------- */
+const CATALOG = {
+  kylling:      {navn:'Kyllingebrystfilet', sektion:'Kød',      normal:45, tilbud:20, butik:'Lidl',    enhed:'900 g'},
+  oksekod:      {navn:'Hakket oksekød',     sektion:'Kød',      normal:42, tilbud:30, butik:'Lidl',    enhed:'400 g'},
+  bacon:        {navn:'Bacon i strimler',   sektion:'Kød',      normal:28, tilbud:20, butik:'Lidl',    enhed:'2x140 g'},
+  aeg:          {navn:'Æg',                 sektion:'Mejeri',   normal:30, tilbud:26, butik:'Føtex',   enhed:'10 stk.'},
+  ost:          {navn:'Revet ost',          sektion:'Mejeri',   normal:25, tilbud:15, butik:'Lidl',    enhed:'200 g'},
+  flode:        {navn:'Madlavningsfløde',   sektion:'Mejeri',   normal:14, tilbud:null, butik:'Lidl',    enhed:'250 ml'},
+  maelk:        {navn:'Mælk',               sektion:'Mejeri',   normal:11, tilbud:null, butik:'Føtex', enhed:'1 l'},
+  mozzarella:   {navn:'Mozzarella',         sektion:'Mejeri',   normal:22, tilbud:18, butik:'Føtex',   enhed:'125 g'},
+  smoer:        {navn:'Smør',               sektion:'Mejeri',   normal:22, tilbud:10, butik:'Lidl',    enhed:'200 g'},
+  pasta:        {navn:'Pasta',              sektion:'Kolonial', normal:12, tilbud:6,  butik:'Lidl',    enhed:'500 g'},
+  ris:          {navn:'Ris',                sektion:'Kolonial', normal:16, tilbud:null, butik:'Lidl',    enhed:'1 kg'},
+  tomater:      {navn:'Hakkede tomater',    sektion:'Kolonial', normal:10, tilbud:8,    butik:'Lidl',    enhed:'400 g'},
+  tomatsauce:   {navn:'Tomatsauce',         sektion:'Kolonial', normal:9,  tilbud:null, butik:'Lidl',    enhed:'500 g'},
+  karry:        {navn:'Karry',              sektion:'Kolonial', normal:18, tilbud:null, butik:'Føtex',   enhed:'50 g'},
+  mel:          {navn:'Pizzadej / mel',     sektion:'Kolonial', normal:12, tilbud:null, butik:'Lidl',    enhed:'1 kg'},
+  tortilla:     {navn:'Tortillas',          sektion:'Kolonial', normal:17, tilbud:null, butik:'Føtex',   enhed:'8 stk.'},
+  broed:        {navn:'Rugbrød',            sektion:'Kolonial', normal:18, tilbud:null, butik:'Føtex',   enhed:'1 stk.'},
+  lok:          {navn:'Løg',                sektion:'Frugt & grønt', normal:10, tilbud:8, butik:'Lidl', enhed:'1 kg'},
+  hvidlog:      {navn:'Hvidløg',            sektion:'Frugt & grønt', normal:8,  tilbud:null, butik:'Lidl', enhed:'3 stk.'},
+  peberfrugt:   {navn:'Peberfrugt',         sektion:'Frugt & grønt', normal:16, tilbud:12, butik:'Lidl', enhed:'3 stk.'},
+  salat:        {navn:'Salat',              sektion:'Frugt & grønt', normal:14, tilbud:null, butik:'Føtex', enhed:'1 pose'},
+  agurk:        {navn:'Agurk',              sektion:'Frugt & grønt', normal:10, tilbud:null, butik:'Lidl', enhed:'1 stk.'},
+  kaffe:        {navn:'Kaffe',              sektion:'Kolonial', normal:55, tilbud:39, butik:'Lidl',    enhed:'400 g'}
+};
+const pris = (k) => { const v = CATALOG[k]; return v.tilbud != null ? v.tilbud : v.normal; };
+const erTilbud = (k) => CATALOG[k].tilbud != null;
+const SEKTIONER = ['Kød','Mejeri','Kolonial','Frugt & grønt'];
+
+/* ---------- opskrifter ---------- */
+const RETTER = [
+  {id:'karry',      navn:'Kylling i karry',     tid:30, varer:['kylling','karry','ris','lok','flode']},
+  {id:'bolognese',  navn:'Pasta bolognese',     tid:25, varer:['oksekod','pasta','tomater','lok','hvidlog']},
+  {id:'omelet',     navn:'Omelet med brød',     tid:15, varer:['aeg','ost','broed','smoer']},
+  {id:'wrap',       navn:'Kylling-wrap',        tid:20, varer:['kylling','tortilla','salat','agurk','peberfrugt']},
+  {id:'pizza',      navn:'Hjemmelavet pizza',   tid:40, varer:['mel','tomatsauce','mozzarella','peberfrugt','bacon']},
+  {id:'carbonara',  navn:'Spaghetti carbonara', tid:20, varer:['pasta','bacon','aeg','ost','flode']},
+  {id:'aeggekage',  navn:'Æggekage og bacon',   tid:25, varer:['aeg','bacon','broed','maelk']},
+  {id:'chili',      navn:'Chili con carne',     tid:35, varer:['oksekod','tomater','lok','ris','hvidlog']},
+  {id:'tomatpasta', navn:'Pasta i tomatsauce',  tid:18, varer:['pasta','tomatsauce','ost','lok','hvidlog']},
+  {id:'baconpizza', navn:'Bacon-tortillapizza', tid:20, varer:['tortilla','tomatsauce','ost','bacon','peberfrugt']}
+];
+const retById = (id) => RETTER.find(r => r.id === id);
+const retPris = (id) => retById(id).varer.reduce((s,k) => s + pris(k), 0);
+const retTilbud = (id) => retById(id).varer.filter(erTilbud).length;
+
+/* ---------- faste udgifter & kategorier ---------- */
+const FASTE = [
+  {navn:'Husleje', belob:6700, ic:'house'},
+  {navn:'El, vand og varme', belob:1500, ic:'bolt'},
+  {navn:'Forsikringer', belob:540, ic:'bag'},
+  {navn:'Streaming', belob:500, ic:'ticket'},
+  {navn:'Kolonihaven', belob:750, ic:'leaf'},
+  {navn:'Playstation', belob:100, ic:'ticket'}
+];
+const KATEGORIER = [
+  {key:'dagligvarer', navn:'Dagligvarer', graense:2600, ic:'basket'},
+  {key:'transport',   navn:'Transport',   graense:1200, ic:'car'},
+  {key:'ud',          navn:'Ud at spise', graense:3000, ic:'fork'},
+  {key:'fritid',      navn:'Fritid',      graense:3000, ic:'ticket'}
+];
+const INDKOMST = 26500;
+const UGEBUDGET_MAD = 650;
+const FASTE_IALT = FASTE.reduce((s,f) => s + f.belob, 0);
+
+/* ============================================================
+   State
+   ============================================================ */
+const NOEGLE = 'toget.v1';
+let S = null;
+let visning = 'hjem';
+let sidsteHandling = null;
+
+function nyMadplan(frav){
+  // Vælger ugens retter: flest tilbudsvarer først, men hold ugebudgettet.
+  const pulje = RETTER.slice().sort((a,b) => {
+    const t = retTilbud(b.id) - retTilbud(a.id);
+    return t !== 0 ? t : retPris(a.id) - retPris(b.id);
+  });
+  const valgte = [];
+  let sum = 0;
+  for (const r of pulje){
+    if (valgte.length === 7) break;
+    if (frav && frav.includes(r.id) && pulje.length - valgte.length > 7) continue;
+    if (sum + retPris(r.id) > UGEBUDGET_MAD && valgte.length >= 5) continue;
+    valgte.push(r.id);
+    sum += retPris(r.id);
+  }
+  let i = 0;
+  while (valgte.length < 7){ valgte.push(pulje[i % pulje.length].id); i++; }
+  const man = mondayOf(new Date());
+  return valgte.map((id, n) => {
+    const d = new Date(man); d.setDate(man.getDate() + n);
+    return {dato: ymd(d), ret: id, status: 'planlagt'};
+  });
+}
+
+function listeFraPlan(plan, spisekammer){
+  // Én linje pr. vare, uanset hvor mange retter den indgår i.
+  const brug = new Map();
+  plan.forEach(dag => {
+    if (dag.status === 'lavet' || dag.status === 'sprunget') return;
+    retById(dag.ret).varer.forEach(k => {
+      const e = brug.get(k) || {antal:0, retter:[]};
+      e.antal += 1;
+      if (!e.retter.includes(dag.ret)) e.retter.push(dag.ret);
+      brug.set(k, e);
+    });
+  });
+  const ud = [];
+  brug.forEach((e, k) => {
+    if ((spisekammer[k] || 0) > 0) return; // har den allerede
+    ud.push({vare:k, antal:1, retter:e.retter, koebt:false});
+  });
+  return ud.sort((a,b) =>
+    SEKTIONER.indexOf(CATALOG[a.vare].sektion) - SEKTIONER.indexOf(CATALOG[b.vare].sektion)
+    || CATALOG[a.vare].navn.localeCompare(CATALOG[b.vare].navn, 'da'));
+}
+
+function friskState(){
+  const plan = nyMadplan([]);
+  return {
+    uge: isoWeek(new Date()),
+    ugestart: ymd(mondayOf(new Date())),
+    plan,
+    spisekammer: {},
+    liste: listeFraPlan(plan, {}),
+    udgifter: [],
+    log: [],
+    opsparing: {navn:'Sommerferie-opsparing', maal:12000, sparet:8160},
+    auto: {koeb:true, madlav:true, ugeskift:true},
+    butikker: {'Føtex':true, 'Lidl':true, 'Bilka':false, 'Kvickly':false}
+  };
+}
+
+function gem(){
+  try { localStorage.setItem(NOEGLE, JSON.stringify(S)); } catch(e){ /* privat vindue */ }
+}
+function hent(){
+  try {
+    const raw = localStorage.getItem(NOEGLE);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (!d || !d.plan || !d.liste) return null;
+    if (d.ugestart !== ymd(mondayOf(new Date())) && d.auto && d.auto.ugeskift){
+      // Ny uge: madplanen starter forfra, spisekammeret følger med.
+      const plan = nyMadplan([]);
+      d.uge = isoWeek(new Date());
+      d.ugestart = ymd(mondayOf(new Date()));
+      d.plan = plan;
+      d.liste = listeFraPlan(plan, d.spisekammer || {});
+      d.log = [{id:uid(), tid:Date.now(), slags:'uge', tekst:'Ny uge – madplan og indkøbsliste er lavet forfra', belob:0}].concat(d.log || []);
+    }
+    return d;
+  } catch(e){ return null; }
+}
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+/* ============================================================
+   Beregninger — alt afledt af state, aldrig gemt dobbelt
+   ============================================================ */
+function brugtIKategori(key){
+  return S.udgifter.filter(u => u.kategori === key).reduce((s,u) => s + u.belob, 0);
+}
+const variabeltBrugt = () => S.udgifter.reduce((s,u) => s + u.belob, 0);
+const tilRaadighed = () => INDKOMST - FASTE_IALT - variabeltBrugt();
+function sparetIUgen(){
+  // Forskellen mellem normalpris og tilbudspris på det, vi faktisk har købt.
+  return S.udgifter.filter(u => u.vare && CATALOG[u.vare])
+    .reduce((s,u) => s + Math.max(0, CATALOG[u.vare].normal - u.belob), 0);
+}
+const listeTilbage = () => S.liste.filter(i => !i.koebt);
+function listeSum(kunTilbage){
+  return S.liste.filter(i => kunTilbage ? !i.koebt : true).reduce((s,i) => s + pris(i.vare), 0);
+}
+function butikSum(butik){
+  return S.liste.filter(i => !i.koebt).reduce((s,i) => {
+    const v = CATALOG[i.vare];
+    return s + (v.butik === butik && v.tilbud != null ? v.tilbud : v.normal);
+  }, 0);
+}
+const planSum = () => S.plan.filter(d => d.status !== 'sprunget').reduce((s,d) => s + retPris(d.ret), 0);
+
+/* ============================================================
+   Automatikken — det hele hænger sammen her
+   ============================================================ */
+function logFør(tekst, belob, slags){
+  S.log.unshift({id:uid(), tid:Date.now(), tekst, belob:belob||0, slags:slags||'koeb'});
+  if (S.log.length > 40) S.log.length = 40;
+}
+
+/** Kryds en vare af → udgift bogføres, varen ryger i spisekammeret. */
+function koebVare(vare, stille){
+  const linje = S.liste.find(i => i.vare === vare);
+  if (!linje || linje.koebt) return;
+  linje.koebt = true;
+  S.spisekammer[vare] = (S.spisekammer[vare] || 0) + 1;
+  if (S.auto.koeb){
+    const p = pris(vare);
+    S.udgifter.unshift({
+      id:uid(), tid:Date.now(), vare,
+      tekst: CATALOG[vare].navn, belob:p, kategori:'dagligvarer',
+      butik: CATALOG[vare].butik, kilde:'auto'
+    });
+    if (!stille) logFør(CATALOG[vare].navn + ' købt i ' + CATALOG[vare].butik, p, 'koeb');
+  }
+}
+function fortrydKoeb(vare){
+  const linje = S.liste.find(i => i.vare === vare);
+  if (!linje || !linje.koebt) return;
+  linje.koebt = false;
+  S.spisekammer[vare] = Math.max(0, (S.spisekammer[vare] || 0) - 1);
+  const idx = S.udgifter.findIndex(u => u.vare === vare && u.kilde === 'auto');
+  if (idx >= 0) S.udgifter.splice(idx, 1);
+  S.log = S.log.filter(l => !(l.tekst.indexOf(CATALOG[vare].navn) === 0));
+}
+
+/** Marker en ret som lavet → spisekammeret tømmes, manglende varer bogføres. */
+function lavRet(dato){
+  const dag = S.plan.find(d => d.dato === dato);
+  if (!dag || dag.status === 'lavet') return;
+  const ret = retById(dag.ret);
+  let manglede = [];
+  ret.varer.forEach(k => {
+    if ((S.spisekammer[k] || 0) > 0){
+      S.spisekammer[k] -= 1;
+    } else if (S.auto.madlav){
+      // Ikke købt via listen — bogfør den alligevel, så budgettet passer.
+      const p = pris(k);
+      S.udgifter.unshift({
+        id:uid(), tid:Date.now(), vare:k,
+        tekst: CATALOG[k].navn, belob:p, kategori:'dagligvarer',
+        butik: CATALOG[k].butik, kilde:'auto'
+      });
+      manglede.push(k);
+      const l = S.liste.find(i => i.vare === k);
+      if (l) l.koebt = true;
+    }
+  });
+  dag.status = 'lavet';
+  const ekstra = manglede.reduce((s,k) => s + pris(k), 0);
+  logFør(ret.navn + ' lavet' + (manglede.length ? ' · ' + manglede.length + ' vare' + (manglede.length>1?'r':'') + ' bogført' : ''), ekstra, 'mad');
+  return {ret:ret.navn, manglede, ekstra};
+}
+function fortrydRet(dato){
+  const dag = S.plan.find(d => d.dato === dato);
+  if (!dag || dag.status !== 'lavet') return;
+  dag.status = 'planlagt';
+  retById(dag.ret).varer.forEach(k => { S.spisekammer[k] = (S.spisekammer[k] || 0) + 1; });
+  logFør(retById(dag.ret).navn + ' sat tilbage på madplanen', 0, 'fortryd');
+}
+
+function byttRet(dato){
+  const dag = S.plan.find(d => d.dato === dato);
+  if (!dag) return;
+  const brugt = S.plan.map(d => d.ret);
+  const kandidater = RETTER.filter(r => brugt.indexOf(r.id) === -1);
+  const pulje = kandidater.length ? kandidater : RETTER.filter(r => r.id !== dag.ret);
+  pulje.sort((a,b) => retTilbud(b.id) - retTilbud(a.id) || retPris(a.id) - retPris(b.id));
+  dag.ret = pulje[0].id;
+  dag.status = 'planlagt';
+  synkroniserListe();
+  logFør('Ny ret på ' + DAYS[(new Date(dato).getDay()+6)%7].toLowerCase() + 'dag: ' + pulje[0].navn, 0, 'plan');
+}
+
+/** Listen følger madplanen — det du allerede har købt bliver stående. */
+function synkroniserListe(){
+  const koebt = new Set(S.liste.filter(i => i.koebt).map(i => i.vare));
+  const frisk = listeFraPlan(S.plan, {});
+  S.liste = frisk.map(i => Object.assign(i, {koebt: koebt.has(i.vare)}));
+  // Købte varer der ikke længere er på planen bliver stående, så udgiften stemmer.
+  koebt.forEach(v => {
+    if (!S.liste.some(i => i.vare === v)) S.liste.push({vare:v, antal:1, retter:[], koebt:true});
+  });
+}
+
+/* ============================================================
+   Visninger
+   ============================================================ */
+const el = (h) => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content; };
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function sheet({titel, tekst, ok, farlig, naar}){
+  const scrim = document.createElement('div');
+  scrim.className = 'scrim';
+  scrim.innerHTML =
+      '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(titel)+'">'
+    +   '<div class="grip"></div>'
+    +   '<h3>'+esc(titel)+'</h3>'
+    +   '<p>'+esc(tekst)+'</p>'
+    +   '<div class="acts">'
+    +     '<button class="btn btn-brand" data-ja="1" style="min-height:52px'+(farlig?';background:var(--danger);border-color:var(--danger)':'')+'">'+esc(ok)+'</button>'
+    +     '<button class="btn" data-nej="1" style="min-height:52px">Annullér</button>'
+    +   '</div>'
+    + '</div>';
+  const luk = () => scrim.remove();
+  scrim.addEventListener('click', (e) => {
+    if (e.target === scrim || e.target.closest('[data-nej]')) return luk();
+    if (e.target.closest('[data-ja]')){ luk(); naar(); }
+  });
+  document.body.appendChild(scrim);
+  setTimeout(() => scrim.querySelector('[data-ja]').focus(), 60);
+}
+
+/** Kort vibration hvor telefonen kan — gør afkrydsning håndgribelig. */
+function bump(ms){ try { navigator.vibrate && navigator.vibrate(ms || 8); } catch(e){} }
+
+function toast(tekst, fortrydFn){
+  const wrap = document.getElementById('toasts');
+  while (wrap.children.length >= 2) wrap.firstChild.remove();
+  const n = document.createElement('div');
+  n.className = 'toast';
+  n.innerHTML = '<span>'+esc(tekst)+'</span>';
+  if (fortrydFn){
+    const b = document.createElement('button');
+    b.textContent = 'Fortryd';
+    b.onclick = () => { fortrydFn(); n.remove(); tegn(); };
+    n.appendChild(b);
+  }
+  wrap.appendChild(n);
+  setTimeout(() => { n.style.transition = 'opacity .25s'; n.style.opacity = '0'; setTimeout(() => n.remove(), 260); }, fortrydFn ? 4200 : 2600);
+}
+
+/* ---------------- Hjem ---------------- */
+function tegnHjem(){
+  const raad = tilRaadighed();
+  const brugt = variabeltBrugt();
+  const raadPct = Math.max(0, Math.min(1, raad / (INDKOMST - FASTE_IALT)));
+  const C = 2 * Math.PI * 54;
+  const sparet = sparetIUgen();
+  const opsPct = Math.round(S.opsparing.sparet / S.opsparing.maal * 100);
+  const lavet = S.plan.filter(d => d.status === 'lavet').length;
+  const koebt = S.liste.filter(i => i.koebt).length;
+
+  let h = '';
+  h += '<div class="hero">'
+    +   '<div class="ring">'
+    +     '<svg viewBox="0 0 120 120" width="132" height="132">'
+    +       '<circle cx="60" cy="60" r="54" fill="none" stroke="var(--surface-3)" stroke-width="11"/>'
+    +       '<circle cx="60" cy="60" r="54" fill="none" stroke="var(--brand)" stroke-width="11" stroke-linecap="round"'
+    +         ' stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-raadPct))+'" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1)"/>'
+    +     '</svg>'
+    +     '<div class="rv"><b>'+krPlain(raad)+'</b><span>tilbage</span></div>'
+    +   '</div>'
+    +   '<div class="hero-lines">'
+    +     '<div class="hero-title">Til rådighed i '+MONTHS[new Date().getMonth()]+'</div>'
+    +     '<div class="hl"><span>Indkomst</span><b>'+kr(INDKOMST)+'</b></div>'
+    +     '<div class="hl"><span>Faste udgifter</span><b>'+kr(FASTE_IALT)+'</b></div>'
+    +     '<div class="hl"><span>Brugt variabelt</span><b>'+kr(brugt)+'</b></div>'
+    +   '</div>'
+    + '</div>';
+
+  h += '<div class="row">'
+    +   '<div class="card-tint">'
+    +     '<div class="stat-l" style="color:var(--brand-ink)">Sparet i denne uge</div>'
+    +     '<div class="stat-v pos">+'+kr(sparet)+'</div>'
+    +     '<div class="stat-s" style="color:var(--brand-ink);opacity:.75">på tilbud vs. normalpris</div>'
+    +   '</div>'
+    +   '<div class="card-flat">'
+    +     '<div class="stat-l">'+esc(S.opsparing.navn)+'</div>'
+    +     '<div class="stat-v">'+opsPct+'%</div>'
+    +     '<div class="bar violet" style="margin-top:9px"><i style="width:'+opsPct+'%"></i></div>'
+    +   '</div>'
+    + '</div>';
+
+  h += '<div class="row">'
+    +   '<div class="card-flat"><div class="stat-l">Retter lavet</div><div class="stat-v">'+lavet+'<span style="font-size:15px;color:var(--ink-3);font-weight:400">/7</span></div></div>'
+    +   '<div class="card-flat"><div class="stat-l">Varer købt</div><div class="stat-v">'+koebt+'<span style="font-size:15px;color:var(--ink-3);font-weight:400">/'+S.liste.length+'</span></div></div>'
+    + '</div>';
+
+  h += '<div class="card">'
+    +   '<div class="card-head"><h3>Automatik</h3><span class="tag">'+icon('bolt',13)+'kører selv</span></div>'
+    +   '<div class="tog-row"><div class="tt"><b>Træk fra budgettet når jeg krydser af</b><span>Varen bogføres som dagligvarer med det samme</span></div>'
+    +     '<label class="sw"><input type="checkbox" data-auto="koeb"'+(S.auto.koeb?' checked':'')+'><i></i><span class="sr">Træk fra budgettet</span></label></div>'
+    +   '<div class="tog-row"><div class="tt"><b>Bogfør manglende varer når jeg laver en ret</b><span>Har du ikke købt dem, ryger de på budgettet alligevel</span></div>'
+    +     '<label class="sw"><input type="checkbox" data-auto="madlav"'+(S.auto.madlav?' checked':'')+'><i></i><span class="sr">Bogfør manglende varer</span></label></div>'
+    +   '<div class="tog-row"><div class="tt"><b>Ny madplan hver mandag</b><span>Ugen ruller videre af sig selv</span></div>'
+    +     '<label class="sw"><input type="checkbox" data-auto="ugeskift"'+(S.auto.ugeskift?' checked':'')+'><i></i><span class="sr">Ny madplan hver mandag</span></label></div>'
+    + '</div>';
+
+  h += '<div class="card">'
+    +   '<div class="card-head"><h3>Det er sket automatisk</h3>'
+    +     (S.log.length ? '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px" data-ryd="1">Ryd</button>' : '')
+    +   '</div>';
+  if (!S.log.length){
+    h += '<div class="empty">Kryds en vare af i Indkøb, eller marker en ret som lavet — så bogfører appen det her.</div>';
+  } else {
+    h += '<div class="feed">';
+    S.log.slice(0, 8).forEach(l => {
+      const cls = l.slags === 'mad' ? 'v' : (l.slags === 'fortryd' ? 'd' : '');
+      const ic = l.slags === 'mad' ? 'fork' : (l.slags === 'fortryd' ? 'undo' : (l.slags === 'plan' ? 'shuffle' : (l.slags === 'uge' ? 'refresh' : 'basket')));
+      h += '<div class="feed-item">'
+        +   '<div class="feed-ic '+cls+'">'+icon(ic,15)+'</div>'
+        +   '<div class="feed-tx"><b>'+esc(l.tekst)+'</b><span>'+tidSiden(l.tid)+'</span></div>'
+        +   (l.belob ? '<div class="feed-amt neg">−'+kr(l.belob)+'</div>' : '')
+        + '</div>';
+    });
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+function tidSiden(t){
+  const s = Math.round((Date.now() - t) / 1000);
+  if (s < 60) return 'lige nu';
+  if (s < 3600) return Math.round(s/60) + ' min. siden';
+  if (s < 86400) return Math.round(s/3600) + ' t. siden';
+  return Math.round(s/86400) + ' dage siden';
+}
+
+/* ---------------- Budget ---------------- */
+function tegnBudget(){
+  let h = '';
+  h += '<div class="card"><div class="card-head"><h3>Forbrug pr. kategori</h3><span class="tag grey">'+MONTHS[new Date().getMonth()]+'</span></div>';
+  KATEGORIER.forEach(k => {
+    const b = brugtIKategori(k.key);
+    const pct = Math.min(100, Math.round(b / k.graense * 100));
+    const cls = b > k.graense ? ' over' : (pct > 85 ? ' warn' : '');
+    h += '<div class="cat">'
+      +   '<div class="cat-top"><span class="ci">'+icon(k.ic,19)+'</span>'
+      +     '<span class="cn">'+k.navn+'</span>'
+      +     '<span class="cv">'+krPlain(b)+' / '+kr(k.graense)+'</span></div>'
+      +   '<div class="bar'+cls+'"><i style="width:'+pct+'%"></i></div>'
+      + '</div>';
+  });
+  h += '</div>';
+
+  h += '<div class="sec-label">Faste udgifter · '+kr(FASTE_IALT)+' / måned</div>';
+  h += '<div style="display:flex;flex-direction:column;gap:9px">';
+  FASTE.forEach(f => {
+    h += '<div class="line-item"><span class="li-ic">'+icon(f.ic,18)+'</span>'
+      +  '<span class="li-n">'+f.navn+'</span>'
+      +  '<span class="li-v">'+kr(f.belob)+'</span></div>';
+  });
+  h += '</div>';
+
+  h += '<div class="card">'
+    +  '<div class="card-head"><h3>Seneste udgifter</h3>'
+    +   '<span class="tag">'+icon('bolt',13)+krPlain(S.udgifter.filter(u=>u.kilde==='auto').length)+' automatisk</span></div>';
+  if (!S.udgifter.length){
+    h += '<div class="empty">Ingen udgifter endnu. De kommer af sig selv, når du krydser varer af eller laver en ret.</div>';
+  } else {
+    S.udgifter.slice(0, 12).forEach(u => {
+      h += '<div class="exp">'
+        +   '<div class="ei'+(u.kilde==='auto'?' auto':'')+'">'+icon(u.kilde==='auto'?'bolt':'plus',15)+'</div>'
+        +   '<div class="et"><b>'+esc(u.tekst)+'</b><span>'+(u.butik?esc(u.butik)+' · ':'')+tidSiden(u.tid)+'</span></div>'
+        +   '<div class="ev">'+kr(u.belob)+'</div>'
+        + '</div>';
+    });
+    if (S.udgifter.length > 12) h += '<div class="empty" style="padding:12px 0 0">+ '+(S.udgifter.length-12)+' mere</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* ---------------- Tilbud ---------------- */
+function tegnTilbud(){
+  const valgte = Object.keys(S.butikker).filter(b => S.butikker[b]);
+  let h = '';
+  h += '<div class="sec-label">Vælg dine butikker</div>';
+  h += '<div class="chips">';
+  Object.keys(S.butikker).forEach(b => {
+    h += '<button class="chip" data-butik="'+b+'" aria-pressed="'+(S.butikker[b]?'true':'false')+'">'+b+'</button>';
+  });
+  h += '</div>';
+
+  const split = listeSum(true);
+  const enButik = valgte.length ? Math.min.apply(null, valgte.map(butikSum)) : 0;
+  const billigst = valgte.length ? valgte.reduce((a,b) => butikSum(a) < butikSum(b) ? a : b) : '—';
+  h += '<div class="card-tint">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px">'
+    +     '<div><div class="stat-l" style="color:var(--brand-ink)">Din liste · billigst delt op</div>'
+    +       '<div class="stat-s" style="color:var(--brand-ink);opacity:.8">Samlet i én butik: '+kr(enButik)+' ('+esc(billigst)+')</div></div>'
+    +     '<div class="num" style="font-size:29px;font-weight:600;color:var(--brand-ink)">'+kr(split)+'</div>'
+    +   '</div>'
+    + '</div>';
+
+  h += '<div class="sec-label">Ugens tilbud · varer du bruger</div>';
+  h += '<div style="display:flex;flex-direction:column;gap:9px">';
+  Object.keys(CATALOG)
+    .filter(k => CATALOG[k].tilbud != null && S.butikker[CATALOG[k].butik])
+    .sort((a,b) => (CATALOG[b].normal - CATALOG[b].tilbud) - (CATALOG[a].normal - CATALOG[a].tilbud))
+    .forEach(k => {
+      const v = CATALOG[k];
+      const paaListen = S.liste.some(i => i.vare === k);
+      h += '<div class="offer">'
+        +   '<div class="ot"><b>'+esc(v.navn)+'</b><span>'+esc(v.enhed)+' · '+esc(v.butik)+(paaListen?' · på din liste':'')+'</span></div>'
+        +   '<div class="op"><b class="pos">'+kr(v.tilbud)+'</b><span class="was">'+kr(v.normal)+'</span></div>'
+        + '</div>';
+    });
+  h += '</div>';
+
+  const uden = Object.keys(CATALOG).filter(k => CATALOG[k].tilbud == null);
+  if (uden.length){
+    h += '<div class="sec-label">Intet tilbud lige nu</div><div style="display:flex;flex-direction:column;gap:9px">';
+    uden.forEach(k => {
+      h += '<div class="offer"><div class="ot"><b>'+esc(CATALOG[k].navn)+'</b><span>'+esc(CATALOG[k].enhed)+'</span></div>'
+        +  '<div class="op"><b style="color:var(--ink-3)">'+kr(CATALOG[k].normal)+'</b></div></div>';
+    });
+    h += '</div>';
+  }
+  h += '<div class="foot-note">'+icon('clock',15)+'<span>Priser fra ugens aviser. I den rigtige app hentes de fra minetilbud.dk og caches i en time.</span></div>';
+  return h;
+}
+
+/* ---------------- Madplan ---------------- */
+function tegnMadplan(){
+  const est = planSum();
+  const lavet = S.plan.filter(d => d.status === 'lavet');
+  const spist = lavet.reduce((s,d) => s + retPris(d.ret), 0);
+  const tilbudsretter = S.plan.filter(d => retTilbud(d.ret) >= 2).length;
+  const tilbudsvarer = new Set();
+  S.plan.forEach(d => retById(d.ret).varer.forEach(k => { if (erTilbud(k)) tilbudsvarer.add(k); }));
+
+  let h = '';
+  h += '<div class="card">'
+    +   '<div style="display:flex;align-items:center;gap:10px">'
+    +     '<div style="min-width:0"><div class="stat-l" style="white-space:nowrap">Ugebudget mad</div>'
+    +       '<div class="stat-v" style="font-size:21px;white-space:nowrap">'+kr(UGEBUDGET_MAD)+'</div></div>'
+    +     '<div style="min-width:0;flex:1"><div class="stat-l" style="white-space:nowrap">Estimeret</div>'
+    +       '<div class="stat-v '+(est>UGEBUDGET_MAD?'neg':'pos')+'" style="font-size:21px;white-space:nowrap">'+kr(est)+'</div></div>'
+    +     '<button class="btn btn-brand" data-gen="1" style="padding:11px 15px;border-radius:13px;flex:none">'+icon('refresh',16)+'Generér</button>'
+    +   '</div>'
+    +   '<div class="bar'+(est>UGEBUDGET_MAD?' over':'')+'" style="margin-top:14px"><i style="width:'+Math.min(100, Math.round(est/UGEBUDGET_MAD*100))+'%"></i></div>'
+    +   '<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:12.5px;color:var(--ink-3)">'
+    +     '<span>Spist for '+kr(spist)+'</span><span>'+Math.round(est/UGEBUDGET_MAD*100)+'% af ugebudgettet</span></div>'
+    + '</div>';
+
+  S.plan.forEach(dag => {
+    const r = retById(dag.ret);
+    const d = new Date(dag.dato + 'T00:00:00');
+    const wd = DAYS[(d.getDay()+6)%7];
+    const nTilbud = retTilbud(dag.ret);
+    const gjort = dag.status === 'lavet';
+    h += '<div class="day'+(gjort?' done':'')+'" data-dag="'+dag.dato+'">'
+      +   '<div class="day-top">'
+      +     '<div class="day-date"><span>'+wd+'</span><b>'+d.getDate()+'</b></div>'
+      +     '<div class="day-name"><b>'+esc(r.navn)+'</b>'
+      +       (nTilbud ? '<span class="tag">'+icon('tag',12)+nTilbud+'</span>' : '')
+      +       (gjort ? '<span class="tag done">'+icon('check',12)+'lavet</span>' : '')
+      +     '</div>'
+      +     '<div class="day-cost">'+kr(retPris(dag.ret))+'</div>'
+      +     '<button class="icon-btn" data-aabn="'+dag.dato+'" aria-label="Vis ingredienser">'+icon('chev',18)+'</button>'
+      +   '</div>'
+      +   '<div class="day-body">'
+      +     '<div>';
+    r.varer.forEach(k => {
+      const har = (S.spisekammer[k] || 0) > 0 || S.liste.some(i => i.vare === k && i.koebt);
+      h += '<div class="ing"><span class="dot'+(har?' have':'')+'"></span>'
+        +  '<span class="in">'+esc(CATALOG[k].navn)+'</span>'
+        +  '<span class="iv">'+kr(pris(k))+(erTilbud(k)?' · tilbud':'')+'</span></div>';
+    });
+    h += '</div>'
+      +     '<div style="display:flex;gap:8px">'
+      +       (gjort
+                ? '<button class="btn btn-block" data-fortryd="'+dag.dato+'">'+icon('undo',16)+'Fortryd</button>'
+                : '<button class="btn btn-brand btn-block" data-lavet="'+dag.dato+'">'+icon('check',16)+'Jeg har lavet den</button>')
+      +       '<button class="btn" data-byt="'+dag.dato+'" aria-label="Byt ret">'+icon('shuffle',16)+'</button>'
+      +     '</div>'
+      +   '</div>'
+      + '</div>';
+  });
+
+  h += '<div class="foot-note">'+icon('leaf',15)+'<span>Bygget på '+tilbudsvarer.size+' varer på tilbud · '+tilbudsretter+'/7 retter er tilbudsretter</span></div>';
+  h += '<div class="foot-note">'+icon('cal',15)+'<span>'+ugeTekst()+'</span></div>';
+  return h;
+}
+function ugeTekst(){
+  const man = mondayOf(new Date());
+  const naeste = new Date(man); naeste.setDate(man.getDate() + 7);
+  const dage = Math.ceil((naeste - new Date()) / 86400000);
+  return 'Ny uge om '+dage+' dag'+(dage===1?'':'e')+' (mandag d. '+shortDay(naeste)+') — så starter madplanen forfra.';
+}
+
+/* ---------------- Indkøb ---------------- */
+function tegnIndkoeb(){
+  const tilbage = listeTilbage();
+  const valgte = Object.keys(S.butikker).filter(b => S.butikker[b]);
+  const split = listeSum(true);
+  const enButik = valgte.length ? Math.min.apply(null, valgte.map(butikSum)) : split;
+  const billigst = valgte.length ? valgte.reduce((a,b) => butikSum(a) < butikSum(b) ? a : b) : '—';
+  const forskel = Math.max(0, enButik - split);
+
+  let h = '';
+  h += '<div class="row">'
+    +   '<div class="card-flat"><div class="stat-l" style="text-align:center">Billigst i én butik</div>'
+    +     '<div class="stat-v" style="text-align:center;font-size:24px">'+kr(enButik)+'</div>'
+    +     '<div class="stat-s" style="text-align:center;color:var(--brand-deep)">'+esc(billigst)+'</div></div>'
+    +   '<div class="card-tint"><div class="stat-l" style="text-align:center;color:var(--brand-ink)">Split (billigst pr. vare)</div>'
+    +     '<div class="stat-v pos" style="text-align:center;font-size:24px">'+kr(split)+'</div>'
+    +     '<div class="stat-s" style="text-align:center;color:var(--brand-ink);opacity:.8">flere butikker</div></div>'
+    + '</div>';
+
+  h += '<div class="foot-note" style="padding-top:0">'+icon('bulb',15)
+    +  '<span>'+S.plan.length+' retter · '+tilbage.length+' varer at købe'
+    +  (forskel > 0 ? ' · spar '+kr(forskel)+' ved at dele på flere butikker' : '')+'</span></div>';
+
+  if (tilbage.length){
+    h += '<button class="btn btn-brand btn-block btn-lg" data-alle="1">'+icon('check',17)+'Marker alt som købt ('+kr(split)+')</button>';
+  }
+
+  SEKTIONER.forEach(sek => {
+    const varer = S.liste.filter(i => CATALOG[i.vare].sektion === sek);
+    if (!varer.length) return;
+    h += '<div class="sec-label">'+sek+'</div><div style="display:flex;flex-direction:column;gap:9px">';
+    varer.forEach(i => {
+      const v = CATALOG[i.vare];
+      const retNavne = i.retter.map(id => retById(id).navn).join(', ');
+      h += '<div class="item'+(i.koebt?' bought':'')+'">'
+        +   '<label class="cb"><input type="checkbox" data-vare="'+i.vare+'"'+(i.koebt?' checked':'')+'>'
+        +     '<i>'+icon('check',14)+'</i><span class="sr">'+esc(v.navn)+'</span></label>'
+        +   '<div class="item-t"><div class="n"><b>'+esc(v.navn)+'</b>'
+        +     (erTilbud(i.vare) ? '<span class="tag">'+icon('tag',12)+'tilbud</span>' : '')+'</div>'
+        +     '<div class="m">'+esc(v.enhed)+' · '+esc(v.butik)+(retNavne?' · '+esc(retNavne):'')+'</div></div>'
+        +   '<div class="item-p">'+kr(pris(i.vare))+'</div>'
+        + '</div>';
+    });
+    h += '</div>';
+  });
+
+  if (!S.liste.length) h += '<div class="empty">Listen er tom. Generér en madplan, så fyldes den af sig selv.</div>';
+  h += '<div class="foot-note">'+icon('bolt',15)+'<span>Hver vare du krydser af bliver bogført som dagligvarer med det samme.</span></div>';
+  return h;
+}
+
+/* ---------------- header + faner ---------------- */
+const FANER = [
+  {key:'hjem',    navn:'Hjem',     ic:'home'},
+  {key:'budget',  navn:'Budget',   ic:'wallet'},
+  {key:'tilbud',  navn:'Tilbud',   ic:'tag'},
+  {key:'madplan', navn:'Madplan',  ic:'cal'},
+  {key:'indkob',  navn:'Indkøb',   ic:'cart'}
+];
+const TITLER = {
+  hjem:    () => ({t:'Hej, Mads', s:'Dit budget · '+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear(), h:'<button class="icon-btn" data-nulstil="1" aria-label="Nulstil">'+icon('gear',20)+'</button>'}),
+  budget:  () => ({t:'Budget', s:'Alt bogføres automatisk', h:'<span class="hdr-note">'+MONTHS[new Date().getMonth()]+' '+new Date().getFullYear()+'</span>'}),
+  tilbud:  () => ({t:'Tilbud', s:'Ugens aviser', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'}),
+  madplan: () => ({t:'Madplan', s:'Uge '+S.uge+' · '+shortDay(mondayOf(new Date()))+' – '+shortDay(new Date(mondayOf(new Date()).getTime()+6*86400000)), h:'<span class="hdr-note">Deles · fælles</span>'}),
+  indkob:  () => ({t:'Indkøbsliste', s:'Uge '+S.uge+' · deles', h:'<span class="badge-live"><i></i>live fra minetilbud.dk</span>'})
+};
+
+const rulle = {};
+function tegn(){
+  const hdr = document.getElementById('hdr');
+  const view = document.getElementById('view');
+  const tab = document.getElementById('tabbar');
+  const m = TITLER[visning]();
+
+  hdr.innerHTML = '<div><h1>'+esc(m.t)+'</h1><div class="sub">'+m.s+'</div></div>'+(m.h||'');
+  view.innerHTML =
+      visning === 'hjem'    ? tegnHjem()
+    : visning === 'budget'  ? tegnBudget()
+    : visning === 'tilbud'  ? tegnTilbud()
+    : visning === 'madplan' ? tegnMadplan()
+    :                         tegnIndkoeb();
+
+  const mangler = listeTilbage().length;
+  tab.innerHTML = FANER.map(f =>
+    '<button class="tab" data-fane="'+f.key+'"'+(visning===f.key?' aria-current="page"':'')+'>'
+    + '<span class="tn">'+icon(f.ic,22)+(f.key==='indkob'&&mangler?'<span class="dot">'+mangler+'</span>':'')+'</span>'
+    + '<span>'+f.navn+'</span></button>'
+  ).join('');
+
+  gem();
+}
+
+/* ---------------- hændelser ---------------- */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-fane],[data-vare],[data-alle],[data-lavet],[data-fortryd],[data-byt],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil]');
+  if (!t) return;
+
+  if (t.dataset.fane){ return skiftFane(t.dataset.fane); }
+
+  if (t.dataset.aabn){
+    const d = t.closest('.day');
+    d.classList.toggle('open');
+    t.style.transform = d.classList.contains('open') ? 'rotate(180deg)' : '';
+    return;
+  }
+
+  if (t.dataset.alle){
+    const varer = listeTilbage().map(i => i.vare);
+    if (!varer.length) return;
+    const sum = varer.reduce((s,v) => s + pris(v), 0);
+    varer.forEach(v => koebVare(v, true));
+    logFør(varer.length + ' varer købt', sum, 'koeb');
+    tegn();
+    return toast(varer.length+' varer bogført · '+kr(sum)+' fra dagligvarer', () => {
+      varer.forEach(fortrydKoeb);
+      S.log = S.log.filter(l => l.tekst !== varer.length + ' varer købt');
+    });
+  }
+
+  if (t.dataset.lavet){
+    bump(14);
+    const r = lavRet(t.dataset.lavet);
+    const dato = t.dataset.lavet;
+    tegn();
+    if (r) toast(r.manglede.length
+      ? r.ret+' ✓ · '+r.manglede.length+' manglende vare'+(r.manglede.length>1?'r':'')+' bogført ('+kr(r.ekstra)+')'
+      : r.ret+' ✓ · varerne er brugt fra spisekammeret',
+      () => { fortrydRet(dato); r.manglede.forEach(fortrydKoeb); });
+    return;
+  }
+
+  if (t.dataset.fortryd){ fortrydRet(t.dataset.fortryd); return tegn(); }
+  if (t.dataset.byt){ byttRet(t.dataset.byt); return tegn(); }
+
+  if (t.dataset.gen){
+    const gamle = S.plan.map(d => d.ret);
+    S.plan = nyMadplan(gamle);
+    synkroniserListe();
+    logFør('Ny madplan genereret · '+kr(planSum()), 0, 'plan');
+    tegn();
+    return toast('Madplan og indkøbsliste er lavet om');
+  }
+
+  if (t.dataset.butik){
+    S.butikker[t.dataset.butik] = !S.butikker[t.dataset.butik];
+    return tegn();
+  }
+
+  if (t.dataset.ryd){ S.log = []; return tegn(); }
+
+  if (t.dataset.nulstil){
+    sheet({
+      titel:'Start ugen forfra?',
+      tekst:'Madplan, indkøbsliste og alle bogførte udgifter bliver ryddet.',
+      ok:'Nulstil', farlig:true,
+      naar: () => { S = friskState(); tegn(); toast('Ugen er nulstillet'); }
+    });
+    return;
+  }
+});
+
+/** Hele varelinjen er et trykfelt — ikke kun det lille felt. */
+document.addEventListener('click', (e) => {
+  if (!e.target || !e.target.closest) return;
+  if (e.target.closest('label.cb') || e.target.closest('button')) return;
+  const rk = e.target.closest('.item');
+  if (rk){
+    const cb = rk.querySelector('input[data-vare]');
+    if (cb){ cb.checked = !cb.checked; cb.dispatchEvent(new Event('change', {bubbles:true})); }
+    return;
+  }
+  const dagTop = e.target.closest('.day-top');
+  if (dagTop){
+    const d = dagTop.closest('.day');
+    d.classList.toggle('open');
+    const pil = d.querySelector('[data-aabn]');
+    if (pil) pil.style.transform = d.classList.contains('open') ? 'rotate(180deg)' : '';
+  }
+});
+
+function skiftFane(key){
+  if (key === visning) return;
+  rulle[visning] = window.scrollY;
+  visning = key;
+  tegn();
+  window.scrollTo(0, rulle[key] || 0);
+}
+
+/* Stryg til side for at skifte faneblad. */
+(function(){
+  let x0 = null, y0 = null, t0 = 0;
+  const ræk = () => FANER.map(f => f.key);
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    const mål = e.target;
+    if (mål && mål.closest && mål.closest('.scrim')) return;   // sheet er åben
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+  }, {passive:true});
+  document.addEventListener('touchend', (e) => {
+    if (x0 == null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - x0, dy = t.clientY - y0;
+    x0 = null;
+    if (Date.now() - t0 > 600) return;
+    if (Math.abs(dx) < 65 || Math.abs(dy) > 45) return;
+    const r = ræk(), i = r.indexOf(visning);
+    const næste = dx < 0 ? i + 1 : i - 1;
+    if (næste < 0 || næste >= r.length) return;
+    bump(6);
+    skiftFane(r[næste]);
+  }, {passive:true});
+})();
+
+document.addEventListener('change', (e) => {
+  const cb = e.target;
+  if (cb.dataset && cb.dataset.vare){
+    const v = cb.dataset.vare;
+    if (cb.checked){
+      koebVare(v);
+      bump(10);
+      tegn();
+      toast(CATALOG[v].navn+' · '+kr(pris(v))+' trukket fra dagligvarer', () => fortrydKoeb(v));
+    } else {
+      fortrydKoeb(v);
+      tegn();
+    }
+    return;
+  }
+  if (cb.dataset && cb.dataset.auto){
+    S.auto[cb.dataset.auto] = cb.checked;
+    gem();
+    return;
+  }
+});
+
+/* ---------------- start ---------------- */
+S = hent() || friskState();
+tegn();
+</script>
+
+<script>
+/* Registrer service worker, så appen starter offline og kan lægges på hjemmeskærmen. */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () { /* uden den virker appen stadig online */ });
+  });
+}
+</script>
+</body>
+</html>
