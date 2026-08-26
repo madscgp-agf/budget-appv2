@@ -4188,26 +4188,98 @@ function harEgenOpsaetning(){
 }
 
 function tilslutHusstand(){
-  const tilslut = () => skySheet('Tilslut dig en husstand', 'Indtast koden fra din partner.',
+  const tilslut = (medbring) => skySheet('Tilslut dig en husstand', 'Indtast koden fra din partner.',
     felt('Kode', 'f-kode', '') + felt('Dit fornavn', 'f-mig', 'Mig'),
     'Tilslut', async (v) => {
+      // Fang mine egne tal nu — om lidt bliver S til husstandens dokument.
+      const mine = medbring ? {
+        indtaegter: (S.indtaegter || []).slice(),
+        faste:      (S.faste || []).slice(),
+        opsparinger:(S.opsparinger || []).slice(),
+        udgifter:   (S.udgifter || []).slice()
+      } : null;
+
       await Sky.tilslut(v.kode, v.mig);
       skyBase = null;
-      await startSky();
-      await opdaterMedlemmer();
+      await startSky();          // S er nu husstandens budget
+      await opdaterMedlemmer();  // og personerne har rigtige bruger-id'er
+      if (mine) medbringEgneTal(mine, v.mig);
       tegn();
-      toast('Du er med i husstanden');
+      toast(mine ? 'Du er med — dine tal er lagt oveni' : 'Du er med i husstanden');
     });
 
-  // Husstandens data vinder over telefonens. Det skal man vide først —
-  // ikke opdage bagefter, når ens eget budget er væk.
+  // Har man selv tastet noget ind, er valget reelt: skal det med over,
+  // eller skal husstandens budget stå alene? Appen må ikke bare vælge.
   if (!S.eksempel && harEgenOpsaetning()){
-    return bekraeft(
-      'Dit budget her bliver erstattet',
-      'Når du tilslutter dig, henter appen husstandens budget ned og bruger det i stedet for det, du har tastet ind på denne telefon. Vil du gemme en kopi først, kan du gøre det under Dine data.',
-      'Tilslut alligevel', tilslut, true);
+    const html = '<div class="stat-s" style="margin:-4px 0 16px">'
+      + 'Du har ' + esc(opsaetningKort()) + ' på denne telefon. Husstandens budget kommer til at gælde for jer begge — vil du have dine tal med over i det?'
+      + '</div>'
+      + '<button class="btn btn-brand btn-block" data-medbring="1" style="min-height:52px">Tag mine tal med over</button>'
+      + '<button class="btn btn-block" data-kunderes="1" style="margin-top:9px;min-height:52px">Brug kun husstandens budget</button>';
+    return visSheet({
+      titel: 'Hvad skal der ske med dine tal?',
+      under: 'Det her kan ikke fortrydes bagefter.',
+      html: html,
+      ved: (e, fjern) => {
+        if (e.target.closest('[data-medbring]')){ fjern(); return tilslut(true); }
+        if (e.target.closest('[data-kunderes]')){ fjern(); return tilslut(false); }
+      }
+    });
   }
-  tilslut();
+  tilslut(false);
+}
+
+/** "en indtægt, tre faste udgifter og et opsparingsmål" */
+function opsaetningKort(){
+  const dele = [];
+  // "ét opsparingsmål", ikke "én" — målet er intetkøn.
+  const n = (t, en, flere, intet) => t === 1 ? (intet ? 'ét ' : 'én ') + en : t + ' ' + flere;
+  if ((S.indtaegter || []).length) dele.push(n(S.indtaegter.length, 'indtægt', 'indtægter'));
+  if ((S.faste || []).length) dele.push(n(S.faste.length, 'fast udgift', 'faste udgifter'));
+  if ((S.opsparinger || []).length) dele.push(n(S.opsparinger.length, 'opsparingsmål', 'opsparingsmål', true));
+  if ((S.udgifter || []).length) dele.push(n(S.udgifter.length, 'bogført udgift', 'bogførte udgifter'));
+  if (!dele.length) return 'et budget';
+  if (dele.length === 1) return dele[0];
+  return dele.slice(0, -1).join(', ') + ' og ' + dele[dele.length - 1];
+}
+
+/**
+ * Læg mine egne poster oveni husstandens. Id'erne er unikke, så to
+ * lønninger og to sæt faste udgifter kan stå side om side — det er
+ * netop pointen med et fælles budget.
+ */
+function medbringEgneTal(mine, mitNavn){
+  const mit = migsId();
+  const laegTil = (navn) => {
+    S[navn] = S[navn] || [];
+    const kendte = new Set(S[navn].map(x => x.id));
+    mine[navn].forEach(x => { if (!kendte.has(x.id)) S[navn].push(x); });
+  };
+
+  // Med to lønninger i samme budget skal man kunne se hvis er hvis.
+  if (mitNavn){
+    mine.indtaegter.forEach(i => {
+      if (i.navn.indexOf(mitNavn) === -1) i.navn = i.navn + ' (' + mitNavn + ')';
+    });
+  }
+  ['indtaegter','faste','opsparinger','udgifter'].forEach(laegTil);
+
+  // Kun de udgifter jeg selv havde med skal skifte betaler — husstandens
+  // egne pegede også på "mig", men det var den anden telefons "mig".
+  const mineIder = new Set(mine.udgifter.map(u => u.id));
+  (S.udgifter || []).forEach(u => { if (mineIder.has(u.id)) u.betaler = mit; });
+
+  const antal = mine.indtaegter.length + mine.faste.length + mine.opsparinger.length + mine.udgifter.length;
+  logFør('Dine egne tal blev lagt ind i husstanden (' + antal + ' poster)', 0, 'start');
+
+  // Betaler I begge husleje, står den nu to gange. Det er med vilje —
+  // men man skal have det at vide, ikke selv opdage det.
+  const navne = (S.faste || []).map(f => f.navn.toLowerCase());
+  const gengangere = [...new Set(navne.filter((x, i) => navne.indexOf(x) !== i))];
+  if (gengangere.length){
+    setTimeout(() => toast('Både du og din partner har ' + gengangere.join(' og ') + ' — ret eller slet den ene under Indstillinger'), 1600);
+  }
+  planlaegSkyGem();
 }
 
 /** Hent navnene fra databasen, så begge telefoner viser de samme personer. */
