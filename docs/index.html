@@ -4179,8 +4179,16 @@ function nyHusstand(){
     });
 }
 
+/** Har man tastet noget ind på denne telefon, som ville gå tabt? */
+function harEgenOpsaetning(){
+  return (S.indtaegter || []).length > 0
+      || (S.faste || []).length > 0
+      || (S.udgifter || []).length > 0
+      || (S.opsparinger || []).length > 0;
+}
+
 function tilslutHusstand(){
-  skySheet('Tilslut dig en husstand', 'Indtast koden fra din partner.',
+  const tilslut = () => skySheet('Tilslut dig en husstand', 'Indtast koden fra din partner.',
     felt('Kode', 'f-kode', '') + felt('Dit fornavn', 'f-mig', 'Mig'),
     'Tilslut', async (v) => {
       await Sky.tilslut(v.kode, v.mig);
@@ -4190,6 +4198,16 @@ function tilslutHusstand(){
       tegn();
       toast('Du er med i husstanden');
     });
+
+  // Husstandens data vinder over telefonens. Det skal man vide først —
+  // ikke opdage bagefter, når ens eget budget er væk.
+  if (!S.eksempel && harEgenOpsaetning()){
+    return bekraeft(
+      'Dit budget her bliver erstattet',
+      'Når du tilslutter dig, henter appen husstandens budget ned og bruger det i stedet for det, du har tastet ind på denne telefon. Vil du gemme en kopi først, kan du gøre det under Dine data.',
+      'Tilslut alligevel', tilslut, true);
+  }
+  tilslut();
 }
 
 /** Hent navnene fra databasen, så begge telefoner viser de samme personer. */
@@ -4997,6 +5015,32 @@ function velkomst(naarFaerdig){
   tegnTrin();
   return {luk};
 }
+
+/* ============================================================
+   Rammens højde
+
+   100dvh er det browseren mener der er plads til. Når iOS skubber
+   tastaturet op, eller mens værktøjslinjen glider, er det synlige
+   område mindre — og så ville menuen ligge neden under skærmkanten.
+   visualViewport er det eneste der ved hvad der rent faktisk kan ses.
+   ============================================================ */
+(function(){
+  const vv = window.visualViewport;
+  if (!vv) return;                       // ingen støtte: 100dvh må klare den
+  const app = document.querySelector('.app');
+  if (!app) return;
+  let ventende = null;
+  const saet = () => {
+    ventende = null;
+    const h = vv.height;
+    if (!(h > 200)) return;              // et urimeligt tal rører vi ikke
+    app.style.height = Math.round(h) + 'px';
+  };
+  const planlaeg = () => { if (ventende == null) ventende = requestAnimationFrame(saet); };
+  vv.addEventListener('resize', planlaeg);
+  window.addEventListener('orientationchange', planlaeg);
+  saet();
+})();
 
 /* ---------------- start ---------------- */
 // ?demo=1 åbner appen med opdigtede tal og uden guiden — praktisk når man
