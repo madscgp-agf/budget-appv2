@@ -2098,12 +2098,20 @@ const Ocr = (function(){
   return {laes, muligt: () => true};
 })();
 
-/** Beløb i en tekststump: "32,00" og "32.00" og "32" — største vinder. */
+/**
+ * Beløb i en tekststump. Kun tal med to decimaler — "1620 Kbh V" er et
+ * postnummer, ikke en pris, og "REMA 1000" læst skævt bliver til 10990.
+ * Uden den regel foreslog appen 10.990 kr. for en bon på 171,30.
+ */
 function beloebIListe(t){
-  const m = String(t).match(/\d{1,5}[.,]\d{2}/g) || String(t).match(/\b\d{1,5}\b/g);
+  const m = String(t).match(/\d{1,5}[.,]\d{2}(?!\d)/g);
   if (!m) return null;
-  return Math.max.apply(null, m.map(x => Number(String(x).replace(/\.(?=\d{3})/g, '').replace(',', '.'))));
+  return Math.max.apply(null, m.map(x => Number(x.replace(/\.(?=\d{3})/g, '').replace(',', '.'))));
 }
+
+/* OCR spiser tit det første tegn: "I ALT" bliver til "TALT", "IALT". */
+const erTotalLinje = (t) => /(^|\s)(i\s*alt|ialt|talt|total|at\s*betale|bel[oø]b)(\s|:|$)/i.test(t);
+const erBetalingsLinje = (t) => /(dankort|kontant|mobilepay|visa|mastercard|byttepenge|moms|retur|kort)/i.test(t);
 
 /** Uden bogstavernes særheder kan en bon sammenlignes med kataloget. */
 function fladTekst(t){
@@ -2150,10 +2158,15 @@ async function laesKvittering(img, paaVej){
   if (!alt || !alt.trim()) return null;
 
   const tekster = alt.split('\n').map(t => t.trim()).filter(Boolean);
+
+  // Totalen tages kun fra en linje der siger at det er totalen — og den
+  // nederste af dem, for "I ALT" står altid efter varerne. Findes den
+  // ikke, gætter appen ikke: et forkert beløb er værre end intet beløb.
   let total = null;
-  const totalLinje = tekster.find(t => /(total|i alt|at betale|beløb|belob)/i.test(t));
-  if (totalLinje) total = beloebIListe(totalLinje);
-  if (!total) total = Math.max.apply(null, tekster.map(t => beloebIListe(t) || 0).concat([0])) || null;
+  const totalLinjer = tekster.filter(t => erTotalLinje(t) && !erBetalingsLinje(t));
+  for (let i = totalLinjer.length - 1; i >= 0 && total === null; i--){
+    total = beloebIListe(totalLinjer[i]);
+  }
 
   const kendteButikker = BUTIKKER.concat(['Netto','Rema','Coop','Fakta','7-Eleven']);
   const butik = kendteButikker.find(b => new RegExp(b.replace(/\s/g, '\\s*'), 'i').test(alt)) || null;
@@ -2161,7 +2174,7 @@ async function laesKvittering(img, paaVej){
   // Varelinjer: navn til venstre, pris til højre. Summer og kort springes over.
   const varer = [];
   tekster.forEach(t => {
-    if (/(total|i alt|at betale|dankort|kort|moms|byttepenge|kontant|mobilepay)/i.test(t)) return;
+    if (erTotalLinje(t) || erBetalingsLinje(t)) return;
     const m = t.match(/^(.*?)\s+(\d{1,4}[.,]\d{2})\s*$/);
     if (!m) return;
     const k = genkendVare(m[1]);
@@ -3662,8 +3675,15 @@ function udgiftSheet(muligheder2){
     + '</div>';
 
   const html = (billede ? '<img src="'+billede.data+'" alt="Kvittering" style="width:100%;max-height:22vh;object-fit:contain;border-radius:14px;background:var(--surface-2);margin-bottom:14px">' : '')
-    + (gaet && gaet.total ? '<div class="stat-s" style="margin:-6px 0 12px;color:var(--brand-ink)">'
-        + icon('bolt',13) + ' Læst fra kvitteringen: ' + kr(gaet.total) + (gaet.butik ? ' i ' + esc(gaet.butik) : '') + '</div>' : '')
+    + (gaet && gaet.total
+        ? '<div class="stat-s" style="margin:-6px 0 12px;color:var(--brand-ink)">'
+          + icon('bolt',13) + ' Læst fra kvitteringen: ' + krOere(gaet.total) + (gaet.butik ? ' i ' + esc(gaet.butik) : '') + '</div>'
+        : billede
+          ? '<div class="stat-s" style="margin:-6px 0 12px">'
+            + icon('bolt',13) + ' Jeg kunne ikke læse beløbet sikkert — skriv det selv. '
+            + (gaet && gaet.varer && gaet.varer.length ? 'Jeg genkendte ' + gaet.varer.length + ' varer.' : 'Et skarpt billede lige oppefra hjælper.')
+            + '</div>'
+          : '')
     + felt('Hvad var det?', 'f-tekst', (gaet && gaet.butik) || (billede ? 'Kvittering' : ''))
     + felt('Beløb (kr.)', 'f-belob', (gaet && gaet.total) || '', 'number')
     + '<label>Kategori</label>' + kategoriValg
