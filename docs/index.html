@@ -468,6 +468,23 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none}
   animation:snurr .7s linear infinite;
 }
 @keyframes snurr{to{transform:rotate(360deg)}}
+.trin{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:9px}
+.trin li{display:flex;align-items:flex-start;gap:11px;font-size:13.5px;color:var(--ink-3);line-height:1.45}
+.trin li.nu{color:var(--ink);font-weight:500}
+.trin li.klaret{color:var(--ink-3)}
+.trin-nr{
+  flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:var(--surface-3);color:var(--ink-3);font-size:11.5px;font-weight:700;font-family:var(--font-d);
+}
+.trin li.nu .trin-nr{background:var(--brand);color:#fff}
+.trin li.klaret .trin-nr{background:var(--brand-tint);color:var(--brand-ink)}
+.vent-boks{
+  background:var(--warn-tint);color:var(--warn);border-radius:var(--r-sm);
+  padding:14px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.5;
+}
+.vent-boks b{display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:14.5px}
+.vent-boks p{margin:0}
+.vent-boks p b{display:inline;font-size:inherit;word-break:break-all}
 .sky-fejl{
   display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   background:var(--danger);color:#fff;
@@ -699,6 +716,12 @@ const Sky = (function(){
     return true;
   }
 
+  /** Blev bekræftelsesmailen væk, kan man få en ny. */
+  async function sendBekraeftIgen(email){
+    await kald('/auth/v1/resend', {metode:'POST', krop:{type:'signup', email: String(email).trim()}, auth:false});
+    return true;
+  }
+
   function logUd(){
     gemSession(null);
     husstandId = null; skriv(NØGLE_HUS, null);
@@ -907,7 +930,7 @@ const Sky = (function(){
 
   return {
     opsat, loggetInd, konfigurer, glemOpsætning: () => { skriv(NØGLE_CFG, null); cfg = null; },
-    opret, login, logUd, nulstilKode, brugerId, brugerMail,
+    opret, login, logUd, nulstilKode, sendBekraeftIgen, brugerId, brugerMail,
     opretHusstand, tilslut, minHusstand, medlemmer, saetMitNavn, forlad,
     harHusstand: () => !!husstandId, husstandsId: () => husstandId,
     hent, gem, startLytning, stopLytning, tjek,
@@ -3342,6 +3365,27 @@ function tegnIndstillinger(){
 }
 
 /** Deling med din partner — og hvad der skal til for at få den op at køre. */
+/* Supabase beder som standard om at man bekræfter sin mail. Indtil det er
+   sket, er man hverken logget ind eller på vej nogen steder — og uden at
+   det står nogen steder, ligner appen bare en der ikke virker. */
+const VENTER_NOEGLE = 'toget.sky.venter';
+const venterPaaMail = (mail) => { try { localStorage.setItem(VENTER_NOEGLE, mail); } catch(e){} };
+const venterMail = () => { try { return localStorage.getItem(VENTER_NOEGLE); } catch(e){ return null; } };
+const venterFaerdig = () => { try { localStorage.removeItem(VENTER_NOEGLE); } catch(e){} };
+
+/** De tre skridt, med det man står på markeret. */
+function delingsTrin(naaet){
+  const trin = [
+    'Opret din bruger',
+    'Opret en husstand — eller indtast partnerens kode',
+    'Del koden, så I ser det samme'
+  ];
+  return '<ol class="trin">' + trin.map((t, i) =>
+    '<li class="' + (i < naaet ? 'klaret' : i === naaet ? 'nu' : '') + '">'
+    + '<span class="trin-nr">' + (i < naaet ? icon('check',13) : (i + 1)) + '</span>'
+    + '<span>' + esc(t) + '</span></li>').join('') + '</ol>';
+}
+
 function tegnDeling(){
   const harSky = typeof Sky !== 'undefined';
   let h = '<div class="card"><div class="card-head"><h3>Din partner</h3>' + skyMaerkat() + '</div>';
@@ -3361,8 +3405,22 @@ function tegnDeling(){
   }
 
   if (!Sky.loggetInd()){
-    h += '<div class="stat-s" style="margin-bottom:14px">Log ind med samme mail på begge telefoner? Nej — I skal have '
-      +  '<b>hver jeres</b> login, og så deler I en husstand.</div>'
+    const venter = venterMail();
+    if (venter){
+      h += '<div class="vent-boks">'
+        +   '<b>' + icon('clock',15) + ' Bekræft din mail</b>'
+        +   '<p>Vi har sendt et link til <b>' + esc(venter) + '</b>. Åbn det på telefonen, kom tilbage hertil og log ind. '
+        +   'Kig i spam, hvis den ikke er dukket op.</p>'
+        + '</div>'
+        + '<button class="btn btn-brand btn-block" data-skylogin="1">'+icon('users',16)+'Jeg har bekræftet — log ind</button>'
+        + '<button class="btn btn-block" data-sendigen="1" style="margin-top:9px">Send mailen igen</button>'
+        + '<button class="btn btn-block" data-glemvent="1" style="margin-top:9px;color:var(--ink-2)">Brug en anden mail</button>'
+        + '<button class="btn btn-block" data-skytjek="1" style="margin-top:9px">'+icon('check',16)+'Test forbindelsen</button>';
+      return h + '</div>';
+    }
+    h += delingsTrin(0)
+      +  '<div class="stat-s" style="margin-bottom:14px">I skal have <b>hver jeres</b> login — ikke det samme. '
+      +  'Husstanden kommer i næste skridt, når du er logget ind.</div>'
       +  '<button class="btn btn-brand btn-block" data-skylogin="1">'+icon('users',16)+'Log ind eller opret bruger</button>'
       +  '<button class="btn btn-block" data-glemtkode="1" style="margin-top:9px;color:var(--ink-2)">Jeg har glemt mit kodeord</button>'
       +  '<button class="btn btn-block" data-skytjek="1" style="margin-top:9px">'+icon('check',16)+'Test forbindelsen</button>'
@@ -3372,8 +3430,9 @@ function tegnDeling(){
   }
 
   if (!Sky.harHusstand()){
-    h += '<div class="stat-s" style="margin-bottom:14px">Logget ind som '+esc(Sky.brugerMail() || '')+'. '
-      +  'Opret en husstand og giv koden til din partner — eller indtast den kode, du har fået.</div>'
+    h += delingsTrin(1)
+      +  '<div class="stat-s" style="margin-bottom:14px">Logget ind som '+esc(Sky.brugerMail() || '')+'. '
+      +  'Én af jer opretter husstanden; den anden indtaster koden.</div>'
       +  '<button class="btn btn-brand btn-block" data-nyhusstand="1">'+icon('house',16)+'Opret husstand</button>'
       +  '<button class="btn btn-block" data-tilslut="1" style="margin-top:9px">Jeg har en kode</button>'
       +  '<button class="btn btn-block" data-skytjek="1" style="margin-top:9px">'+icon('check',16)+'Test forbindelsen</button>'
@@ -4147,11 +4206,13 @@ function skyLogin(){
         if (opretNy){
           const r = await Sky.opret(mail, kode);
           fjern();
-          if (r.bekræftKrævet){ tegn(); return toast('Tjek din mail og bekræft, så log ind'); }
+          // En toast forsvinder. Ventetilstanden skal stå der, til den er ovre.
+          if (r.bekræftKrævet){ venterPaaMail(mail); tegn(); return; }
         } else {
           await Sky.login(mail, kode);
           fjern();
         }
+        venterFaerdig();
         await startSky();
         tegn();
         toast('Logget ind som ' + mail);
@@ -4483,7 +4544,7 @@ document.addEventListener('click', (e) => {
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
     + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],[data-nyindtaegt],[data-retindtaegt],[data-sletindtaegt],'
-    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skema],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault],[data-koerguide],[data-rydeksempel],[data-retmadbudget],[data-eksportdata],[data-importdata],[data-glemtkode],[data-skyigen]');
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skema],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault],[data-koerguide],[data-rydeksempel],[data-retmadbudget],[data-eksportdata],[data-importdata],[data-glemtkode],[data-skyigen],[data-sendigen],[data-glemvent]');
 
   if (!t){
     // Tryk hvor som helst på en varelinje eller en dag
@@ -4638,6 +4699,14 @@ document.addEventListener('click', (e) => {
   if (d.skyopsaet) return skyOpsaetning();
   if (d.skylogin) return skyLogin();
   if (d.eksportdata) return eksporterData();
+  if (d.glemvent){ venterFaerdig(); tegn(); return; }
+  if (d.sendigen){
+    const mail = venterMail();
+    if (!mail) return;
+    return Sky.sendBekraeftIgen(mail)
+      .then(() => toast('Sendt igen til ' + mail))
+      .catch((e) => toast(e.message || 'Kunne ikke sende igen'));
+  }
   if (d.skyigen){ skyFejlTaeller = 0; return gemISky(); }
   if (d.glemtkode){
     return skySheet('Glemt kodeord', 'Vi sender et link til din mail, så du kan vælge et nyt.',
