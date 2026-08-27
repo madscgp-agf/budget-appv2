@@ -1647,6 +1647,27 @@ function bedstePris(k){
 const pris = (k) => bedstePris(k).pris;                    // pris for én pakke
 const erTilbud = (k) => bedstePris(k).tilbud;
 
+/** Hvem ejer posten? 'faelles' hvis den er begges. */
+const ejerNavn = (ejer) => !ejer || ejer === 'faelles' ? 'Fælles' : personNavn(ejer);
+/** Et lille mærke ved siden af en post — kun når budgettet er delt. */
+function ejerMaerke(post){
+  if (!erOpdelt()) return '';
+  const e = post.ejer || 'faelles';
+  const mit = e === migsId();
+  const cls = e === 'faelles' ? ' grey' : mit ? '' : ' grey';
+  return '<span class="tag'+cls+'" style="margin-left:7px">'+esc(mit ? 'dig' : ejerNavn(e).toLowerCase())+'</span>';
+}
+/** Chip-række til at vælge ejer. Med et post-id kan flere rækker stå sammen. */
+function ejerChips(valgt, postId){
+  const valg = [{id:'faelles', navn:'Fælles'}].concat(S.personer.map(pp => ({
+    id: pp.id, navn: pp.id === migsId() ? 'Mig' : pp.navn
+  })));
+  return '<div class="chips"' + (postId ? ' data-post="'+esc(postId)+'"' : '') + '>'
+    + valg.map(v => '<button type="button" class="chip" data-ejer="'+esc(v.id)+'" aria-pressed="'
+        + ((valgt || 'faelles') === v.id) + '">'+esc(v.navn)+'</button>').join('')
+    + '</div>';
+}
+
 /** Kort, ærlig etiket om hvor prisen kommer fra. */
 function prisKilde(k){
   const bp = bedstePris(k);
@@ -1790,6 +1811,8 @@ function friskState(){
     ugestart: ymd(mondayOf(new Date())),
     velkomst: false,            // guiden er ikke kørt endnu
     eksempel: false,            // det her er ikke demodata
+    budgetform: 'faelles',      // 'faelles' eller 'opdelt'
+    fordeling: 'lige',          // hvordan fælles poster deles i opdelt form
     kost: 'alle',
     navn: '',
     madbudget: STD_MADBUDGET,
@@ -1947,7 +1970,21 @@ function hent(){
 function migrer(d){
   if (!d.version || d.version < 2) tilVersion2(d);
   if (d.version < 3) tilVersion3(d);
+  if (d.version < 4) tilVersion4(d);
   sikreFelter(d);
+}
+
+/**
+ * v4: budgettet kan deles op, så hver har sit. Alt bestående bliver
+ * fælles — ingen skal opdage en ændring, de ikke selv har bedt om.
+ */
+function tilVersion4(d){
+  d.version = 4;
+  d.budgetform = d.budgetform || 'faelles';
+  d.fordeling = d.fordeling || 'lige';
+  ['indtaegter','faste','opsparinger'].forEach(n => {
+    (d[n] || []).forEach(x => { if (!x.ejer) x.ejer = 'faelles'; });
+  });
 }
 
 /**
@@ -1965,6 +2002,15 @@ function sikreFelter(d){
   if (!d.personer.length) d.personer = [{id:'mig', navn:'Mig'}];
   if (!d.kategorier.length) d.kategorier = foreslaaKategorier(d.indtaegter.reduce((n,i) => n + (i.belob || 0), 0));
   if (typeof d.madbudget !== 'number' || !(d.madbudget > 0)) d.madbudget = STD_MADBUDGET;
+  if (d.budgetform !== 'opdelt') d.budgetform = 'faelles';
+  if (d.fordeling !== 'indtaegt') d.fordeling = 'lige';
+  // En ejer der ikke findes længere — fx efter at have forladt husstanden.
+  const kendte = d.personer.map(pp => pp.id);
+  ['indtaegter','faste','opsparinger'].forEach(n => {
+    (d[n] || []).forEach(x => {
+      if (!x.ejer || (x.ejer !== 'faelles' && kendte.indexOf(x.ejer) === -1)) x.ejer = 'faelles';
+    });
+  });
   if (typeof d.sparetIalt !== 'number') d.sparetIalt = 0;
   if (!d.delDefault) d.delDefault = 'lige';
   BUTIKKER.forEach(b => { if (typeof d.butikker[b] !== 'boolean') d.butikker[b] = ['Føtex','Lidl','Rema 1000','Netto'].indexOf(b) !== -1; });
@@ -2349,9 +2395,55 @@ function skyMaerkat(){
 /* ============================================================
    Beregninger
    ============================================================ */
-const fasteIalt = () => S.faste.reduce((s,f) => s + f.belob, 0);
+/* ============================================================
+   Fælles eller hver sit
+
+   I fælles form er alt husstandens, og tallene er som de altid har
+   været. I opdelt form ejer hver post en person — eller er fælles, og
+   så deles den. Det er samme dokument på begge telefoner; det er kun
+   migsId() der er forskellig, og derfor når de to hver sit tal.
+   ============================================================ */
+const erOpdelt = () => S.budgetform === 'opdelt' && erPar();
+
+/** De rå indtægter pr. ejer — bruges til fordelingen, så den ikke går i ring. */
+function raaIndtaegt(personId){
+  return (S.indtaegter || []).reduce((s,i) => {
+    if (personId == null) return s + i.belob;
+    if (i.ejer === personId) return s + i.belob;
+    return s;
+  }, 0);
+}
+
+/** Hvor stor en del af en fælles post er personens? */
+function broek(personId){
+  const antal = S.personer.length || 1;
+  if (antal < 2) return 1;
+  if (S.fordeling === 'indtaegt'){
+    // Kun det der er mærket som nogens; fælles indtægter tæller ikke med
+    // i brøken, for så ville de dele sig selv.
+    const egne = S.personer.reduce((s,pp) => s + raaIndtaegt(pp.id), 0);
+    if (egne > 0) return raaIndtaegt(personId) / egne;
+  }
+  return 1 / antal;
+}
+const minBroek = () => broek(migsId());
+
+/** Hvor meget af en indtægt, fast udgift eller opsparing er min? */
+function minDelAf(post){
+  if (!erOpdelt()) return post.belob;
+  if (!post.ejer || post.ejer === 'faelles') return post.belob * minBroek();
+  return post.ejer === migsId() ? post.belob : 0;
+}
+/** Samme, men for det der står på et opsparingsmål. */
+function minDelAfSparet(o){
+  if (!erOpdelt()) return o.sparet;
+  if (!o.ejer || o.ejer === 'faelles') return o.sparet * minBroek();
+  return o.ejer === migsId() ? o.sparet : 0;
+}
+
+const fasteIalt = () => S.faste.reduce((s,f) => s + minDelAf(f), 0);
 const madbudget = () => S.madbudget || STD_MADBUDGET;
-const indtaegtIalt = () => (S.indtaegter || []).reduce((s,i) => s + i.belob, 0);
+const indtaegtIalt = () => (S.indtaegter || []).reduce((s,i) => s + minDelAf(i), 0);
 /** Faste udgifter der endnu ikke er betalt i denne måned, i dato-rækkefølge. */
 function kommendeFaste(){
   const idag = new Date().getDate();
@@ -2365,10 +2457,12 @@ const forrigeMaaned = () => { const d = new Date(); d.setDate(1); d.setMonth(d.g
 const maanedNavn = (m) => MONTHS[Number(m.split('-')[1]) - 1];
 const stort = (t) => t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
 const iMaaned = (u, m) => (u.dato || '').slice(0, 7) === m;
+/** Hvad en udgift koster mig — hele beløbet i fælles form, ellers min andel. */
+const minUdgift = (u) => erOpdelt() ? andel(u, migsId()) : u.belob;
 const brugtIKategori = (id, m) => S.udgifter
   .filter(u => u.kategori === id && iMaaned(u, m || maanedNu()))
-  .reduce((s,u) => s + u.belob, 0);
-const variabeltBrugt = (m) => S.udgifter.filter(u => iMaaned(u, m || maanedNu())).reduce((s,u) => s + u.belob, 0);
+  .reduce((s,u) => s + minUdgift(u), 0);
+const variabeltBrugt = (m) => S.udgifter.filter(u => iMaaned(u, m || maanedNu())).reduce((s,u) => s + minUdgift(u), 0);
 /** Penge der faktisk forlod kontoen i denne måned. */
 const overfoertIMaaned = () => S.overfoersler
   .filter(o => (o.dato || '').slice(0, 7) === maanedNu())
@@ -2421,6 +2515,7 @@ const denAnden = () => S.personer.find(p => p.id !== migsId()) || null;
 function andel(u, personId){
   const antal = S.personer.length || 1;
   if (!erPar() || u.deling === 'mig') return u.betaler === personId ? u.belob : 0;
+  if (u.deling === 'faelles') return u.belob * broek(personId);
   if (u.deling === 'lige') return u.belob / antal;
   if (u.deling === 'beloeb') return u.betaler === personId ? (u.minAndel || 0) : u.belob - (u.minAndel || 0);
   return u.deling === personId ? u.belob : 0;      // deling peger på den der skal betale alt
@@ -2449,7 +2544,8 @@ function bogfoer(vare, belob, antal){
     tekst: CATALOG[vare].navn + (n > 1 ? ' (' + n + ' stk.)' : ''),
     belob, kategori: dagligvareKat().id,
     butik: bedstePris(vare).butik, kilde:'auto',
-    betaler: migsId(), deling: erPar() ? S.delDefault : 'mig'
+    // Dagligvarer er dét, I køber sammen — også når budgettet er delt.
+    betaler: migsId(), deling: erOpdelt() ? 'faelles' : (erPar() ? S.delDefault : 'mig')
   });
   S.sparetIalt += Math.max(0, CATALOG[vare].normal * n - belob);
 }
@@ -2631,8 +2727,8 @@ function tegnHjem(){
     +       ' stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-raadPct))+'" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1)"/>'
     +   '</svg><div class="rv"><b>'+krPlain(raad)+'</b><span>tilbage</span></div></div>'
     +   '<div class="hero-lines">'
-    +     '<div class="hero-title">Til rådighed i '+MONTHS[new Date().getMonth()]+'</div>'
-    +     '<div class="hl"><span>Indkomst</span><b>'+kr(indtaegtIalt())+'</b></div>'
+    +     '<div class="hero-title">'+(erOpdelt() ? 'Dine penge i ' : 'Til rådighed i ')+MONTHS[new Date().getMonth()]+'</div>'
+    +     '<div class="hl"><span>'+(erOpdelt() ? 'Din indkomst' : 'Indkomst')+'</span><b>'+kr(indtaegtIalt())+'</b></div>'
     +     '<div class="hl"><span>Faste udgifter</span><b>'+kr(fasteIalt())+'</b></div>'
     +     '<div class="hl"><span>Brugt variabelt</span><b>'+kr(variabeltBrugt())+'</b></div>'
     +   '</div>'
@@ -2753,7 +2849,7 @@ function tegnOpsparing(){
   const dageSiden = Math.max(1, Math.round((new Date() - new Date(S.start + 'T00:00:00')) / 86400000));
   const sidste = forrigeMaaned();
   const restSidste = kanFlytteSidsteMaaned() ? restIForbrug(sidste) : 0;
-  const samlet = S.opsparinger.reduce((sum, o) => sum + o.sparet, 0);
+  const samlet = S.opsparinger.reduce((sum, o) => sum + minDelAfSparet(o), 0);
   const samletMaal = S.opsparinger.reduce((sum, o) => sum + o.maal, 0);
 
   let h = '';
@@ -2827,15 +2923,21 @@ function tegnBudget(){
   let h = '';
   // Månedens regnestykke øverst, så budgettet er det man ser først.
   const ind = indtaegtIalt(), fast = fasteIalt(), variabelt = variabeltBrugt();
+  // Hvor stor en del af tallene der kommer fra det, I deler.
+  const minFaellesdel = !erOpdelt() ? 0
+    : S.faste.filter(f => !f.ejer || f.ejer === 'faelles').reduce((a,f) => a + f.belob * minBroek(), 0)
+      + S.udgifter.filter(u => iMaaned(u, maanedNu()) && u.deling === 'faelles')
+          .reduce((a,u) => a + u.belob * minBroek(), 0);
   h += '<div class="card">'
     +   '<div class="card-head"><h3>'+esc(stort(MONTHS[new Date().getMonth()]))+' i tal</h3>'
     +     '<button class="btn btn-ghost" style="padding:5px 10px;font-size:13px;min-height:auto" data-gaatil="indstillinger">Redigér</button></div>'
     +   '<div class="regne">'
-    +     '<div class="r-linje"><span>Indtægter</span><b class="pos">'+kr(ind)+'</b></div>'
+    +     '<div class="r-linje"><span>'+(erOpdelt() ? 'Dine indtægter' : 'Indtægter')+'</span><b class="pos">'+kr(ind)+'</b></div>'
     +     '<div class="r-linje"><span>Faste udgifter</span><b>−'+kr(fast)+'</b></div>'
     +     '<div class="r-linje"><span>Brugt variabelt</span><b>−'+kr(variabelt)+'</b></div>'
     +     (overfoertIMaaned() ? '<div class="r-linje"><span>Lagt til opsparing</span><b>−'+kr(overfoertIMaaned())+'</b></div>' : '')
-    +     '<div class="r-linje sum"><span>Tilbage</span><b class="'+(tilRaadighed()<0?'neg':'pos')+'">'+kr(tilRaadighed())+'</b></div>'
+    +     (minFaellesdel ? '<div class="r-linje" style="opacity:.7"><span>heraf din del af fælles</span><b>'+kr(minFaellesdel)+'</b></div>' : '')
+    +     '<div class="r-linje sum"><span>'+(erOpdelt() ? 'Dine penge tilbage' : 'Tilbage')+'</span><b class="'+(tilRaadighed()<0?'neg':'pos')+'">'+kr(tilRaadighed())+'</b></div>'
     +   '</div>'
     + '</div>';
 
@@ -3251,6 +3353,96 @@ function tegnIndkoeb(){
   return h;
 }
 
+/** Fælles pengekasse, eller hver sin med maden i midten? */
+function tegnBudgetform(){
+  const opdelt = S.budgetform === 'opdelt';
+  const mig = migsId(), anden = denAnden();
+  const pct = (id) => Math.round(broek(id) * 100);
+
+  let h = '<div class="sec-label">Budgetform</div>';
+  h += '<div class="set-blok" style="padding:16px">';
+  h += '<div class="chips" style="margin-bottom:12px">'
+    +   '<button type="button" class="chip" data-budgetform="faelles" aria-pressed="'+(!opdelt)+'">Fælles kasse</button>'
+    +   '<button type="button" class="chip" data-budgetform="opdelt" aria-pressed="'+opdelt+'">Hver sit</button>'
+    + '</div>';
+  h += '<div class="stat-s" style="line-height:1.55">'
+    + (opdelt
+        ? 'Dine penge er dine, og ' + esc(anden ? anden.navn + 's er ' + anden.navn + 's' : 'partnerens er partnerens')
+          + '. Maden køber I sammen, og fælles poster deles.'
+        : 'Alt lægges i én bunke: begges indtægter, begges faste udgifter, ét rådighedsbeløb.')
+    + '</div>';
+
+  if (opdelt){
+    h += '<div class="lab" style="margin-top:16px">Fælles poster deles</div>'
+      +  '<div class="chips">'
+      +   '<button type="button" class="chip" data-fordeling="lige" aria-pressed="'+(S.fordeling !== 'indtaegt')+'">Lige over</button>'
+      +   '<button type="button" class="chip" data-fordeling="indtaegt" aria-pressed="'+(S.fordeling === 'indtaegt')+'">Efter indtægt</button>'
+      +  '</div>'
+      +  '<div class="stat-s" style="margin-top:10px">'
+      +    'Du betaler <b>' + pct(mig) + ' %</b>'
+      +    (anden ? ', ' + esc(anden.navn) + ' <b>' + pct(anden.id) + ' %</b>' : '')
+      +    (S.fordeling === 'indtaegt' ? ' — regnet ud af det I tjener, og retter sig selv hvis det ændrer sig.' : ' af alt der er mærket fælles.')
+      +  '</div>'
+      +  '<button class="btn btn-block" data-fordelposter="1" style="margin-top:14px">'+icon('users',16)+'Gennemgå hvem der ejer hvad</button>';
+  }
+  return h + '</div>';
+}
+
+/**
+ * Fordel indtægter og faste udgifter på personer. Appen gætter først —
+ * står der et navn i posten, tilhører den den person — og resten er fælles.
+ */
+function fordelPoster(naarFaerdig){
+  const poster = [].concat(
+    (S.indtaegter || []).map(x => ({x, slags:'Indtægt'})),
+    (S.faste || []).map(x => ({x, slags:'Fast udgift'}))
+  );
+  if (!poster.length){
+    toast('Der er ikke noget at fordele endnu');
+    if (naarFaerdig) naarFaerdig();
+    return;
+  }
+  const valg = {};
+  poster.forEach(({x}) => {
+    if (x.ejer && x.ejer !== 'faelles') { valg[x.id] = x.ejer; return; }
+    const fundet = S.personer.find(pp => x.navn.toLowerCase().indexOf(pp.navn.toLowerCase()) !== -1);
+    valg[x.id] = fundet ? fundet.id : 'faelles';
+  });
+
+  const raekker = () => poster.map(({x, slags}) =>
+    '<div class="v-post" style="align-items:flex-start;flex-direction:column;gap:7px">'
+    + '<span class="v-navn" style="width:100%"><b>'+esc(x.navn)+'</b> · '+kr(x.belob)
+    +   '<span class="stat-s" style="display:block">'+slags+'</span></span>'
+    + ejerChips(valg[x.id], x.id)
+    + '</div>').join('');
+
+  const sh = visSheet({
+    titel: 'Hvem ejer hvad?',
+    under: 'Fælles poster deles mellem jer. Resten tæller kun hos den, der ejer dem.',
+    html: '<div class="card" style="padding:4px 16px;max-height:52vh;overflow-y:auto">' + raekker() + '</div>'
+      + '<div class="acts" style="margin-top:14px"><button class="btn btn-brand" data-ok="1" style="min-height:52px">Gem fordelingen</button>'
+      + '<button class="btn" data-luk="1" style="min-height:52px">Annullér</button></div>',
+    ved: (e, fjern) => {
+      const c = e.target.closest('[data-ejer]');
+      if (c){
+        const gruppe = c.closest('[data-post]');
+        const postId = gruppe.getAttribute('data-post');
+        valg[postId] = c.getAttribute('data-ejer');
+        gruppe.querySelectorAll('[data-ejer]').forEach(x =>
+          x.setAttribute('aria-pressed', x.getAttribute('data-ejer') === valg[postId]));
+        return;
+      }
+      if (!e.target.closest('[data-ok]')) return;
+      fjern();
+      poster.forEach(({x}) => { x.ejer = valg[x.id] || 'faelles'; });
+      tegn();
+      toast('Fordelingen er gemt');
+      if (naarFaerdig) naarFaerdig();
+    }
+  });
+  return sh;
+}
+
 /* ---------------- Indstillinger ---------------- */
 function tegnIndstillinger(){
   let h = '';
@@ -3263,7 +3455,7 @@ function tegnIndstillinger(){
   h += '<div class="set-blok">';
   (S.indtaegter || []).forEach(i => {
     h += '<div class="goal-row"><span style="color:var(--brand-deep)">'+icon('wallet',19)+'</span>'
-      +  '<div class="gt"><b>'+esc(i.navn)+'</b><span>går ind d. '+(i.dag || 1)+'.</span></div>'
+      +  '<div class="gt"><b>'+esc(i.navn)+ejerMaerke(i)+'</b><span>går ind d. '+(i.dag || 1)+'.</span></div>'
       +  '<span class="gv pos">'+kr(i.belob)+'</span>'
       +  '<button class="icon-btn" data-retindtaegt="'+i.id+'" aria-label="Ret">'+icon('pencil',16)+'</button>'
       +  '<button class="icon-btn" data-sletindtaegt="'+i.id+'" aria-label="Slet">'+icon('trash',16)+'</button></div>';
@@ -3287,6 +3479,8 @@ function tegnIndstillinger(){
   if (!S.kategorier.length) h += '<div class="empty">Ingen kategorier. Tilføj mindst én, så mad kan bogføres.</div>';
   h += '</div>';
 
+  if (erPar()) h += tegnBudgetform();
+
   h += '<div class="sec-label">Madbudget</div>';
   h += '<div class="set-blok"><div class="goal-row"><span style="color:var(--ink-2)">'+icon('basket',19)+'</span>'
     +  '<div class="gt"><b>Mad om ugen</b><span>bliver til '+kr(Math.round(madbudget()*4.33))+' om måneden</span></div>'
@@ -3299,7 +3493,7 @@ function tegnIndstillinger(){
   h += '<div class="set-blok">';
   S.faste.forEach(f => {
     h += '<div class="goal-row"><span style="color:var(--ink-2)">'+icon(f.ic,19)+'</span>'
-      +  '<div class="gt"><b>'+esc(f.navn)+'</b><span>hver måned · d. '+(f.dag || 1)+'.</span></div>'
+      +  '<div class="gt"><b>'+esc(f.navn)+ejerMaerke(f)+'</b><span>hver måned · d. '+(f.dag || 1)+'.</span></div>'
       +  '<span class="gv">'+kr(f.belob)+'</span>'
       +  '<button class="icon-btn" data-retfast="'+f.id+'" aria-label="Ret">'+icon('pencil',16)+'</button>'
       +  '<button class="icon-btn" data-sletfast="'+f.id+'" aria-label="Slet">'+icon('trash',16)+'</button></div>';
@@ -3497,14 +3691,25 @@ function redigerPost(muligheder){
   const titel = muligheder.titel, navn = muligheder.navn, belob = muligheder.belob;
   const ic = muligheder.ic, gemFn = muligheder.gem, felter = muligheder.felter;
   let valgtIkon = ic || 'basket';
+  let valgtEjer = muligheder.ejer || 'faelles';
   const html = felt('Navn', 'f-navn', navn)
     + felt(felter === 'maal' ? 'Målbeløb (kr.)' : 'Beløb pr. måned (kr.)', 'f-belob', belob, 'number')
+    + (muligheder.medEjer && erOpdelt()
+        ? '<div class="lab">Hvis er den?</div>' + ejerChips(valgtEjer) + '<div style="height:13px"></div>'
+        : '')
     + (felter === 'dag' ? felt('Dag i måneden', 'f-dag', muligheder.dag || 1, 'number') : '')
     + (felter === 'maal' ? felt('Sparet indtil nu (kr.)', 'f-sparet', muligheder.sparet || 0, 'number')
        : felter === 'dag' ? '' : ikonVaelger(valgtIkon))
     + (felter === 'maal' ? '<div class="stat-s" style="margin:-4px 0 14px">Skriv hvad I sparer op til, og hvor meget målet er.</div>' : '')
     + knapRaekke('Gem');
   const sh = visSheet({titel, html, ved:(e, fjern) => {
+    const ec = e.target.closest('[data-ejer]');
+    if (ec){
+      valgtEjer = ec.getAttribute('data-ejer');
+      ec.parentElement.querySelectorAll('[data-ejer]').forEach(x =>
+        x.setAttribute('aria-pressed', x.getAttribute('data-ejer') === valgtEjer));
+      return;
+    }
     const ik = e.target.closest('[data-vaelgikon]');
     if (ik){
       valgtIkon = ik.dataset.vaelgikon;
@@ -3524,7 +3729,7 @@ function redigerPost(muligheder){
       const dagFelt = sh.node.querySelector('#f-dag');
       fjern();
       gemFn({
-        navn:n, belob:b, ic:valgtIkon,
+        navn:n, belob:b, ic:valgtIkon, ejer: valgtEjer,
         sparet: sparetFelt ? Math.max(0, Math.round(Number(sparetFelt.value) || 0)) : 0,
         dag: dagFelt ? Math.min(28, Math.max(1, Math.round(Number(dagFelt.value) || 1))) : 1
       });
@@ -4346,6 +4551,8 @@ function medbringEgneTal(mine, mitNavn){
       if (i.navn.indexOf(mitNavn) === -1) i.navn = i.navn + ' (' + mitNavn + ')';
     });
   }
+  // Det man selv har tastet ind, er ens eget — også hvis I senere deler op.
+  ['indtaegter','faste','opsparinger'].forEach(n => mine[n].forEach(x => { x.ejer = mit; }));
   ['indtaegter','faste','opsparinger','udgifter'].forEach(laegTil);
 
   // Kun de udgifter jeg selv havde med skal skifte betaler — husstandens
@@ -4567,7 +4774,7 @@ document.addEventListener('click', (e) => {
     + '[data-byt],[data-vaelg],[data-ude],[data-tilbagepaa],[data-aabn],[data-gen],[data-butik],[data-ryd],[data-nulstil],'
     + '[data-kost],[data-sort],[data-ret],[data-skiftmaal],[data-laegtil],[data-flytsparet],[data-redigerindkomst],'
     + '[data-nykat],[data-retkat],[data-sletkat],[data-nyfast],[data-retfast],[data-sletfast],[data-nyindtaegt],[data-retindtaegt],[data-sletindtaegt],'
-    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skema],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault],[data-koerguide],[data-rydeksempel],[data-retmadbudget],[data-eksportdata],[data-importdata],[data-glemtkode],[data-skyigen],[data-sendigen],[data-glemvent]');
+    + '[data-nymaal],[data-retmaal],[data-sletmaal],[data-vaelgmaal],[data-saetkost],[data-tilfoej],[data-flere],[data-opskrift],[data-flytforbrug],[data-udgift],[data-afregn],[data-nyudgift],[data-retantal],[data-skyopsaet],[data-skylogin],[data-skytjek],[data-skema],[data-skyglem],[data-skyudlog],[data-nyhusstand],[data-tilslut],[data-forlad],[data-mitnavn],[data-deldefault],[data-koerguide],[data-rydeksempel],[data-retmadbudget],[data-eksportdata],[data-importdata],[data-glemtkode],[data-skyigen],[data-sendigen],[data-glemvent],[data-budgetform],[data-fordeling],[data-fordelposter]');
 
   if (!t){
     // Tryk hvor som helst på en varelinje eller en dag
@@ -4722,6 +4929,18 @@ document.addEventListener('click', (e) => {
   if (d.skyopsaet) return skyOpsaetning();
   if (d.skylogin) return skyLogin(venterMail() || '');
   if (d.eksportdata) return eksporterData();
+  if (d.budgetform){
+    if (S.budgetform === d.budgetform) return;
+    S.budgetform = d.budgetform;
+    tegn();
+    if (d.budgetform === 'opdelt'){
+      // Uden en fordeling er "hver sit" bare det samme tal delt i to.
+      return fordelPoster(() => toast('Nu har I hver jeres budget — maden er stadig fælles'));
+    }
+    return toast('Alt regnes nu i én fælles kasse');
+  }
+  if (d.fordeling){ S.fordeling = d.fordeling; tegn(); return; }
+  if (d.fordelposter) return fordelPoster();
   if (d.glemvent){ venterFaerdig(); tegn(); return; }
   if (d.sendigen){
     const mail = venterMail();
@@ -4793,25 +5012,25 @@ document.addEventListener('click', (e) => {
       tegn(); toast(k.navn+' slettet');
     }, true);
   }
-  if (d.nyfast) return redigerPost({titel:'Ny fast udgift', navn:'', belob:0, ic:'house', dag:1, felter:'dag', gem:(r) => {
-    S.faste.push({id:uid(), navn:r.navn, belob:r.belob, ic:'house', dag:r.dag});
+  if (d.nyfast) return redigerPost({titel:'Ny fast udgift', navn:'', belob:0, ic:'house', dag:1, felter:'dag', medEjer:true, ejer:'faelles', gem:(r) => {
+    S.faste.push({id:uid(), navn:r.navn, belob:r.belob, ic:'house', dag:r.dag, ejer:r.ejer});
     tegn(); toast(r.navn+' tilføjet');
   }});
   if (d.retfast){
     const f = S.faste.find(x => x.id === d.retfast);
-    return redigerPost({titel:'Ret '+f.navn, navn:f.navn, belob:f.belob, ic:f.ic, dag:f.dag, felter:'dag', gem:(r) => {
-      f.navn = r.navn; f.belob = r.belob; f.dag = r.dag; tegn(); toast('Gemt');
+    return redigerPost({titel:'Ret '+f.navn, navn:f.navn, belob:f.belob, ic:f.ic, dag:f.dag, felter:'dag', medEjer:true, ejer:f.ejer, gem:(r) => {
+      f.navn = r.navn; f.belob = r.belob; f.dag = r.dag; f.ejer = r.ejer; tegn(); toast('Gemt');
     }});
   }
-  if (d.nyindtaegt) return redigerPost({titel:'Ny indtægt', navn:'', belob:0, dag:1, felter:'dag', gem:(r) => {
-    S.indtaegter.push({id:uid(), navn:r.navn, belob:r.belob, dag:r.dag});
+  if (d.nyindtaegt) return redigerPost({titel:'Ny indtægt', navn:'', belob:0, dag:1, felter:'dag', medEjer:true, ejer:migsId(), gem:(r) => {
+    S.indtaegter.push({id:uid(), navn:r.navn, belob:r.belob, dag:r.dag, ejer:r.ejer});
     S.indkomst = indtaegtIalt();
     tegn(); toast(r.navn+' tilføjet');
   }});
   if (d.retindtaegt){
     const i = S.indtaegter.find(x => x.id === d.retindtaegt);
-    return redigerPost({titel:'Ret '+i.navn, navn:i.navn, belob:i.belob, dag:i.dag, felter:'dag', gem:(r) => {
-      i.navn = r.navn; i.belob = r.belob; i.dag = r.dag;
+    return redigerPost({titel:'Ret '+i.navn, navn:i.navn, belob:i.belob, dag:i.dag, felter:'dag', medEjer:true, ejer:i.ejer, gem:(r) => {
+      i.navn = r.navn; i.belob = r.belob; i.dag = r.dag; i.ejer = r.ejer;
       S.indkomst = indtaegtIalt();
       tegn(); toast('Gemt');
     }});
@@ -4830,16 +5049,16 @@ document.addEventListener('click', (e) => {
       S.faste = S.faste.filter(x => x.id !== f.id); tegn(); toast(f.navn+' slettet');
     }, true);
   }
-  if (d.nymaal) return redigerPost({titel:'Nyt opsparingsmål', navn:'', belob:10000, sparet:0, felter:'maal', gem:(r) => {
-    const o = {id:uid(), navn:r.navn, maal:r.belob, sparet:r.sparet};
+  if (d.nymaal) return redigerPost({titel:'Nyt opsparingsmål', navn:'', belob:10000, sparet:0, felter:'maal', medEjer:true, ejer:'faelles', gem:(r) => {
+    const o = {id:uid(), navn:r.navn, maal:r.belob, sparet:r.sparet, ejer:r.ejer};
     S.opsparinger.push(o);
     if (!S.aktivOpsparing) S.aktivOpsparing = o.id;
     tegn(); toast(r.navn+' tilføjet');
   }});
   if (d.retmaal){
     const o = S.opsparinger.find(x => x.id === d.retmaal);
-    return redigerPost({titel:'Ret '+o.navn, navn:o.navn, belob:o.maal, sparet:o.sparet, felter:'maal', gem:(r) => {
-      o.navn = r.navn; o.maal = r.belob; o.sparet = r.sparet; tegn(); toast('Gemt');
+    return redigerPost({titel:'Ret '+o.navn, navn:o.navn, belob:o.maal, sparet:o.sparet, felter:'maal', medEjer:true, ejer:o.ejer, gem:(r) => {
+      o.navn = r.navn; o.maal = r.belob; o.sparet = r.sparet; o.ejer = r.ejer; tegn(); toast('Gemt');
     }});
   }
   if (d.sletmaal){
