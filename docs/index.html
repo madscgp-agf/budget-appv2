@@ -468,6 +468,10 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none}
   animation:snurr .7s linear infinite;
 }
 @keyframes snurr{to{transform:rotate(360deg)}}
+.felt-fejl{
+  background:var(--danger);color:#fff;border-radius:var(--r-sm);
+  padding:11px 14px;margin-bottom:14px;font-size:13.5px;line-height:1.45;font-weight:500;
+}
 .trin{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:9px}
 .trin li{display:flex;align-items:flex-start;gap:11px;font-size:13.5px;color:var(--ink-3);line-height:1.45}
 .trin li.nu{color:var(--ink);font-weight:500}
@@ -4185,28 +4189,36 @@ function skyOpsaetning(){
     });
 }
 
-function skyLogin(){
-  let opretNy = false;
+function skyLogin(forudMail){
   const sh = visSheet({
     titel:'Din bruger', under:'I skal have hver jeres login. Bagefter deler I én husstand.',
-    html: felt('Mail', 'f-mail', '', 'email') + felt('Adgangskode', 'f-kode', '', 'password')
+    html: '<div id="login-fejl" class="felt-fejl" hidden></div>'
+      + felt('Mail', 'f-mail', forudMail || '', 'email') + felt('Adgangskode', 'f-kode', '', 'password')
       + '<div class="acts"><button class="btn btn-brand" data-log="1" style="min-height:52px">Log ind</button>'
       + '<button class="btn" data-opret="1" style="min-height:52px">Opret ny bruger</button>'
       + '<button class="btn" data-luk="1" style="min-height:52px">Annullér</button></div>',
     ved: async (e, fjern) => {
       const b = e.target.closest('[data-log],[data-opret]');
       if (!b) return;
-      opretNy = !!b.dataset.opret;
+      const opretNy = !!b.dataset.opret;
       const mail = sh.node.querySelector('#f-mail').value.trim();
       const kode = sh.node.querySelector('#f-kode').value;
-      if (!mail || !kode) return toast('Udfyld mail og adgangskode');
+
+      // En fejl i skuffen bliver stående, til man prøver igen. En toast
+      // når at forsvinde, før man har læst hvad man skal gøre.
+      const fejlFelt = sh.node.querySelector('#login-fejl');
+      const visFejl = (t) => { fejlFelt.textContent = t; fejlFelt.hidden = false; };
+      fejlFelt.hidden = true;
+
+      if (!mail || !kode) return visFejl('Udfyld både mail og adgangskode');
+      if (kode.length < 6) return visFejl('Adgangskoden skal være mindst 6 tegn');
+
       const tekst = b.textContent;
       b.disabled = true; b.textContent = 'Et øjeblik…';
       try {
         if (opretNy){
           const r = await Sky.opret(mail, kode);
           fjern();
-          // En toast forsvinder. Ventetilstanden skal stå der, til den er ovre.
           if (r.bekræftKrævet){ venterPaaMail(mail); tegn(); return; }
         } else {
           await Sky.login(mail, kode);
@@ -4217,10 +4229,21 @@ function skyLogin(){
         tegn();
         toast('Logget ind som ' + mail);
       } catch(err){
+        const besked = err.message || 'Det gik ikke';
         b.disabled = false; b.textContent = tekst;
-        toast(err.message || 'Det gik ikke');
+
+        // Mailen mangler at blive bekræftet: luk skuffen og vis panelet,
+        // hvor man kan få mailen igen — det er den eneste vej videre.
+        if (/Bekræft din mail/i.test(besked)){
+          fjern(); venterPaaMail(mail); tegn();
+          return;
+        }
+        // Findes brugeren allerede, skal mailen blive stående, så man
+        // bare kan trykke Log ind i stedet.
+        visFejl(besked);
       }
     }});
+  return sh;
 }
 
 function nyHusstand(){
@@ -4697,7 +4720,7 @@ document.addEventListener('click', (e) => {
   if (d.skema) return skemaSheet();
   if (d.skytjek) return skyTjek();
   if (d.skyopsaet) return skyOpsaetning();
-  if (d.skylogin) return skyLogin();
+  if (d.skylogin) return skyLogin(venterMail() || '');
   if (d.eksportdata) return eksporterData();
   if (d.glemvent){ venterFaerdig(); tegn(); return; }
   if (d.sendigen){
