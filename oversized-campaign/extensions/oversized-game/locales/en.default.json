@@ -1,0 +1,8 @@
+{
+  "bench": {
+    "loading": "Loading…",
+    "fine_print": "The game only loads when you press play. Needs a browser with 3D (WebGL).",
+    "error": "The game could not be loaded. Check your connection and try again.",
+    "missing_api": "Set the game server address in the block settings."
+  }
+}

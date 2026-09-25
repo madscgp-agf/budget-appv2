@@ -1,0 +1,66 @@
+{%- comment -%}
+  Oversized Bench app block.
+  Renders a light teaser card. The 3D game (assets/oversized-game.js) is only
+  downloaded when the visitor presses the button, by assets/oversized-loader.js.
+  The game talks to the campaign backend at `api_base`, which must be served
+  from a subdomain of the shop's own domain (e.g. play.oversizedstudios.com)
+  so the session cookie is first-party. See README.
+{%- endcomment -%}
+{%- liquid
+  assign api_base = block.settings.api_base | strip
+  assign proxy_base = ''
+  if block.settings.use_customer_login
+    assign proxy_base = '/apps/oversized'
+  endif
+-%}
+<section
+  class="osb"
+  id="oversized-bench-{{ block.id }}"
+  data-oversized-bench
+  data-bundle="{{ 'oversized-game.js' | asset_url }}"
+  data-api="{{ api_base | escape }}"
+  {% if proxy_base != blank %}data-proxy="{{ proxy_base }}"{% endif %}
+  data-customer="{% if customer %}1{% else %}0{% endif %}"
+  {% if block.settings.athlete_model != blank %}data-athlete-model="{{ block.settings.athlete_model | escape }}"{% endif %}
+  style="--osb-radius: {{ block.settings.radius }}px;"
+  {{ block.shopify_attributes }}
+>
+  {%- if block.settings.image != blank -%}
+    <div class="osb__media" aria-hidden="true">
+      {{ block.settings.image | image_url: width: 1600 | image_tag: loading: 'lazy', widths: '600, 900, 1200, 1600', alt: '' }}
+    </div>
+  {%- else -%}
+    <div class="osb__bar" aria-hidden="true"></div>
+  {%- endif -%}
+  <p class="osb__eyebrow">{{ block.settings.eyebrow | escape }}</p>
+  <h2 class="osb__title">{{ block.settings.heading | escape }}</h2>
+  <p class="osb__text">{{ block.settings.text | escape }}</p>
+  <button class="osb__cta" type="button" data-oversized-open data-loading-label="{{ 'bench.loading' | t }}">
+    {{ block.settings.button_label | escape }}
+  </button>
+  <p class="osb__fine">{{ 'bench.fine_print' | t }}</p>
+  <p class="osb__error" data-oversized-error hidden>{{ 'bench.error' | t }}</p>
+  {%- if api_base == blank and request.design_mode -%}
+    <p class="osb__error">{{ 'bench.missing_api' | t }}</p>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Oversized Bench",
+  "target": "section",
+  "javascript": "oversized-loader.js",
+  "stylesheet": "oversized-block.css",
+  "settings": [
+    { "type": "text", "id": "api_base", "label": "Spilserverens adresse", "info": "Fx https://play.oversizedstudios.com – skal ligge på et underdomæne af butikkens eget domæne.", "default": "https://play.oversizedstudios.com" },
+    { "type": "checkbox", "id": "use_customer_login", "label": "Brug kundelogin til at bekræfte spillere (app proxy)", "default": true },
+    { "type": "text", "id": "eyebrow", "label": "Overlinje", "default": "Oversized Studios" },
+    { "type": "text", "id": "heading", "label": "Overskrift", "default": "Oversized Bench" },
+    { "type": "textarea", "id": "text", "label": "Tekst", "default": "45 sekunder under stangen. Sænk kontrolleret, pres eksplosivt og lås ud. Jo bedre teknik, jo højere score – og jo større rabat." },
+    { "type": "text", "id": "button_label", "label": "Knaptekst", "default": "Spil nu" },
+    { "type": "image_picker", "id": "image", "label": "Baggrundsbillede (valgfrit)" },
+    { "type": "url", "id": "athlete_model", "label": "Rigget atletmodel (GLB, valgfri)", "info": "Tom = den indbyggede midlertidige atlet. Se README for krav til modellen." },
+    { "type": "range", "id": "radius", "label": "Hjørneradius", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 14 }
+  ]
+}
+{% endschema %}

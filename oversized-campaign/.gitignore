@@ -3,5 +3,6 @@ data/
 .env
 *.log
 extensions/oversized-game/assets/oversized-game.js
-extensions/oversized-game/assets/oversized-game.js.map
+extensions/oversized-game/assets/oversized-loader.js
 screenshots/
+extensions/oversized-game/assets/oversized-chunk-*.js

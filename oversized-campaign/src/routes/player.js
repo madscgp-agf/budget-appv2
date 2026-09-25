@@ -8,7 +8,7 @@ import { badRequest, asyncRoute, HttpError, conflict } from '../lib/errors.js';
 import { getCampaign, publicCampaign } from '../lib/campaign.js';
 import { limit } from '../lib/rateLimit.js';
 import { ensurePlayer, currentPlayer, requirePlayer, revokeSession, rotateSession, issueHeaderSession } from '../lib/sessions.js';
-import { findByCustomer, findByEmail, mergePlayers, playerById, resolvePlayer, selfView } from '../lib/players.js';
+import { createPlayer, findByCustomer, findByEmail, mergePlayers, playerById, resolvePlayer, selfView } from '../lib/players.js';
 import { eligibility } from '../lib/rewards.js';
 import { mailConfigured, sendMagicLink } from '../lib/mailer.js';
 import { consumeCustomerAssertion } from '../lib/assertions.js';
@@ -124,31 +124,40 @@ playerRouter.post('/email-verify', (req, res) => {
   const claimed = db.prepare('UPDATE email_tokens SET used_at = ? WHERE token_hash = ? AND used_at IS NULL').run(nowIso(), row.token_hash);
   if (claimed.changes === 0) throw badRequest('Linket er allerede brugt');
 
-  // Ownership of the address is now proven. Whoever already owns it wins; the
-  // requesting profile (and this browser's profile) are merged into it.
-  const requester = resolvePlayer(row.player_id);
-  const owner = findByEmail(row.email_lower);
-  let survivor;
-  if (owner) {
-    survivor = requester && requester.id !== owner.id ? mergePlayers(requester.id, owner.id) : owner;
-  } else {
-    if (!requester) throw badRequest('Profilen findes ikke længere');
-    db.prepare('UPDATE players SET email = ?, email_lower = ?, email_verified_at = ? WHERE id = ?').run(
-      row.email,
-      row.email_lower,
-      nowIso(),
-      requester.id,
-    );
-    survivor = resolvePlayer(requester.id);
-  }
+  // Ownership of the address is now proven -- for the browser that clicked
+  // the link, not for whoever asked for it. (Otherwise anyone could request a
+  // link for someone else's address and, if the owner clicked it, get their
+  // own browser attached to the owner's profile.) If the same browser asked
+  // and clicked, that is the normal "restore on this device" flow.
   const here = currentPlayer(req, res);
-  if (here && here.id !== survivor.id && !here.email_verified_at && !here.shopify_customer_id) {
-    survivor = mergePlayers(here.id, survivor.id);
+  const owner = findByEmail(row.email_lower);
+  const hereHasOtherIdentity = here && (here.shopify_customer_id || (here.email_verified_at && here.email_lower !== row.email_lower));
+  let survivor;
+  let merged = false;
+  if (owner) {
+    if (here && here.id !== owner.id && !hereHasOtherIdentity) {
+      survivor = mergePlayers(here.id, owner.id);
+      merged = true;
+    } else survivor = owner;
+  } else if (here && !hereHasOtherIdentity) {
+    db.prepare('UPDATE players SET email = ?, email_lower = ?, email_verified_at = ? WHERE id = ?').run(row.email, row.email_lower, nowIso(), here.id);
+    survivor = resolvePlayer(here.id);
+  } else {
+    // A browser with no profile (or one tied to another identity) gets a
+    // fresh profile for this address.
+    const fresh = createPlayer();
+    db.prepare('UPDATE players SET email = ?, email_lower = ?, email_verified_at = ? WHERE id = ?').run(row.email, row.email_lower, nowIso(), fresh.id);
+    survivor = resolvePlayer(fresh.id);
   }
   let headerToken;
   if (req.sessionRow?.transport === 'header') headerToken = `osg_${issueHeaderSession(survivor.id)}`;
-  else rotateSession(req, res, survivor.id);
-  res.json({ ...mePayload(resolvePlayer(survivor.id)), merged: Boolean(owner && requester && owner.id !== row.player_id), ...(headerToken ? { headerToken } : {}) });
+  else if (!here || here.id !== survivor.id || merged) rotateSession(req, res, survivor.id);
+  res.json({
+    ...mePayload(resolvePlayer(survivor.id)),
+    merged,
+    sameBrowser: Boolean(here && resolvePlayer(row.player_id)?.id === survivor.id),
+    ...(headerToken ? { headerToken } : {}),
+  });
 });
 
 // ------------------------------------------------------- Shopify customer link

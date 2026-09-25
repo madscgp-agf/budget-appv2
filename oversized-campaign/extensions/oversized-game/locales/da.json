@@ -1,0 +1,8 @@
+{
+  "bench": {
+    "loading": "Indlæser…",
+    "fine_print": "Spillet indlæses først, når du trykker. Kræver en browser med 3D (WebGL).",
+    "error": "Spillet kunne ikke indlæses. Tjek din forbindelse og prøv igen.",
+    "missing_api": "Angiv spilserverens adresse i blokkens indstillinger."
+  }
+}

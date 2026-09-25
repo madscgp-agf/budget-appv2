@@ -281,3 +281,24 @@ test('customers/redact removes personal data', async () => {
   await sendWebhook('customers/redact', { shop_domain: SHOP, customer: { id: Number(customerId), email: 'x@example.com' } });
   assert.equal(db.prepare('SELECT COUNT(*) FROM players WHERE shopify_customer_id = ?').pluck().get(customerId), 0);
 });
+
+test('webhooks for other shops or unknown topics are acknowledged and ignored', async () => {
+  const other = await fetch(`${h.base}/webhooks`, {
+    method: 'POST',
+    headers: { 'x-shopify-topic': 'orders/paid', 'x-shopify-shop-domain': 'x.myshopify.com', 'x-shopify-hmac-sha256': sign('{"id":1}'), 'x-shopify-event-id': 'e1', 'content-type': 'application/json' },
+    body: '{"id":1}',
+  });
+  assert.equal(other.status, 200);
+  assert.deepEqual(await other.json(), { ignored: 'other shop' });
+  const unknown = await sendWebhook('products/update', { id: 1 });
+  assert.deepEqual(unknown.body, { ignored: 'unhandled topic' });
+});
+
+test('real (non-demo) rewards are never labelled demo and admin shows them', async () => {
+  const { c } = await verifiedWinner();
+  const r = await c.post('/api/rewards/claim');
+  assert.equal(r.body.reward.demo, false);
+  assert.doesNotMatch(r.body.reward.code, /^DEMO-/);
+  const list = await h.client({ bearer: sessionToken() }).get('/admin/api/rewards');
+  assert.ok(list.body.rewards.some((x) => x.code === r.body.reward.code && x.demo === false));
+});

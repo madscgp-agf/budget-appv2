@@ -1,0 +1,3 @@
+# Theme app extension: adds the "Oversized Bench" app block to the theme editor.
+name = "oversized-bench"
+type = "theme"

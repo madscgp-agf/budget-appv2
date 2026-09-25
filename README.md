@@ -1,5 +1,7 @@
 # Budget
 
+> Repoet indeholder også **[`oversized-campaign/`](oversized-campaign/README.md)**: en selvstændig Shopify-kampagneapp (3D-bænkpresspil med rabatkoder) for Oversized Studios. Den har sin egen `package.json` og deler kun stakken (Express, SQLite, node:test) med budgetappen.
+
 A complete personal budgeting app: accounts, transactions, transfers, monthly
 budgets, savings goals and recurring bills — plus two ways to connect with other
 people (**username** or **QR code**) so you can share an account with whoever you

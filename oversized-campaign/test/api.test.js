@@ -209,6 +209,25 @@ test('magic link verifies ownership and merges a second device into the first pr
   assert.equal(lastMessages().at(-1).to, 'lifter@example.com');
 });
 
+test('a link requested by someone else only verifies the browser that clicks it', async () => {
+  resetRateLimits();
+  const victim = await newPlayer();
+  const { submit } = await playRound(victim, good);
+  const own = await victim.post('/api/email-link', { email: 'victim@example.com' });
+  await victim.post('/api/email-verify', { token: new URL(own.body.demoLink).hash.slice(3) });
+
+  // An attacker asks for a link to the victim's address...
+  const attacker = await newPlayer();
+  const r = await attacker.post('/api/email-link', { email: 'victim@example.com' });
+  // ...and the victim, confused, clicks it in their own browser.
+  const v = await victim.post('/api/email-verify', { token: new URL(r.body.demoLink).hash.slice(3) });
+  assert.equal(v.status, 200);
+  assert.equal(v.body.player.bestScore, submit.body.score);
+  const a = await attacker.get('/api/me');
+  assert.equal(a.body.player.verified, false, 'attacker gains nothing');
+  assert.equal(a.body.player.bestScore, 0);
+});
+
 test('expired magic links do not work', async () => {
   resetRateLimits();
   const c = await newPlayer();
@@ -270,4 +289,53 @@ test('demo admin is available locally in demo mode', async () => {
   assert.equal((await c.get('/api/leaderboard')).body.enabled, false);
   const bad = await c.put('/admin/api/campaign', { ...camp.body, productIds: ['123'] });
   assert.equal(bad.status, 400);
+});
+
+test('an outdated client (other rules version) is told to reload', async () => {
+  resetRateLimits();
+  const c = await newPlayer();
+  const start = await c.post('/api/rounds');
+  advanceClock(45_500);
+  const r = await c.post(`/api/rounds/${start.body.roundId}/submit`, { events: [], rulesVersion: 999 });
+  assert.equal(r.status, 409);
+  assert.equal(r.body.details.code, 'rules_version');
+});
+
+test('the session cookie is refreshed (sliding expiry) for returning players', async () => {
+  const c = await newPlayer();
+  const first = c.cookies.length;
+  advanceClock(2 * 86_400_000);
+  const me = await c.get('/api/me');
+  assert.ok(me.body.player);
+  assert.equal(c.cookies.length, first + 1, 'a fresh Set-Cookie extends the expiry');
+});
+
+test('the server picks the reward tier from the best verified campaign round', async () => {
+  resetRateLimits();
+  const admin = h.client();
+  const camp = (await admin.get('/admin/api/campaign')).body;
+  const put = await admin.put('/admin/api/campaign', { ...camp, active: true, leaderboardEnabled: true, requireVerified: false, tiers: [{ minScore: 1, percent: 7 }, { minScore: 99999, percent: 50 }] });
+  assert.equal(put.status, 200, JSON.stringify(put.body));
+  const c = await newPlayer();
+  await playRound(c, good);
+  const r = await c.post('/api/rewards/claim', { percent: 50 });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.reward.percent, 7);
+  await admin.put('/admin/api/campaign', camp);
+});
+
+test('an inactive campaign still records scores but issues no rewards', async () => {
+  resetRateLimits();
+  const admin = h.client();
+  const camp = (await admin.get('/admin/api/campaign')).body;
+  await admin.put('/admin/api/campaign', { ...camp, active: false, requireVerified: false });
+  const c = await newPlayer();
+  const { submit } = await playRound(c, good);
+  assert.equal(submit.status, 200);
+  assert.equal(submit.body.countsForCampaign, false);
+  assert.ok(submit.body.score > 0);
+  const claim = await c.post('/api/rewards/claim');
+  assert.equal(claim.status, 409);
+  assert.equal((await c.get('/api/me')).body.campaign.status, 'inactive');
+  await admin.put('/admin/api/campaign', camp);
 });

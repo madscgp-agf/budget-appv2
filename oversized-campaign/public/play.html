@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Oversized Bench</title>
+  <meta name="theme-color" content="#09090a">
+  <link rel="stylesheet" href="/assets/oversized-block.css">
+  <link rel="stylesheet" href="/play.css">
+</head>
+<body>
+  <main class="page">
+    <p class="demo-flag">Standalone side · samme blok og spil som i butikken</p>
+    <!-- Same markup the theme app block renders (blocks/bench-game.liquid). -->
+    <section class="osb" data-oversized-bench data-bundle="/assets/oversized-game.js" data-api="">
+      <div class="osb__bar" aria-hidden="true"></div>
+      <p class="osb__eyebrow">Oversized Studios</p>
+      <h2 class="osb__title">Oversized Bench</h2>
+      <p class="osb__text">45 sekunder under stangen. Sænk kontrolleret, pres eksplosivt og lås ud. Jo bedre teknik, jo højere score – og jo større rabat.</p>
+      <button class="osb__cta" type="button" data-oversized-open data-loading-label="Indlæser…">Spil nu</button>
+      <p class="osb__fine">Spillet indlæses først, når du trykker. Kræver en browser med 3D (WebGL).</p>
+      <p class="osb__error" data-oversized-error hidden>Spillet kunne ikke indlæses. Tjek din forbindelse og prøv igen.</p>
+    </section>
+  </main>
+  <script src="/assets/oversized-loader.js" defer></script>
+</body>
+</html>

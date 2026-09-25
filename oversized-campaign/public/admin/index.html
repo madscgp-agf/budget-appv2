@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="shopify-api-key" content="%%SHOPIFY_API_KEY%%">
+  <meta name="osg-demo" content="%%DEMO%%">
+  %%APP_BRIDGE%%
+  <title>Oversized Bench · Admin</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <header class="top">
+    <div><strong>Oversized Bench</strong> <span class="muted">kampagneadministration</span></div>
+    <div id="status" class="muted"></div>
+  </header>
+  <div id="demo" class="banner demo" hidden>DEMOTILSTAND – ingen Shopify-forbindelse. Denne administration er kun tilgængelig lokalt, og alle rabatkoder er demokoder.</div>
+  <nav class="tabs" role="tablist">
+    <button data-tab="overview" class="on">Oversigt</button>
+    <button data-tab="campaign">Kampagne</button>
+    <button data-tab="rewards">Belønninger</button>
+    <button data-tab="rounds">Runder</button>
+    <button data-tab="players">Spillere</button>
+    <button data-tab="errors">Integrationsfejl</button>
+  </nav>
+  <main id="main"><p class="muted">Indlæser…</p></main>
+  <script src="/admin/admin.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+# Shopify app configuration (Shopify CLI). Replace the placeholders, then run
+#   shopify app deploy
+# which also deploys the theme app extension in extensions/oversized-game.
+# PLACEHOLDERS: client_id and the play.oversizedstudios.com host.
+
+client_id = "REPLACE_WITH_CLIENT_ID"
+name = "Oversized Bench"
+handle = "oversized-bench"
+application_url = "https://play.oversizedstudios.com/admin"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[access_scopes]
+# write_discounts: create the reward codes. read_orders: orders/paid and
+# refunds/create webhooks. Nothing else is needed.
+scopes = "write_discounts,read_orders"
+
+[auth]
+redirect_urls = ["https://play.oversizedstudios.com/admin"]
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/paid"]
+  uri = "https://play.oversizedstudios.com/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["refunds/create"]
+  uri = "https://play.oversizedstudios.com/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "https://play.oversizedstudios.com/webhooks"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "https://play.oversizedstudios.com/webhooks"
+
+# Storefront path /apps/oversized/* is forwarded to /proxy/* on the backend.
+# Used only to get Shopify's signed logged_in_customer_id (cookies are
+# stripped on this path, so no session is carried through it).
+[app_proxy]
+url = "https://play.oversizedstudios.com/proxy"
+prefix = "apps"
+subpath = "oversized"
+
+[pos]
+embedded = false

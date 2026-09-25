@@ -105,7 +105,12 @@ export function createApp() {
     page('admin/index.html', {
       frameAncestors: config.demoMode ? "'self'" : shopAncestors,
       extraScript: ' https://cdn.shopify.com',
-      replace: { '%%SHOPIFY_API_KEY%%': escapeAttr(config.shopify.apiKey || 'demo'), '%%DEMO%%': config.demoMode ? '1' : '0' },
+      replace: {
+        '%%SHOPIFY_API_KEY%%': escapeAttr(config.shopify.apiKey || 'demo'),
+        '%%DEMO%%': config.demoMode ? '1' : '0',
+        // App Bridge must be the first script, loaded synchronously from Shopify's CDN.
+        '%%APP_BRIDGE%%': config.demoMode ? '' : '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>',
+      },
     }),
   );
 

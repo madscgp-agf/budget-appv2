@@ -1,0 +1,30 @@
+/* Teaser card for the Oversized Bench app block. Kept small; the game itself
+   renders in a full-screen overlay inside a shadow root. */
+.osb {
+  --osb-bg: #0b0b0c;
+  --osb-ink: #ecebe7;
+  --osb-muted: #9c9a94;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--osb-radius, 14px);
+  background: radial-gradient(120% 90% at 70% 10%, #26272a 0%, var(--osb-bg) 60%);
+  color: var(--osb-ink);
+  padding: clamp(28px, 6vw, 64px) clamp(20px, 5vw, 56px);
+  isolation: isolate;
+  font-family: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+}
+.osb__media { position: absolute; inset: 0; z-index: -1; opacity: .45; }
+.osb__media img { width: 100%; height: 100%; object-fit: cover; }
+.osb__eyebrow { font-size: 11px; letter-spacing: .32em; text-transform: uppercase; color: var(--osb-muted); margin: 0 0 10px; }
+.osb__title { font-size: clamp(30px, 6vw, 56px); line-height: 1; letter-spacing: .05em; font-weight: 800; text-transform: uppercase; margin: 0 0 14px; color: var(--osb-ink); }
+.osb__text { max-width: 46ch; margin: 0 0 22px; color: #cfcdc7; font-size: 16px; line-height: 1.5; }
+.osb__cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 52px; padding: 0 28px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--osb-ink); color: #0b0b0c; font-family: inherit; font-weight: 700; font-size: 13px; line-height: 1; letter-spacing: .2em; text-transform: uppercase;
+}
+.osb__cta:disabled { opacity: .7; cursor: progress; }
+.osb__cta:focus-visible { outline: 2px solid var(--osb-ink); outline-offset: 3px; }
+.osb__fine { margin: 16px 0 0; font-size: 12px; color: var(--osb-muted); }
+.osb__error { margin: 12px 0 0; font-size: 13px; color: #f0b3a8; }
+.osb__bar { position: absolute; right: -40px; bottom: 28px; width: 55%; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #3a3c3f, #a4a8ad 40%, #3a3c3f); opacity: .5; transform: rotate(-4deg); z-index: -1; }
