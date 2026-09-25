@@ -1,0 +1,31 @@
+{
+  "name": "oversized-campaign",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Oversized Studios bench press campaign: 3D game, server-verified scores and Shopify discount rewards.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node scripts/migrate.js",
+    "build": "node scripts/build-extension.js",
+    "test": "node --test test/*.test.js",
+    "simulate": "node scripts/simulate.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemailer": "^10.0.10",
+    "three": "^0.186.1",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
